@@ -6,7 +6,7 @@
     ],
     "deny": [
       "Read(./.env)", "Read(./.env.*)", "Read(./secrets/**)",
-      "Bash(git push:*)", "Bash(curl:*)", "Bash(psql:*prod*)"
+      "Bash(git push origin main*)", "Bash(git push --force*)", "Bash(git push -f*)", "Bash(gh pr merge*)", "Bash(curl:*)", "Bash(psql:*prod*)"
     ]
   },
   "hooks": {
