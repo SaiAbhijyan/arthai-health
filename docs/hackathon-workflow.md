@@ -41,3 +41,49 @@ Long sessions: headroom (telemetry off) or `caveman` (opt-in) to cut tokens. New
 - **Oct 30-Nov 1:** voice agent, real model calls through OmniRoute, UI polish.
 - **Nov 2-3:** freeze features. Tests, security, demo video.
 - **Nov 4:** final review, submit by 6 PM ET (3 h buffer before 9 PM ET).
+
+## Software factory (`/factory`)
+
+The factory builds GitHub issues for you. It runs on this computer, in the Claude Code CLI, on the Claude login. It does not use GitHub Actions.
+
+### Start a job
+
+1. Open a GitHub issue. Write the goal and the acceptance criteria. Use synthetic data only. Do not put PHI or keys in the issue.
+2. Add the label `factory` to the issue.
+3. In the tmux window `claude`, type `/factory run`.
+4. To see all jobs, type `/factory status`. For the dashboard, run `cd factory && python3 -m http.server 8000` and open `http://localhost:8000/dashboard.html`.
+
+### What it does
+
+intake → spec → build (TDD, context7 docs check) → gate (`factory/checks.sh`) → reviewers → approver → PR.
+
+- The code reviewer and the security reviewer always run. The security reviewer applies `/security-review` and the `security-and-hardening` skill.
+- The ux and ui reviewers run only when intake marks the job as frontend (`ui`).
+- All agents use sonnet. Opus is used only for the builder and security reviewer on `high` risk jobs, and for security-surface jobs (`factory/config.json`).
+- One PR for each issue, on branch `factory/<job-id>`.
+
+### When the factory merges, and when it asks you
+
+The factory merges a PR only when all of these are true: the gate passes, all reviews pass, the approver says APPROVE, and no changed file matches `escalate_paths` in `factory/config.json`.
+
+It always ESCALATES to Sai when a change touches PHI or patient data, X12 claims data, auth, insurer or voice calls, deploy, CI, dependencies, `factory/`, `.claude/` or `AGENTS.md`. `factory/bin/job merge` enforces this in code, also when the approver says APPROVE. The issue gets the label `factory:needs-human`.
+
+For an escalated PR:
+1. Run `/security-review` in the Claude CLI on the branch.
+2. To accept: merge the PR on GitHub.
+3. To change it: comment on the PR, then type `/factory rework <issue>`.
+
+### Checks
+
+`factory/checks.sh` runs `make lint` and `make test` (AGENTS.md). Until the Makefile exists, it prints a PLACEHOLDER warning and passes. Remove that branch when the Makefile exists.
+
+Job state is in `factory/jobs/`. Git ignores it.
+
+## pi coding agent (tmux window `pi`)
+
+`pi` is a small open-source coding agent (earendil-works/pi, formerly badlogic/pi-mono, MIT). It is installed under `/workspace/tools/pi`. It is not installed globally.
+
+- Start: `scripts/pi.sh` (interactive) or `scripts/pi.sh -p "<task>"` (one shot).
+- Config: `/workspace/tools/pi/agent/models.json`. The script turns off telemetry (`PI_TELEMETRY=0`).
+- Model backend: OmniRoute at `http://127.0.0.1:20128/v1` (provider `omniroute`). It works when OmniRoute has provider keys and you export `OMNIROUTE_API_KEY`. Then type `/model` in pi and select the OmniRoute model. Change the model id `auto` to the OmniRoute model or combo name you use.
+- Use pi as a fast second builder or for small scripts. Follow `AGENTS.md`. Do not give pi access to `.env`.
