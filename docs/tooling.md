@@ -26,9 +26,18 @@ Rule: project-level only. Nothing here is installed globally by this repo. Never
 MIT, ~81k stars, very active (pushed today). Model/token gateway across 350+ providers. `postinstall` only rebuilds `better-sqlite3`.
 Risks: huge surface (quota pooling, OAuth/subscription providers may break provider ToS), dashboard stores provider keys locally,
 release cadence is extreme (pin a version). For the hackathon prefer LiteLLM or direct Meta/Baseten/Fireworks endpoints; if used:
+**Live setup (box).** Pinned to npm `omniroute@3.8.52` (latest stable release, 2026-10-19). It needs Node 22.22+ or 24; the script uses a local Node 24 in `/workspace/tools/node24`.
+The server binds to `127.0.0.1:20128` only. Data is in `/workspace/tools/omniroute/data`. The dashboard password is in `/workspace/tools/omniroute/.env.local` (outside the repo, mode 600). Update notifier and Next.js telemetry are off. The `omniroute telemetry` command reads local data only.
 ```bash
-docker run -d --name omniroute -p 127.0.0.1:20128:20128 -v omniroute-data:/app/data diegosouzapw/omniroute:3.8.53   # localhost only, pinned tag
+scripts/omniroute.sh start     # runs in tmux window arthai:omniroute
+scripts/omniroute.sh status    # GET /api/monitoring/health -> {"status":"healthy",...}
+scripts/omniroute.sh stop
+# API-key providers only. Set the env vars, then:
+export LLAMA_API_KEY=...  FIREWORKS_API_KEY=...  BASETEN_API_KEY=...
+scripts/omniroute.sh add-keys  # providers: meta-llama, fireworks, baseten
 ```
+OmniRoute does not read provider env vars itself. `add-keys` passes them with `providers add <id> --credential-env <VAR>`. The key is stored encrypted in the local data dir.
+`/v1/*` needs an OmniRoute client key: make one with `omniroute keys` (see `--help`) and set `OMNIROUTE_API_KEY`. Base URL for clients: `http://127.0.0.1:20128/v1`.
 Use only API-key providers (Meta, Baseten, Fireworks, Modal). Do not connect consumer subscriptions.
 
 ### Headroom (headroomlabs-ai/headroom) — use with care
