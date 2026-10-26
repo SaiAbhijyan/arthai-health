@@ -36,3 +36,14 @@ Write an entry when choosing a library, pattern, schema, protocol, model/prompt 
 - Decision: B. Existing rules win on conflict; the Plan-Mode advice is softened to "plan doc for >50 lines, Plan Mode optional".
 - Consequences: Agents get verify-first and mistake-to-rule loops by default. Follow-up: prune rules as they become unnecessary; keep AGENTS.md under ~250 lines.
 - Links: docs/golden-play-guide.md; docs/adr/0002-adopt-golden-play-guide.md
+
+### D-003: Curate third-party agent tooling (vendor small skills, document tools, avoid risky ones)
+- Date: 2026-10-26 | Status: Accepted
+- Deciders: Sai (agent-drafted after SkillSpector scans)
+- Context: Many community skills/tools requested; each runs with agent privileges.
+- Options considered:
+  - A: Install everything globally. Pros: fast. Cons: large unreviewed attack surface, telemetry, license gaps.
+  - B: Vendor small licensed instruction-only skills, document tools as opt-in, avoid risky ones. Pros: auditable. Cons: manual curation.
+- Decision: B. See docs/tooling.md.
+- Consequences: Re-scan on update; prune unused skills after Nov 4.
+- Links: docs/adr/0003-third-party-agent-tooling.md, THIRD_PARTY_NOTICES.md

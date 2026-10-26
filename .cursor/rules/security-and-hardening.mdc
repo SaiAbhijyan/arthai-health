@@ -1,0 +1,5 @@
+---
+description: Use when touching auth, PHI/PII, payments, external input, webhooks or secrets.
+alwaysApply: false
+---
+Read and follow .claude/skills/security-and-hardening/SKILL.md (vendored, see THIRD_PARTY_NOTICES.md). AGENTS.md rules win on conflict.

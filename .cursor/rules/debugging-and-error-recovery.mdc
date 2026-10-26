@@ -1,0 +1,5 @@
+---
+description: Use when a test fails, a build breaks or behavior is wrong: reproduce, localize, fix root cause, guard with a test.
+alwaysApply: false
+---
+Read and follow .claude/skills/debugging-and-error-recovery/SKILL.md (vendored, see THIRD_PARTY_NOTICES.md). AGENTS.md rules win on conflict.

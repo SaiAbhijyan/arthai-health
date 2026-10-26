@@ -1,0 +1,5 @@
+---
+description: Use when writing, reviewing or refactoring code: surface assumptions, simplicity first, surgical changes, verifiable goals.
+alwaysApply: false
+---
+Read and follow .claude/skills/karpathy-guidelines/SKILL.md (vendored, see THIRD_PARTY_NOTICES.md). AGENTS.md rules win on conflict.

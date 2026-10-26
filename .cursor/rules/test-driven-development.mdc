@@ -1,0 +1,5 @@
+---
+description: Use when implementing logic or fixing a bug: write the failing test first.
+alwaysApply: false
+---
+Read and follow .claude/skills/test-driven-development/SKILL.md (vendored, see THIRD_PARTY_NOTICES.md). AGENTS.md rules win on conflict.

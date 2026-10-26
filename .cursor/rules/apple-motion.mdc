@@ -1,0 +1,6 @@
+---
+description: Use when building or reviewing the reviewer console UI motion: springs, gestures, sheets, transitions, reduced-motion, Apple-style web interaction.
+globs: web/**/*.tsx, web/**/*.ts, web/**/*.css
+alwaysApply: false
+---
+Follow .claude/skills/apple-motion/SKILL.md (vendored from emilkowalski/skills, MIT). AGENTS.md wins on conflict.

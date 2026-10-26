@@ -1,0 +1,6 @@
+---
+description: Simplified Technical English style for prose. Use when writing or editing Markdown docs, ADRs, UI strings or prompts; never for code.
+globs: **/*.md
+alwaysApply: false
+---
+Follow .claude/skills/ste100-writing/SKILL.md for prose only. Do not apply to code blocks, identifiers or quoted text.

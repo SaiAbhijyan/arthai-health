@@ -1,0 +1,5 @@
+---
+description: Use when the user asks to find, discover or install an agent skill.
+alwaysApply: false
+---
+Follow .claude/skills/find-skills/SKILL.md including the Arthai Health override: SkillSpector scan, approval, project-level install only.

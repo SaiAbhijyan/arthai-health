@@ -1,0 +1,5 @@
+---
+description: Opt-in terse chat mode. Only when the user explicitly says /caveman or 'caveman mode'.
+alwaysApply: false
+---
+Only if the user explicitly asks: follow .claude/skills/caveman/SKILL.md for chat replies. Never apply to code, comments, commits, docs or user-facing text.

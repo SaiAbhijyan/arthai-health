@@ -1,0 +1,5 @@
+---
+description: Use when making an architectural decision or writing docs/ADRs.
+alwaysApply: false
+---
+Read and follow .claude/skills/documentation-and-adrs/SKILL.md (vendored, see THIRD_PARTY_NOTICES.md). AGENTS.md rules win on conflict.

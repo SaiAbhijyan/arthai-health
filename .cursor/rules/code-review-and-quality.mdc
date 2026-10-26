@@ -1,0 +1,5 @@
+---
+description: Use when reviewing a diff or before declaring a task done.
+alwaysApply: false
+---
+Read and follow .claude/skills/code-review-and-quality/SKILL.md (vendored, see THIRD_PARTY_NOTICES.md). AGENTS.md rules win on conflict.

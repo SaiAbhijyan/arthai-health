@@ -1,0 +1,5 @@
+---
+description: Use when asked to audit, review or improve an agent/system prompt or tool description.
+alwaysApply: false
+---
+Follow the checklist in .claude/commands/prompt-audit.md. Report findings and a proposed diff; edit only after approval.

@@ -1,0 +1,162 @@
+# SkillSpector baseline — findings listed here are suppressed on future scans.
+# Edit 'reason' fields and add glob 'rules' as needed. See docs/SUPPRESSION.md.
+version: 2
+scanner_version: 2.12.0
+rules: []
+fingerprints:
+- hash: sha256:45e909d4826921f1042b6a64e7fdd60ca935b439246875a045be5ad251d86a95
+  rule_id: RP1
+  file: skills/find-skills/SKILL.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:4aa1cc502ee763c5157cc42d29d2f465163b06d7aa09c2383b8889f07adde53c
+  rule_id: RP1
+  file: skills/find-skills/SKILL.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:10cae3b86cf3743ce62fed6ea151b575099df4e47a95dc28ec5868aab60c528f
+  rule_id: RP1
+  file: skills/find-skills/SKILL.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:3278c75bff9ae3283454285e29232a508ba64c77f1d850539c6b092cdf1b8578
+  rule_id: RP1
+  file: skills/find-skills/SKILL.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:1158b65e32cd91fbdf95d03c629906aa60d25c06eafe7adcdf8f0732fb1f5acf
+  rule_id: RP1
+  file: skills/find-skills/SKILL.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:d98fb31006ad3ef408c50085601bbd861c9cfe6f9c120c10814302eef9a98dd7
+  rule_id: RP1
+  file: skills/find-skills/SKILL.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:4b743b41c047195acd50da7ee027941657b96de277980d82cea6a810845806ea
+  rule_id: RP1
+  file: skills/find-skills/SKILL.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:4f22e7a232b6a3213f76c284e76082514ce0231cf5b7b89d351d5f2594972338
+  rule_id: RP1
+  file: skills/find-skills/SKILL.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:7506f53cc582fd1f21380b63ebe5ce9797da9c1f06bd422adad21d96a7ba4bd9
+  rule_id: RP1
+  file: skills/find-skills/SKILL.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:1a70d2334e2e10f815dfb7788328b2cad4d885767260e49e2745222293a8cc0b
+  rule_id: RP1
+  file: skills/find-skills/SKILL.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:7d3bc9082ec3dc5458de22fc7118264a9b5764f50b5a67eae0be6af910961587
+  rule_id: RP1
+  file: skills/find-skills/SKILL.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:999eb15006fad5094a9c0fac57e29818a93f43c6ad07255bd3ca670c70b1e5ba
+  rule_id: RP1
+  file: skills/find-skills/SKILL.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:45b16efdfc87188e54f84d00646b77b44158d0c91222b760115c23469ceedc10
+  rule_id: AS3
+  file: skills/spec-driven-development/SKILL.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:ed39b094a1e92f250f2343d58be7e6497f84ccfcc5a51b65fed596cc2fbcb349
+  rule_id: AS3
+  file: skills/spec-driven-development/SKILL.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:4d7f4bcaa3c3304ef905dba1f5ecea0e144d3142a4c356cf5e5d476830ce7a61
+  rule_id: AS3
+  file: skills/spec-driven-development/SKILL.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:f72ff0d0431a6ebbb68ad43ae6a83c94b291d2a78c33803cb8ad4805dbc0abd9
+  rule_id: EA2
+  file: skills/security-and-hardening/SKILL.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:fa7281211f3b409d0637bd06ca2c997611c24f56029fbb842678ad7fc7bd0556
+  rule_id: EA2
+  file: skills/spec-driven-development/SKILL.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:b8826926e21ec9560880c42cf663c577f2882c2c16b97368d1645f5034b041f6
+  rule_id: EA2
+  file: skills/test-driven-development/SKILL.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:7ff05b4a7419bf4e346de575d2c88a437b4f507842e8b61ffe672a4f133e20e2
+  rule_id: MP3
+  file: skills/security-and-hardening/SKILL.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:2ae4dbb148a8ba843c1a5faf6f0f113cd2238eea900b69d9ddf52b776aeb7446
+  rule_id: PE3
+  file: skills/security-and-hardening/references/hardening-patterns.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:2e23d73a3df2d9fde0ec78aff0eac3a7ad3b93a7ee73be672b24afdf6d05536c
+  rule_id: PE3
+  file: skills/security-and-hardening/references/hardening-patterns.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:ef83904ce562bc8a0b8aaa37b9e1d101afecb205a1b2f04259db8eea4a9be670
+  rule_id: PE3
+  file: skills/security-and-hardening/references/hardening-patterns.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:e881445927da818f8df6f4bc3f35e895c5b0d47f4de0f62a23902fe42df953f5
+  rule_id: PE3
+  file: skills/security-and-hardening/references/hardening-patterns.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:f15ce664f762e2925f73cc79527ad03f31f9046b0881315e276c3e396af3b125
+  rule_id: PE3
+  file: skills/security-and-hardening/references/hardening-patterns.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:f83ee21ae0999ff0362d1ab792cfda0b7848f797dcc7729b1187b07d9a1fdaf3
+  rule_id: SSRF1
+  file: skills/security-and-hardening/references/hardening-patterns.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'
+- hash: sha256:d1171df2de2406b59c70a17d4ca379a689a585bdd42dc4762fb53dd70a26f733
+  rule_id: YR4
+  file: skills/security-and-hardening/SKILL.md
+  reason: 'Reviewed 2026-10-26: defensive security guidance in vendored addyosmani
+    security-and-hardening (lists .env files to protect, SSRF metadata IP to block,
+    tells agents to ignore injected instructions). No executable code.'

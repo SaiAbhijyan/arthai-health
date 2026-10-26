@@ -1,0 +1,5 @@
+---
+description: Use when starting a feature or change over ~50 lines: write the spec/plan before code.
+alwaysApply: false
+---
+Read and follow .claude/skills/spec-driven-development/SKILL.md (vendored, see THIRD_PARTY_NOTICES.md). AGENTS.md rules win on conflict.
