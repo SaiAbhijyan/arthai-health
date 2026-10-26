@@ -9,3 +9,11 @@ Vendored agent skills/agents (copied unmodified unless noted; scanned with NVIDI
 | .claude/skills/apple-motion (renamed from apple-design; frontmatter name changed) | https://github.com/emilkowalski/skills/tree/main/skills/apple-design (Copyright Emil Kowalski) | MIT |
 | .claude/skills/find-skills (modified: added scan-before-install override) | https://github.com/vercel-labs/skills/tree/main/skills/find-skills | MIT |
 | .claude/commands/security-review.md | https://github.com/anthropics/claude-code-security-review | MIT |
+
+## Software factory v2 (zazencodes/zazencodes-season-3)
+
+- Source: https://github.com/zazencodes/zazencodes-season-3/tree/main/src/software-factory-claude-code-v2
+- License: GPL-3.0. Files: `factory/bin/job`, `factory/bin/gate`, `factory/bin/route`, `factory/dashboard.html`
+  (vendored; `factory/bin/job` modified to add the `escalate_paths` merge guard).
+- `factory/config.json`, `factory/checks.sh`, `.claude/agents/{intake,spec-writer,builder,reviewer-*,approver}.md`
+  and `.claude/skills/factory/SKILL.md` were written for Arthai Health. Upstream v2 does not ship agent files.
