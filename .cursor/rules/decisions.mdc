@@ -1,0 +1,7 @@
+---
+description: Use when choosing a library, pattern, schema, data model, protocol or tradeoff, or when asked why something was built a certain way.
+alwaysApply: false
+---
+- Before choosing, read DECISIONS.md; don't re-litigate an accepted decision without saying so.
+- After choosing, append an entry using the template at the top of DECISIONS.md.
+- Significant = new dependency, schema/migration, cross-service contract, security/PHI handling, model or prompt strategy.

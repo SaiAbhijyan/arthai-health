@@ -1,0 +1,8 @@
+---
+description: Core rules for the RCM repo
+alwaysApply: true
+---
+- Follow AGENTS.md. Run `make lint test` before finishing.
+- Prefer editing existing modules over creating new ones; match existing patterns.
+- No PHI. No real identifiers. Use factories in tests/factories.py.
+- Output a short summary: files changed, tests added, commands run with results, open risks.

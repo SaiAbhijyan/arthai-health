@@ -1,0 +1,10 @@
+---
+description: Python service conventions
+globs: services/**/*.py, packages/**/*.py
+alwaysApply: false
+---
+- FastAPI routers stay thin; logic in services/<name>/domain.py.
+- Every tool/agent output is a Pydantic model from packages/rcm_models.
+- Money is Decimal; never float.
+- Write audit_event for every AI action; wrap high-risk actions in approvals.require().
+- Tests in tests/<service>/ using tests/factories.py (synthetic only).
