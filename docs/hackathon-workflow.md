@@ -23,7 +23,7 @@ Rule: one agent per service at a time. Do not let two agents edit the same files
 | 4. Prompts | `/prompt-audit` on every agent, voice, and tool prompt | Prompt passes the checklist |
 | 5. Test / fix | `debugging-and-error-recovery`, playwright MCP (click through the UI), `/review` | Bug fixed with a test that shows it |
 | 6. UI / design | impeccable (layout, visual), `apple-motion` (animation only) | Clean demo screens |
-| 7. Security | `security-and-hardening`, `/security-review`, PR check (needs `CLAUDE_API_KEY` repo secret) | No HIGH or CRITICAL open. No PHI or keys in git |
+| 7. Security | `security-and-hardening`, `/security-review` in the CLI before each merge | No HIGH or CRITICAL open. No PHI or keys in git |
 | 8. Demo / video | playwright MCP to script the click path, `ste100-writing` for the script | 2-3 min video, demo script |
 | 9. Submission | `ste100-writing` for README and form text, `code-review-and-quality` final pass | Submitted before Nov 4, 9 PM ET |
 
