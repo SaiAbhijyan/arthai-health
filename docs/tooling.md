@@ -106,3 +106,19 @@ Several candidates; none is a ready Claude Code/Cursor skill, so nothing was wir
 - https://github.com/minnesotanlp/meta-n : research code for the paper "Meta^n: Recursive Self-Improvement through Emergent Depth" (arXiv 2608.24735, MIT, ~74 stars). Python research harness, not a skill.
 - https://github.com/alex-1q84/Meta_Kim : "meta-theory" governance skill + agents for Claude Code (dispatcher/warden pattern).
 - https://github.com/gitkb/meta : multi-repo "meta" CLI with Claude Code skills (meta-workspace, meta-git...).
+
+## Not wired: claude-red (SnailSploit/Claude-Red) — offensive security, do not add to this repo
+`claude.red` redirects to https://github.com/SnailSploit/Claude-Red (MIT, ~9.4k stars): 79 **offensive** security skills
+(exploit dev, EDR evasion, container escape, post-exploitation, social engineering, SQLi/RCE/SSRF, etc.).
+SkillSpector: 100/100 DO NOT INSTALL — 15 CRITICAL, 512 HIGH (credential access, cloud-metadata SSRF, container escape, exploit chains).
+These are real attack capabilities, not false positives.
+
+Decision: **not vendored and not wired in.** Putting an offensive toolkit into a public healthcare repo is a liability (it would run
+with agent privileges and could be pointed anywhere, and PHI/compliance context makes misuse worse). For security testing of Arthai
+Health we already have the defensive `security-and-hardening` skill, `security-auditor` agent, `/security-review` command, and the
+Claude PR security workflow. If Sai wants active pentesting of *our own* staging app only, install claude-red **outside this repo**,
+opt-in per category, against a dedicated test deployment he owns, never prod or anything with real data:
+```bash
+git clone https://github.com/SnailSploit/Claude-Red ~/claude-red
+~/claude-red/install.sh --category web --target ~/.claude/skills/claude-red   # web/api/auth only; review each SKILL first
+```
