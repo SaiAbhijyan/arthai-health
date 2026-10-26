@@ -131,3 +131,14 @@ opt-in per category, against a dedicated test deployment he owns, never prod or 
 git clone https://github.com/SnailSploit/Claude-Red ~/claude-red
 ~/claude-red/install.sh --category web --target ~/.claude/skills/claude-red   # web/api/auth only; review each SKILL first
 ```
+
+## Added 2026-10-26 (evening)
+
+SkillSpector `--no-llm` scores large codebases 100/100 because of volume. The verdicts below use the flagged lines.
+
+| Tool | What it is | Scan (raw) and real findings | Status |
+|---|---|---|---|
+| Software factory v2 (zazencodes, GPL-3.0) | issue → spec → build → gate → review → PR pipeline for Claude Code | 15/100 CAUTION. 6 MEDIUM AST4 = `subprocess` calls to `git`/`gh` in `factory/bin/*`. Expected. | Wired: `factory/`, `.claude/agents/*`, `/factory` skill. Upstream v2 ships no agent files; ours are written for Arthai. Merge guard added in `factory/bin/job`. |
+| pi (earendil-works/pi, was badlogic/pi-mono, MIT), `@earendil-works/pi-coding-agent` 1.4.0 | small terminal coding agent | 100/100. 0 CRITICAL. HIGHs are in CHANGELOG/docs/test fixtures, plus `package-manager-cli.ts` (npm install of extensions) and MCP OAuth. Normal for a coding agent with a bash tool. | Installed under `/workspace/tools/pi`, run with `scripts/pi.sh`, telemetry off. Do not install pi extensions without a scan. |
+| LAYA (NandhaKishorM/laya, Apache-2.0), open-source Jev | System 1 decision model, 421M | 100/100. 18 CRITICAL: 15 are `exec(compile())` in tests and research scripts; 2 are env → `urlopen` (timeout value, a ModelScope prefetch script); 1 in a Java dev script. None in the runtime path we use. Weights download from Hugging Face. | venv `/workspace/tools/laya-env`. Plan: `docs/laya-plan.md`. Not a repo dependency yet. |
+| REA (morluto/rea, MIT), `rea-agents` | MCP server to reverse-engineer binaries, Electron/JS apps, .NET, websites | 100/100. 7 CRITICAL `exec(compile())` in pwndbg/pwntools debugger bridges; 611 HIGH SC9, mostly docs/translations. Expected for a debugger tool. | NOT wired. It does not help an RCM product, and reverse-engineering payer or vendor software can break their terms. Opt-in only, by hand: `npx rea-agents@6.4.0 setup --client claude_code --dry-run` first, and only on software we own. |
