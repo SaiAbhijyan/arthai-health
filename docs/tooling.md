@@ -17,6 +17,7 @@ Rule: project-level only. Nothing here is installed globally by this repo. Never
 | apple-motion (emilkowalski/skills `skills/apple-design`, MIT) | `.claude/skills/apple-motion`, `.cursor/rules/apple-motion.mdc` | Motion/interaction guidance for the reviewer console. Scan CAUTION with 0 issues. |
 | ste100-writing (our own) | `.claude/skills/ste100-writing`, `.cursor/rules/ste100-writing.mdc` | Simplified Technical English for docs/prompts/UI strings. Community STE skills exist but none reputable enough; this is an original summary, no spec text. |
 | Playwright MCP (microsoft/playwright-mcp, Apache-2.0) | `.mcp.json`, `.cursor/mcp.json` (`npx @playwright/mcp@latest`) | Browser-driven e2e checks of the reviewer console (verify-first). Static flags are in Azure CI pipeline/Dockerfile, not the npx package. Use a clean test profile; never point it at real payer portals. |
+| claude-code-security-review (anthropics, MIT) | `.claude/commands/security-review.md`, `.github/workflows/security-review.yml` | AI security review on every same-repo PR. Needs repo secret `CLAUDE_API_KEY`. Static CRITICALs are the action sending `GITHUB_TOKEN` to the GitHub API (expected). Not prompt-injection hardened, so forks are skipped. Action pinned to commit SHA. |
 | find-skills (vercel-labs/skills, MIT) | `.claude/skills/find-skills`, `.cursor/rules/find-skills.mdc` | Discover skills via `npx skills find`; patched to require SkillSpector scan + project scope. Scan SAFE 12/100. |
 | prompt-audit (our own) | `.claude/commands/prompt-audit.md`, `.cursor/rules/prompt-audit.mdc` | Audit checklist for Muse/voice/tool prompts. For Claude API prompts use the built-in `/doctor prompt-audit <path>`. |
 
@@ -99,3 +100,9 @@ Coexistence with our design skills: **impeccable** = overall UI quality, layout,
 **apple-motion** = motion/gesture/spring behavior only. If both are loaded, impeccable owns visual design decisions and
 apple-motion owns animation timing/physics. apple-look (dickwu HIG) is not vendored (no license); impeccable's
 native iOS guidance covers that ground.
+
+## Not wired: "meta^n" (ambiguous)
+Several candidates; none is a ready Claude Code/Cursor skill, so nothing was wired:
+- https://github.com/minnesotanlp/meta-n : research code for the paper "Meta^n: Recursive Self-Improvement through Emergent Depth" (arXiv 2608.24735, MIT, ~74 stars). Python research harness, not a skill.
+- https://github.com/alex-1q84/Meta_Kim : "meta-theory" governance skill + agents for Claude Code (dispatcher/warden pattern).
+- https://github.com/gitkb/meta : multi-repo "meta" CLI with Claude Code skills (meta-workspace, meta-git...).
