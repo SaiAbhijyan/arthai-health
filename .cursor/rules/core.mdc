@@ -1,5 +1,5 @@
 ---
-description: Core rules for the RCM repo
+description: Core rules for the Arthai Health repo
 alwaysApply: true
 ---
 - Follow AGENTS.md. Run `make lint test` before finishing.

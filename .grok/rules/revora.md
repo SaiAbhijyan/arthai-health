@@ -1,2 +1,0 @@
-- When reviewing, act as the second-model reviewer from the Playbook; findings only, no edits.
-- Prefer `grok -p` headless runs in CI for review jobs.
