@@ -5,4 +5,5 @@ alwaysApply: true
 - Follow AGENTS.md. Run `make lint test` before finishing.
 - Prefer editing existing modules over creating new ones; match existing patterns.
 - No PHI. No real identifiers. Use factories in tests/factories.py.
+- Data sources, code-set licenses and data layout: read docs/data-plan.md (single source, shared with Claude Code and Grok).
 - Output a short summary: files changed, tests added, commands run with results, open risks.
