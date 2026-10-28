@@ -75,3 +75,13 @@ Write an entry when choosing a library, pattern, schema, protocol, model/prompt 
   - watermarks-remover: NOT installed (irrelevant, legal/ethical risk).
 - Consequences: Offensive tools (claude-red, Strix) stay out of the public repo and are scoped to Sai-owned targets. Telemetry off everywhere.
 - Links: docs/tooling.md (sections dated 2026-10-28)
+
+### D-015: Install Headroom (box tool) and claude-mem (global), tracking off
+- Date: 2026-10-28 | Status: Accepted
+- Deciders: Sai (explicit: "all", for Headroom and claude-mem; he accepted the global claude-mem install)
+- Context: Sai wants token savings (Headroom) and session memory across Claude Code sessions (claude-mem). Both send usage data by default. claude-mem installs only at user level.
+- Decisions:
+  - Headroom 0.42.0: `uv tool` in `/workspace/tools`, not global. Start it only with `scripts/headroom.sh`. The script sets `HEADROOM_TELEMETRY=off`, `HEADROOM_BEACON=off` and `DO_NOT_TRACK=1`. The proxy listens on `127.0.0.1:8787` in tmux window `arthai:headroom`. `headroom wrap claude` is opt-in only and not used, because it changes global config.
+  - claude-mem 15.4.0: global Claude Code plugin. Telemetry, cloud sync, TeamBrain, Telegram, Notion, Grok Bot memory writes, CCS Align and Chroma are off. Secret redaction is on. Shell commands that touch secrets are skipped.
+- Consequences: Headroom compresses only the sessions that opt in. claude-mem records all Claude Code sessions on the box in `~/.claude-mem` and uses Claude plan quota for summaries. Re-scan with SkillSpector before any upgrade. Keep the versions pinned.
+- Links: docs/tooling.md (Headroom, claude-mem), scripts/headroom.sh, .env.example
