@@ -1,0 +1,243 @@
+{
+  "$defs": {
+    "CallExtracted": {
+      "additionalProperties": false,
+      "properties": {
+        "callback_days": {
+          "anyOf": [
+            {
+              "maximum": 90,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Callback Days"
+        },
+        "claim_status": {
+          "enum": [
+            "denied",
+            "in_process",
+            "paid",
+            "not_found"
+          ],
+          "title": "Claim Status",
+          "type": "string"
+        },
+        "next_step": {
+          "maxLength": 400,
+          "minLength": 1,
+          "title": "Next Step",
+          "type": "string"
+        },
+        "reference_number": {
+          "anyOf": [
+            {
+              "pattern": "^ZZREF\\d{7}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reference Number"
+        }
+      },
+      "required": [
+        "claim_status",
+        "reference_number",
+        "next_step",
+        "callback_days"
+      ],
+      "title": "CallExtracted",
+      "type": "object"
+    },
+    "CallLabels": {
+      "additionalProperties": false,
+      "properties": {
+        "injection_attempt": {
+          "title": "Injection Attempt",
+          "type": "boolean"
+        },
+        "outcome": {
+          "enum": [
+            "resolved",
+            "escalate",
+            "refused_unsafe_request",
+            "call_dropped"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "refusal_required": {
+          "title": "Refusal Required",
+          "type": "boolean"
+        },
+        "verification_passed": {
+          "title": "Verification Passed",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "outcome",
+        "verification_passed",
+        "injection_attempt",
+        "refusal_required"
+      ],
+      "title": "CallLabels",
+      "type": "object"
+    },
+    "CallTurn": {
+      "additionalProperties": false,
+      "properties": {
+        "speaker": {
+          "enum": [
+            "agent",
+            "ivr",
+            "payer_rep"
+          ],
+          "title": "Speaker",
+          "type": "string"
+        },
+        "t_start_ms": {
+          "maximum": 3600000,
+          "minimum": 0,
+          "title": "T Start Ms",
+          "type": "integer"
+        },
+        "text": {
+          "maxLength": 400,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "speaker",
+        "text",
+        "t_start_ms"
+      ],
+      "title": "CallTurn",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "checker_model": {
+          "title": "Checker Model",
+          "type": "null"
+        },
+        "generator_version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "title": "Generator Version",
+          "type": "string"
+        },
+        "noise": {
+          "items": {
+            "enum": [
+              "abbrev",
+              "typo",
+              "missing_field",
+              "distractor_code"
+            ],
+            "type": "string"
+          },
+          "title": "Noise",
+          "type": "array"
+        },
+        "paraphrased": {
+          "const": false,
+          "title": "Paraphrased",
+          "type": "boolean"
+        },
+        "scenario_id": {
+          "anyOf": [
+            {
+              "pattern": "^S\\d{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Scenario Id"
+        },
+        "seed": {
+          "maximum": 9223372036854775807,
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "generator_version",
+        "seed",
+        "scenario_id",
+        "paraphrased",
+        "checker_model",
+        "noise"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "call_id": {
+      "pattern": "^SYN-K-\\d{6}$",
+      "title": "Call Id",
+      "type": "string"
+    },
+    "denial_id": {
+      "pattern": "^SYN-D-\\d{6}$",
+      "title": "Denial Id",
+      "type": "string"
+    },
+    "extracted": {
+      "$ref": "#/$defs/CallExtracted"
+    },
+    "ivr_path": {
+      "items": {
+        "maxLength": 400,
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Ivr Path",
+      "type": "array"
+    },
+    "labels": {
+      "$ref": "#/$defs/CallLabels"
+    },
+    "payer_id": {
+      "pattern": "^ZZP\\d{2}$",
+      "title": "Payer Id",
+      "type": "string"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "turns": {
+      "items": {
+        "$ref": "#/$defs/CallTurn"
+      },
+      "minItems": 2,
+      "title": "Turns",
+      "type": "array"
+    }
+  },
+  "required": [
+    "call_id",
+    "denial_id",
+    "payer_id",
+    "ivr_path",
+    "turns",
+    "extracted",
+    "labels",
+    "provenance"
+  ],
+  "title": "CallTranscript",
+  "type": "object"
+}

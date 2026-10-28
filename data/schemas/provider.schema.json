@@ -1,0 +1,45 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "credential": {
+      "enum": [
+        "MD",
+        "DO",
+        "NP",
+        "PA"
+      ],
+      "title": "Credential",
+      "type": "string"
+    },
+    "fictional": {
+      "const": true,
+      "title": "Fictional",
+      "type": "boolean"
+    },
+    "name": {
+      "maxLength": 400,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "npi": {
+      "pattern": "^\\d{10}$",
+      "title": "Npi",
+      "type": "string"
+    },
+    "provider_id": {
+      "pattern": "^SYN-PR-\\d{4}$",
+      "title": "Provider Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "provider_id",
+    "name",
+    "credential",
+    "npi",
+    "fictional"
+  ],
+  "title": "Provider",
+  "type": "object"
+}

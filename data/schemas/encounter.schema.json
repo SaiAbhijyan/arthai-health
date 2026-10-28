@@ -1,0 +1,38 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "date": {
+      "format": "date",
+      "title": "Date",
+      "type": "string"
+    },
+    "encounter_class": {
+      "enum": [
+        "wellness",
+        "ambulatory",
+        "outpatient",
+        "urgentcare"
+      ],
+      "title": "Encounter Class",
+      "type": "string"
+    },
+    "encounter_id": {
+      "pattern": "^SYN-E-\\d{6}$",
+      "title": "Encounter Id",
+      "type": "string"
+    },
+    "patient_id": {
+      "pattern": "^SYN-P-\\d{6}$",
+      "title": "Patient Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "encounter_id",
+    "patient_id",
+    "date",
+    "encounter_class"
+  ],
+  "title": "Encounter",
+  "type": "object"
+}

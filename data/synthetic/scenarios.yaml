@@ -1,0 +1,186 @@
+# Denial scenario table (data-plan 6.1 step 1). Hand-written. Labels come from here, never from an LLM.
+# CARC/RARC: code values only (X12 text is not stored; see data/reference/codes/LICENSES.md).
+# action: appeal | corrected_claim | send_records | bill_other_payer | write_off
+# Deadlines follow each fictional payer's rules in data/synthetic/payers/payers.json.
+version: 1
+scenarios:
+  - id: S01
+    category: prior_auth_missing
+    group: CO
+    carc: "197"
+    rarc: [N54]
+    codes: [E0143, E0607, L3908]
+    action: appeal
+    policy_code: PA
+    root_cause: No prior authorization on file for a service that needs one.
+    fix: Get a retro authorization or prove one existed, then appeal with the auth record.
+    missing_info: [prior authorization number]
+    evidence: [authorization_record.pdf, order_note.pdf]
+  - id: S02
+    category: eligibility_terminated
+    group: CO
+    carc: "27"
+    rarc: [N30]
+    codes: [G0439, J1100, J3420]
+    action: bill_other_payer
+    policy_code: EL
+    root_cause: Coverage ended before the date of service.
+    fix: Verify current coverage and bill the right payer or the patient.
+    missing_info: [current insurance]
+    evidence: []
+  - id: S03
+    category: timely_filing
+    group: CO
+    carc: "29"
+    rarc: []
+    codes: [G0438, J1885, J0696]
+    action: appeal
+    policy_code: TF
+    root_cause: The claim reached the payer after the filing limit.
+    fix: Appeal only with proof of timely first submission, else write off.
+    missing_info: [proof of timely filing]
+    evidence: [clearinghouse_acceptance_report.pdf]
+  - id: S04
+    category: duplicate_claim
+    group: OA
+    carc: "18"
+    rarc: [M86]
+    codes: [G0008, Q2035, J1100]
+    action: write_off
+    policy_code: DU
+    root_cause: The same service was already billed on an earlier claim.
+    fix: Do not rebill. Check the original claim status instead.
+    missing_info: []
+    evidence: []
+  - id: S05
+    category: dx_procedure_mismatch
+    group: CO
+    carc: "11"
+    rarc: [M76]
+    codes: [J3420, J0696, E0607]
+    action: corrected_claim
+    policy_code: DX
+    root_cause: The diagnosis on the claim does not support the service.
+    fix: Check the note and send a corrected claim with the right diagnosis.
+    missing_info: [supporting diagnosis]
+    evidence: []
+  - id: S06
+    category: medical_necessity
+    group: CO
+    carc: "50"
+    rarc: [N115]
+    codes: [J3420, E0607, A6216]
+    action: appeal
+    policy_code: MN
+    root_cause: The payer judged the service not medically necessary.
+    fix: Appeal with the clinical note and the payer policy criteria met.
+    missing_info: [clinical documentation]
+    evidence: [clinical_note.pdf, policy_criteria_checklist.pdf]
+  - id: S07
+    category: bundled_service
+    group: CO
+    carc: "97"
+    rarc: []
+    codes: [A4565, A6216]
+    action: write_off
+    policy_code: BU
+    root_cause: The supply is included in the payment for another service on the claim.
+    fix: Write off the bundled line; do not bill the patient.
+    missing_info: []
+    evidence: []
+  - id: S08
+    category: modifier_inconsistent
+    group: CO
+    carc: "4"
+    rarc: [M51]
+    codes: [L3908, E0114]
+    action: corrected_claim
+    policy_code: MO
+    root_cause: The modifier on the line does not fit the procedure code.
+    fix: Fix the modifier and send a corrected claim.
+    missing_info: [correct modifier]
+    evidence: []
+  - id: S09
+    category: coordination_of_benefits
+    group: CO
+    carc: "22"
+    rarc: [MA04, N479]
+    codes: [G0439, J1885, J7030]
+    action: bill_other_payer
+    policy_code: CB
+    root_cause: Another payer may be primary for this patient.
+    fix: Bill the primary payer first, then send its EOB to this payer.
+    missing_info: [primary payer EOB]
+    evidence: []
+  - id: S10
+    category: non_covered_service
+    group: CO
+    carc: "96"
+    rarc: [N130]
+    codes: [A6216, G0136]
+    action: write_off
+    policy_code: NC
+    root_cause: The plan does not cover this service.
+    fix: Check for a signed waiver; without one, write off.
+    missing_info: [signed patient waiver]
+    evidence: []
+  - id: S11
+    category: missing_information
+    group: CO
+    carc: "16"
+    rarc: [MA130]
+    codes: [G0444, G0442, J1100]
+    action: corrected_claim
+    policy_code: MI
+    root_cause: The claim was missing required data, so the payer could not process it.
+    fix: Add the missing data and send a new claim (not an appeal).
+    missing_info: [referring provider]
+    evidence: []
+  - id: S12
+    category: records_requested
+    group: CO
+    carc: "252"
+    rarc: [M127]
+    codes: [J1885, J0696, J7030]
+    action: send_records
+    policy_code: RR
+    root_cause: The payer needs medical records before it decides.
+    fix: Send the requested records with the claim reference.
+    missing_info: [medical records]
+    evidence: [clinical_note.pdf]
+  - id: S13
+    category: patient_not_identified
+    group: CO
+    carc: "31"
+    rarc: []
+    codes: [G0438, G0008, J3420]
+    action: corrected_claim
+    policy_code: ID
+    root_cause: The member ID or birth date does not match the payer's records.
+    fix: Verify the member ID and birth date, then resubmit.
+    missing_info: [valid member ID]
+    evidence: []
+  - id: S14
+    category: benefit_limit_reached
+    group: CO
+    carc: "119"
+    rarc: [N130]
+    codes: [G0439, G0444]
+    action: appeal
+    policy_code: BL
+    root_cause: The plan's frequency limit for this service was already used.
+    fix: Check the last service date; appeal only if the limit was not reached.
+    missing_info: [prior service date]
+    evidence: [service_history.pdf]
+  - id: S15
+    category: provider_not_eligible
+    group: CO
+    carc: B7
+    rarc: [N290]
+    codes: [J0696, Q2035]
+    action: appeal
+    policy_code: PE
+    root_cause: The rendering provider was not credentialed with the payer on that date.
+    fix: Confirm credentialing dates and appeal with the enrollment record.
+    missing_info: [credentialing effective date]
+    evidence: [enrollment_confirmation.pdf]

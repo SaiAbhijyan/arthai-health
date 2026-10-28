@@ -1,0 +1,370 @@
+{
+  "$defs": {
+    "Adjustment": {
+      "additionalProperties": false,
+      "properties": {
+        "amount_cents": {
+          "maximum": 9999999,
+          "minimum": 0,
+          "title": "Amount Cents",
+          "type": "integer"
+        },
+        "carc": {
+          "pattern": "^(?:[1-9]\\d{0,2}|[A-Z]\\d{1,2})$",
+          "title": "Carc",
+          "type": "string"
+        },
+        "group": {
+          "enum": [
+            "CO",
+            "PR",
+            "OA",
+            "PI"
+          ],
+          "title": "Group",
+          "type": "string"
+        },
+        "line_no": {
+          "maximum": 50,
+          "minimum": 1,
+          "title": "Line No",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "line_no",
+        "group",
+        "carc",
+        "amount_cents"
+      ],
+      "title": "Adjustment",
+      "type": "object"
+    },
+    "DenialLabels": {
+      "additionalProperties": false,
+      "properties": {
+        "appealable": {
+          "title": "Appealable",
+          "type": "boolean"
+        },
+        "category": {
+          "enum": [
+            "prior_auth_missing",
+            "eligibility_terminated",
+            "timely_filing",
+            "duplicate_claim",
+            "dx_procedure_mismatch",
+            "medical_necessity",
+            "bundled_service",
+            "modifier_inconsistent",
+            "coordination_of_benefits",
+            "non_covered_service",
+            "missing_information",
+            "records_requested",
+            "patient_not_identified",
+            "benefit_limit_reached",
+            "provider_not_eligible"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "deadline_days": {
+          "maximum": 730,
+          "minimum": 0,
+          "title": "Deadline Days",
+          "type": "integer"
+        },
+        "fix": {
+          "maxLength": 400,
+          "minLength": 1,
+          "title": "Fix",
+          "type": "string"
+        },
+        "missing_info": {
+          "items": {
+            "maxLength": 400,
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Missing Info",
+          "type": "array"
+        },
+        "root_cause": {
+          "maxLength": 400,
+          "minLength": 1,
+          "title": "Root Cause",
+          "type": "string"
+        },
+        "urgency": {
+          "maximum": 5,
+          "minimum": 1,
+          "title": "Urgency",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "category",
+        "root_cause",
+        "fix",
+        "appealable",
+        "deadline_days",
+        "urgency",
+        "missing_info"
+      ],
+      "title": "DenialLabels",
+      "type": "object"
+    },
+    "DenialText": {
+      "additionalProperties": false,
+      "properties": {
+        "call_line": {
+          "maxLength": 400,
+          "minLength": 1,
+          "title": "Call Line",
+          "type": "string"
+        },
+        "portal_note": {
+          "maxLength": 400,
+          "minLength": 1,
+          "title": "Portal Note",
+          "type": "string"
+        },
+        "x12": {
+          "maxLength": 400,
+          "minLength": 1,
+          "title": "X12",
+          "type": "string"
+        }
+      },
+      "required": [
+        "x12",
+        "portal_note",
+        "call_line"
+      ],
+      "title": "DenialText",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "checker_model": {
+          "title": "Checker Model",
+          "type": "null"
+        },
+        "generator_version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "title": "Generator Version",
+          "type": "string"
+        },
+        "noise": {
+          "items": {
+            "enum": [
+              "abbrev",
+              "typo",
+              "missing_field",
+              "distractor_code"
+            ],
+            "type": "string"
+          },
+          "title": "Noise",
+          "type": "array"
+        },
+        "paraphrased": {
+          "const": false,
+          "title": "Paraphrased",
+          "type": "boolean"
+        },
+        "scenario_id": {
+          "anyOf": [
+            {
+              "pattern": "^S\\d{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Scenario Id"
+        },
+        "seed": {
+          "maximum": 9223372036854775807,
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "generator_version",
+        "seed",
+        "scenario_id",
+        "paraphrased",
+        "checker_model",
+        "noise"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "ServiceLine": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_cents": {
+          "maximum": 9999999,
+          "minimum": 0,
+          "title": "Allowed Cents",
+          "type": "integer"
+        },
+        "charge_cents": {
+          "maximum": 9999999,
+          "minimum": 0,
+          "title": "Charge Cents",
+          "type": "integer"
+        },
+        "code": {
+          "pattern": "^[A-CEGHJ-MP-V]\\d{4}$",
+          "title": "Code",
+          "type": "string"
+        },
+        "line_no": {
+          "maximum": 50,
+          "minimum": 1,
+          "title": "Line No",
+          "type": "integer"
+        },
+        "paid_cents": {
+          "maximum": 9999999,
+          "minimum": 0,
+          "title": "Paid Cents",
+          "type": "integer"
+        },
+        "units": {
+          "maximum": 99,
+          "minimum": 1,
+          "title": "Units",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "line_no",
+        "code",
+        "units",
+        "charge_cents",
+        "allowed_cents",
+        "paid_cents"
+      ],
+      "title": "ServiceLine",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adjustments": {
+      "items": {
+        "$ref": "#/$defs/Adjustment"
+      },
+      "minItems": 1,
+      "title": "Adjustments",
+      "type": "array"
+    },
+    "billing_npi": {
+      "pattern": "^\\d{10}$",
+      "title": "Billing Npi",
+      "type": "string"
+    },
+    "claim_id": {
+      "pattern": "^SYN-C-\\d{6}$",
+      "title": "Claim Id",
+      "type": "string"
+    },
+    "denial_id": {
+      "pattern": "^SYN-D-\\d{6}$",
+      "title": "Denial Id",
+      "type": "string"
+    },
+    "dos": {
+      "format": "date",
+      "title": "Dos",
+      "type": "string"
+    },
+    "icd10cm": {
+      "items": {
+        "pattern": "^[A-TV-Z]\\d[0-9A-Z]{1,5}$",
+        "type": "string"
+      },
+      "maxItems": 12,
+      "minItems": 1,
+      "title": "Icd10Cm",
+      "type": "array"
+    },
+    "labels": {
+      "$ref": "#/$defs/DenialLabels"
+    },
+    "member_id": {
+      "pattern": "^ZZ\\d{9}$",
+      "title": "Member Id",
+      "type": "string"
+    },
+    "patient_id": {
+      "pattern": "^SYN-P-\\d{6}$",
+      "title": "Patient Id",
+      "type": "string"
+    },
+    "payer_id": {
+      "pattern": "^ZZP\\d{2}$",
+      "title": "Payer Id",
+      "type": "string"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "rarc": {
+      "items": {
+        "pattern": "^(?:MA|M|N)\\d{1,3}$",
+        "type": "string"
+      },
+      "title": "Rarc",
+      "type": "array"
+    },
+    "received_on": {
+      "format": "date",
+      "title": "Received On",
+      "type": "string"
+    },
+    "rendering_npi": {
+      "pattern": "^\\d{10}$",
+      "title": "Rendering Npi",
+      "type": "string"
+    },
+    "service_lines": {
+      "items": {
+        "$ref": "#/$defs/ServiceLine"
+      },
+      "maxItems": 50,
+      "minItems": 1,
+      "title": "Service Lines",
+      "type": "array"
+    },
+    "text": {
+      "$ref": "#/$defs/DenialText"
+    }
+  },
+  "required": [
+    "denial_id",
+    "claim_id",
+    "payer_id",
+    "patient_id",
+    "member_id",
+    "billing_npi",
+    "rendering_npi",
+    "dos",
+    "received_on",
+    "service_lines",
+    "icd10cm",
+    "adjustments",
+    "rarc",
+    "text",
+    "labels",
+    "provenance"
+  ],
+  "title": "Denial",
+  "type": "object"
+}

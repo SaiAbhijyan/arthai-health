@@ -1,0 +1,18 @@
+{
+  "api": "https://npiregistry.cms.hhs.gov/api/?version=2.1&number=<npi>",
+  "results": {
+    "1999999901": {
+      "result_count": 0,
+      "results": []
+    },
+    "1999999919": {
+      "result_count": 0,
+      "results": []
+    },
+    "1999999927": {
+      "result_count": 0,
+      "results": []
+    }
+  },
+  "retrieved": "2026-10-28"
+}

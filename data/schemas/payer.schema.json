@@ -1,0 +1,64 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "appeal_deadline_days": {
+      "maximum": 730,
+      "minimum": 30,
+      "title": "Appeal Deadline Days",
+      "type": "integer"
+    },
+    "fictional": {
+      "const": true,
+      "title": "Fictional",
+      "type": "boolean"
+    },
+    "ivr_menu": {
+      "items": {
+        "maxLength": 400,
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Ivr Menu",
+      "type": "array"
+    },
+    "name": {
+      "maxLength": 400,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "payer_id": {
+      "pattern": "^ZZP\\d{2}$",
+      "title": "Payer Id",
+      "type": "string"
+    },
+    "phone": {
+      "pattern": "^\\(\\d{3}\\) 555-01\\d{2}$",
+      "title": "Phone",
+      "type": "string"
+    },
+    "policy_prefix": {
+      "pattern": "^ZZP\\d{2}-POL$",
+      "title": "Policy Prefix",
+      "type": "string"
+    },
+    "timely_filing_days": {
+      "maximum": 730,
+      "minimum": 30,
+      "title": "Timely Filing Days",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "payer_id",
+    "name",
+    "phone",
+    "timely_filing_days",
+    "appeal_deadline_days",
+    "ivr_menu",
+    "policy_prefix",
+    "fictional"
+  ],
+  "title": "Payer",
+  "type": "object"
+}

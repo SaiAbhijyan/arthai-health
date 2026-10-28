@@ -1,0 +1,8 @@
+# Phase 2 synthetic-data pipeline and dev tools (D-018). Lock: requirements-dev.txt (hashes).
+pydantic==2.14.1
+pyyaml==6.0.3
+jsonschema==4.26.0
+pytest==9.2.0
+ruff==0.17.3
+mypy==2.4.1
+types-PyYAML==6.0.12.20260906

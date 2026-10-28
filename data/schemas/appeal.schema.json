@@ -1,0 +1,167 @@
+{
+  "$defs": {
+    "AppealLabels": {
+      "additionalProperties": false,
+      "properties": {
+        "cites_only_record_facts": {
+          "const": true,
+          "title": "Cites Only Record Facts",
+          "type": "boolean"
+        },
+        "has_all_required_facts": {
+          "title": "Has All Required Facts",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "has_all_required_facts",
+        "cites_only_record_facts"
+      ],
+      "title": "AppealLabels",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "checker_model": {
+          "title": "Checker Model",
+          "type": "null"
+        },
+        "generator_version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "title": "Generator Version",
+          "type": "string"
+        },
+        "noise": {
+          "items": {
+            "enum": [
+              "abbrev",
+              "typo",
+              "missing_field",
+              "distractor_code"
+            ],
+            "type": "string"
+          },
+          "title": "Noise",
+          "type": "array"
+        },
+        "paraphrased": {
+          "const": false,
+          "title": "Paraphrased",
+          "type": "boolean"
+        },
+        "scenario_id": {
+          "anyOf": [
+            {
+              "pattern": "^S\\d{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Scenario Id"
+        },
+        "seed": {
+          "maximum": 9223372036854775807,
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "generator_version",
+        "seed",
+        "scenario_id",
+        "paraphrased",
+        "checker_model",
+        "noise"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "appeal_id": {
+      "pattern": "^SYN-A-\\d{6}$",
+      "title": "Appeal Id",
+      "type": "string"
+    },
+    "attachments": {
+      "items": {
+        "maxLength": 400,
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Attachments",
+      "type": "array"
+    },
+    "cited_facts": {
+      "items": {
+        "maxLength": 400,
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Cited Facts",
+      "type": "array"
+    },
+    "denial_id": {
+      "pattern": "^SYN-D-\\d{6}$",
+      "title": "Denial Id",
+      "type": "string"
+    },
+    "expected_outcome": {
+      "enum": [
+        "overturn",
+        "uphold",
+        "partial"
+      ],
+      "title": "Expected Outcome",
+      "type": "string"
+    },
+    "labels": {
+      "$ref": "#/$defs/AppealLabels"
+    },
+    "letter_markdown": {
+      "maxLength": 8000,
+      "minLength": 1,
+      "title": "Letter Markdown",
+      "type": "string"
+    },
+    "level": {
+      "enum": [
+        1,
+        2
+      ],
+      "title": "Level",
+      "type": "integer"
+    },
+    "policy_refs": {
+      "items": {
+        "pattern": "^ZZP\\d{2}-POL-[A-Z]{2,4}-\\d{3}$",
+        "type": "string"
+      },
+      "title": "Policy Refs",
+      "type": "array"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    }
+  },
+  "required": [
+    "appeal_id",
+    "denial_id",
+    "level",
+    "letter_markdown",
+    "cited_facts",
+    "policy_refs",
+    "attachments",
+    "expected_outcome",
+    "labels",
+    "provenance"
+  ],
+  "title": "Appeal",
+  "type": "object"
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "credential": "MD",
+    "fictional": true,
+    "name": "Dr. Rowan Alder (fictional)",
+    "npi": "1999999901",
+    "provider_id": "SYN-PR-0001"
+  },
+  {
+    "credential": "NP",
+    "fictional": true,
+    "name": "Sam Larkspur, NP (fictional)",
+    "npi": "1999999919",
+    "provider_id": "SYN-PR-0002"
+  }
+]

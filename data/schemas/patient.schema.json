@@ -1,0 +1,115 @@
+{
+  "$defs": {
+    "Address": {
+      "additionalProperties": false,
+      "properties": {
+        "city": {
+          "maxLength": 400,
+          "minLength": 1,
+          "title": "City",
+          "type": "string"
+        },
+        "fictional": {
+          "const": true,
+          "title": "Fictional",
+          "type": "boolean"
+        },
+        "line1": {
+          "maxLength": 400,
+          "minLength": 1,
+          "title": "Line1",
+          "type": "string"
+        },
+        "state": {
+          "pattern": "^[A-Z]{2}$",
+          "title": "State",
+          "type": "string"
+        },
+        "zip": {
+          "const": "00000",
+          "title": "Zip",
+          "type": "string"
+        }
+      },
+      "required": [
+        "line1",
+        "city",
+        "state",
+        "zip",
+        "fictional"
+      ],
+      "title": "Address",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "address": {
+      "$ref": "#/$defs/Address"
+    },
+    "birth_date": {
+      "format": "date",
+      "title": "Birth Date",
+      "type": "string"
+    },
+    "email": {
+      "pattern": "^[a-z0-9.]+@example\\.com$",
+      "title": "Email",
+      "type": "string"
+    },
+    "first_name": {
+      "maxLength": 400,
+      "minLength": 1,
+      "title": "First Name",
+      "type": "string"
+    },
+    "last_name": {
+      "maxLength": 400,
+      "minLength": 1,
+      "title": "Last Name",
+      "type": "string"
+    },
+    "member_id": {
+      "pattern": "^ZZ\\d{9}$",
+      "title": "Member Id",
+      "type": "string"
+    },
+    "patient_id": {
+      "pattern": "^SYN-P-\\d{6}$",
+      "title": "Patient Id",
+      "type": "string"
+    },
+    "payer_id": {
+      "pattern": "^ZZP\\d{2}$",
+      "title": "Payer Id",
+      "type": "string"
+    },
+    "phone": {
+      "pattern": "^\\(\\d{3}\\) 555-01\\d{2}$",
+      "title": "Phone",
+      "type": "string"
+    },
+    "sex": {
+      "enum": [
+        "F",
+        "M"
+      ],
+      "title": "Sex",
+      "type": "string"
+    }
+  },
+  "required": [
+    "patient_id",
+    "member_id",
+    "payer_id",
+    "first_name",
+    "last_name",
+    "birth_date",
+    "sex",
+    "address",
+    "phone",
+    "email"
+  ],
+  "title": "Patient",
+  "type": "object"
+}

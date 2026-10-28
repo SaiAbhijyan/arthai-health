@@ -1,0 +1,207 @@
+{
+  "$defs": {
+    "Adjustment": {
+      "additionalProperties": false,
+      "properties": {
+        "amount_cents": {
+          "maximum": 9999999,
+          "minimum": 0,
+          "title": "Amount Cents",
+          "type": "integer"
+        },
+        "carc": {
+          "pattern": "^(?:[1-9]\\d{0,2}|[A-Z]\\d{1,2})$",
+          "title": "Carc",
+          "type": "string"
+        },
+        "group": {
+          "enum": [
+            "CO",
+            "PR",
+            "OA",
+            "PI"
+          ],
+          "title": "Group",
+          "type": "string"
+        },
+        "line_no": {
+          "maximum": 50,
+          "minimum": 1,
+          "title": "Line No",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "line_no",
+        "group",
+        "carc",
+        "amount_cents"
+      ],
+      "title": "Adjustment",
+      "type": "object"
+    },
+    "ServiceLine": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_cents": {
+          "maximum": 9999999,
+          "minimum": 0,
+          "title": "Allowed Cents",
+          "type": "integer"
+        },
+        "charge_cents": {
+          "maximum": 9999999,
+          "minimum": 0,
+          "title": "Charge Cents",
+          "type": "integer"
+        },
+        "code": {
+          "pattern": "^[A-CEGHJ-MP-V]\\d{4}$",
+          "title": "Code",
+          "type": "string"
+        },
+        "line_no": {
+          "maximum": 50,
+          "minimum": 1,
+          "title": "Line No",
+          "type": "integer"
+        },
+        "paid_cents": {
+          "maximum": 9999999,
+          "minimum": 0,
+          "title": "Paid Cents",
+          "type": "integer"
+        },
+        "units": {
+          "maximum": 99,
+          "minimum": 1,
+          "title": "Units",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "line_no",
+        "code",
+        "units",
+        "charge_cents",
+        "allowed_cents",
+        "paid_cents"
+      ],
+      "title": "ServiceLine",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adjustments": {
+      "items": {
+        "$ref": "#/$defs/Adjustment"
+      },
+      "title": "Adjustments",
+      "type": "array"
+    },
+    "billing_npi": {
+      "pattern": "^\\d{10}$",
+      "title": "Billing Npi",
+      "type": "string"
+    },
+    "claim_id": {
+      "pattern": "^SYN-C-\\d{6}$",
+      "title": "Claim Id",
+      "type": "string"
+    },
+    "dos": {
+      "format": "date",
+      "title": "Dos",
+      "type": "string"
+    },
+    "encounter_id": {
+      "pattern": "^SYN-E-\\d{6}$",
+      "title": "Encounter Id",
+      "type": "string"
+    },
+    "icd10cm": {
+      "items": {
+        "pattern": "^[A-TV-Z]\\d[0-9A-Z]{1,5}$",
+        "type": "string"
+      },
+      "maxItems": 12,
+      "minItems": 1,
+      "title": "Icd10Cm",
+      "type": "array"
+    },
+    "member_id": {
+      "pattern": "^ZZ\\d{9}$",
+      "title": "Member Id",
+      "type": "string"
+    },
+    "original_claim_id": {
+      "anyOf": [
+        {
+          "pattern": "^SYN-C-\\d{6}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Original Claim Id"
+    },
+    "patient_id": {
+      "pattern": "^SYN-P-\\d{6}$",
+      "title": "Patient Id",
+      "type": "string"
+    },
+    "payer_id": {
+      "pattern": "^ZZP\\d{2}$",
+      "title": "Payer Id",
+      "type": "string"
+    },
+    "rendering_npi": {
+      "pattern": "^\\d{10}$",
+      "title": "Rendering Npi",
+      "type": "string"
+    },
+    "service_lines": {
+      "items": {
+        "$ref": "#/$defs/ServiceLine"
+      },
+      "maxItems": 50,
+      "minItems": 1,
+      "title": "Service Lines",
+      "type": "array"
+    },
+    "status": {
+      "enum": [
+        "paid",
+        "denied",
+        "partially_denied"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "submitted_on": {
+      "format": "date",
+      "title": "Submitted On",
+      "type": "string"
+    }
+  },
+  "required": [
+    "claim_id",
+    "encounter_id",
+    "patient_id",
+    "member_id",
+    "payer_id",
+    "billing_npi",
+    "rendering_npi",
+    "dos",
+    "submitted_on",
+    "icd10cm",
+    "service_lines",
+    "adjustments",
+    "status",
+    "original_claim_id"
+  ],
+  "title": "Claim",
+  "type": "object"
+}

@@ -1,0 +1,23 @@
+code,title,source,fiscal_year
+D519,"Vitamin B12 deficiency anemia, unspecified","ICD-10-CM, CDC/NCHS (CMS code descriptions file)",2027
+E119,Type 2 diabetes mellitus without complications,"ICD-10-CM, CDC/NCHS (CMS code descriptions file)",2027
+E6609,Other obesity due to excess calories,"ICD-10-CM, CDC/NCHS (CMS code descriptions file)",2027
+E785,"Hyperlipidemia, unspecified","ICD-10-CM, CDC/NCHS (CMS code descriptions file)",2027
+F32A,"Depression, unspecified","ICD-10-CM, CDC/NCHS (CMS code descriptions file)",2027
+G4733,Obstructive sleep apnea (adult) (pediatric),"ICD-10-CM, CDC/NCHS (CMS code descriptions file)",2027
+I10,Essential (primary) hypertension,"ICD-10-CM, CDC/NCHS (CMS code descriptions file)",2027
+J069,"Acute upper respiratory infection, unspecified","ICD-10-CM, CDC/NCHS (CMS code descriptions file)",2027
+J45909,"Unspecified asthma, uncomplicated","ICD-10-CM, CDC/NCHS (CMS code descriptions file)",2027
+K219,Gastro-esophageal reflux disease without esophagitis,"ICD-10-CM, CDC/NCHS (CMS code descriptions file)",2027
+L03115,Cellulitis of right lower limb,"ICD-10-CM, CDC/NCHS (CMS code descriptions file)",2027
+M25561,Pain in right knee,"ICD-10-CM, CDC/NCHS (CMS code descriptions file)",2027
+M5450,"Low back pain, unspecified","ICD-10-CM, CDC/NCHS (CMS code descriptions file)",2027
+N390,"Urinary tract infection, site not specified","ICD-10-CM, CDC/NCHS (CMS code descriptions file)",2027
+R519,"Headache, unspecified","ICD-10-CM, CDC/NCHS (CMS code descriptions file)",2027
+R7303,Prediabetes,"ICD-10-CM, CDC/NCHS (CMS code descriptions file)",2027
+S63501A,"Unspecified sprain of right wrist, initial encounter","ICD-10-CM, CDC/NCHS (CMS code descriptions file)",2027
+S93401A,"Sprain of unspecified ligament of right ankle, initial encounter","ICD-10-CM, CDC/NCHS (CMS code descriptions file)",2027
+Z0000,Encounter for general adult medical examination without abnormal findings,"ICD-10-CM, CDC/NCHS (CMS code descriptions file)",2027
+Z0001,Encounter for general adult medical examination with abnormal findings,"ICD-10-CM, CDC/NCHS (CMS code descriptions file)",2027
+Z1331,Encounter for screening for depression,"ICD-10-CM, CDC/NCHS (CMS code descriptions file)",2027
+Z23,Encounter for immunization,"ICD-10-CM, CDC/NCHS (CMS code descriptions file)",2027

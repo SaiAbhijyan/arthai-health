@@ -1,0 +1,15 @@
+{
+  "address": {
+    "city": "Riverbend",
+    "fictional": true,
+    "line1": "100 Riverbend Way, Suite 1",
+    "state": "ZZ",
+    "zip": "00000"
+  },
+  "billing_npi": "1999999927",
+  "ein": "00-0000001",
+  "fictional": true,
+  "name": "Riverbend Family Medicine (fictional)",
+  "phone": "(555) 555-0100",
+  "practice_id": "SYN-ORG-0001"
+}

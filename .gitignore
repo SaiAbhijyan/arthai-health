@@ -9,3 +9,10 @@
 .cognee_system/
 .env
 .venv/
+
+# Phase 2: raw Synthea output, downloaded CMS files, tool caches (D-016, D-017)
+/build/
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+__pycache__/

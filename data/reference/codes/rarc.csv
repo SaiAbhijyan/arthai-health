@@ -1,0 +1,15 @@
+code,arthai_category,x12_url
+M51,procedure_code_issue,https://x12.org/codes/remittance-advice-remark-codes
+M76,diagnosis_issue,https://x12.org/codes/remittance-advice-remark-codes
+M86,already_paid,https://x12.org/codes/remittance-advice-remark-codes
+M127,records_missing,https://x12.org/codes/remittance-advice-remark-codes
+MA04,secondary_payer_info_needed,https://x12.org/codes/remittance-advice-remark-codes
+MA130,incomplete_claim_no_appeal,https://x12.org/codes/remittance-advice-remark-codes
+N4,prior_payer_eob_missing,https://x12.org/codes/remittance-advice-remark-codes
+N30,patient_ineligible,https://x12.org/codes/remittance-advice-remark-codes
+N54,auth_mismatch,https://x12.org/codes/remittance-advice-remark-codes
+N115,coverage_policy_decision,https://x12.org/codes/remittance-advice-remark-codes
+N130,plan_benefit_limits,https://x12.org/codes/remittance-advice-remark-codes
+N290,rendering_provider_id_issue,https://x12.org/codes/remittance-advice-remark-codes
+N479,prior_payer_eob_missing,https://x12.org/codes/remittance-advice-remark-codes
+N657,wrong_code_for_service,https://x12.org/codes/remittance-advice-remark-codes

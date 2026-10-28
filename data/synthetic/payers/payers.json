@@ -1,0 +1,45 @@
+[
+  {
+    "appeal_deadline_days": 180,
+    "fictional": true,
+    "ivr_menu": [
+      "provider services",
+      "claims",
+      "claim status",
+      "speak to a representative"
+    ],
+    "name": "Lakeshore Mutual Health (fictional)",
+    "payer_id": "ZZP01",
+    "phone": "(555) 555-0151",
+    "policy_prefix": "ZZP01-POL",
+    "timely_filing_days": 90
+  },
+  {
+    "appeal_deadline_days": 120,
+    "fictional": true,
+    "ivr_menu": [
+      "claims",
+      "claim status",
+      "speak to a representative"
+    ],
+    "name": "Granite Peak Health Plan (fictional)",
+    "payer_id": "ZZP02",
+    "phone": "(555) 555-0152",
+    "policy_prefix": "ZZP02-POL",
+    "timely_filing_days": 120
+  },
+  {
+    "appeal_deadline_days": 90,
+    "fictional": true,
+    "ivr_menu": [
+      "provider services",
+      "claims",
+      "speak to a representative"
+    ],
+    "name": "Cedar Hollow Community Care (fictional)",
+    "payer_id": "ZZP03",
+    "phone": "(555) 555-0153",
+    "policy_prefix": "ZZP03-POL",
+    "timely_filing_days": 180
+  }
+]
