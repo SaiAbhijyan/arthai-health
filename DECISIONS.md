@@ -58,3 +58,20 @@ Write an entry when choosing a library, pattern, schema, protocol, model/prompt 
 - Decision: B, with `TELEMETRY_DISABLED=1`, fastembed embeddings and repo-local storage. Do not install the cognee agent skills, hook or cognee-mcp.
 - Consequences: Agents get a local knowledge graph. Follow-up: run the live test with the Baseten key; re-scan on upgrade; pin the version.
 - Links: docs/tooling.md (cognee), .env.example, requirements.txt, scripts/cognee_smoke.py
+
+### D-014: Vetting-batch tool installs (2026-10-28)
+- Date: 2026-10-28 | Status: Accepted
+- Deciders: Sai (explicit: "except the watermarks install all"; later "install these globally"; ponytail global)
+- Context: Sai approved installing the remaining vetted tools, watermarks-remover excluded. Each was scanned with SkillSpector before install.
+- Decisions:
+  - ponytail: installed GLOBALLY (user-level `~/.claude/skills`, `~/.cursor/skills-cursor`), SKILL.md only, no Node hooks/telemetry.
+  - graphify, anatomy: project-level skills in `.claude/skills` + `.cursor/rules`. graphify CLI runs from a box venv (`graphifyy`), not a global `uv tool`; query log off.
+  - meta-n: research venv on the box, not a skill.
+  - Agent-Reach: isolated box venv + global wrapper that blocks `login`, so it never reads the box browser's cookies. Not wired as an MCP.
+  - REA: clone only, not registered as a global MCP and not auto-enabled; never to be pointed at insurer/clearinghouse/third-party sites.
+  - apple-design (dickwu): no license, so user-config + git-ignored local only; never committed to any repo.
+  - claude-red (offensive, 79 skills): installed to user config only (`~/.claude`, `~/.cursor`), NOT wired into this public repo. Use only against a test deployment Sai owns.
+  - Strix (usestrix/strix): installed globally (box venv + wrapper), telemetry off; run only on Sai's own code or local targets. Scan was 100/100 CRITICAL by volume/offensive-by-design; the one CRITICAL is a benign env→urlopen in its Caido proxy client. Needs Docker + an LLM key to run.
+  - watermarks-remover: NOT installed (irrelevant, legal/ethical risk).
+- Consequences: Offensive tools (claude-red, Strix) stay out of the public repo and are scoped to Sai-owned targets. Telemetry off everywhere.
+- Links: docs/tooling.md (sections dated 2026-10-28)

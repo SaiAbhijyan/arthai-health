@@ -177,3 +177,59 @@ SkillSpector `--no-llm` scores large codebases 100/100 because of volume. The ve
 | pi (earendil-works/pi, was badlogic/pi-mono, MIT), `@earendil-works/pi-coding-agent` 1.4.0 | small terminal coding agent | 100/100. 0 CRITICAL. HIGHs are in CHANGELOG/docs/test fixtures, plus `package-manager-cli.ts` (npm install of extensions) and MCP OAuth. Normal for a coding agent with a bash tool. | Installed under `/workspace/tools/pi`, run with `scripts/pi.sh`, telemetry off. Do not install pi extensions without a scan. |
 | LAYA (NandhaKishorM/laya, Apache-2.0), open-source Jev | System 1 decision model, 421M | 100/100. 18 CRITICAL: 15 are `exec(compile())` in tests and research scripts; 2 are env → `urlopen` (timeout value, a ModelScope prefetch script); 1 in a Java dev script. None in the runtime path we use. Weights download from Hugging Face. | venv `/workspace/tools/laya-env`. Plan: `docs/laya-plan.md`. Not a repo dependency yet. |
 | REA (morluto/rea, MIT), `rea-agents` | MCP server to reverse-engineer binaries, Electron/JS apps, .NET, websites | 100/100. 7 CRITICAL `exec(compile())` in pwndbg/pwntools debugger bridges; 611 HIGH SC9, mostly docs/translations. Expected for a debugger tool. | NOT wired. It does not help an RCM product, and reverse-engineering payer or vendor software can break their terms. Opt-in only, by hand: `npx rea-agents@6.4.0 setup --client claude_code --dry-run` first, and only on software we own. |
+
+## Added 2026-10-28 (vetting batch, Sai approved "all except watermarks-remover")
+
+All items were scanned with SkillSpector (`--no-llm`) before install; reports are in `/workspace/curious/skillspector-*.md`
+(scanned 2026-10-26). Rule reminder: project-level only, except ponytail, which Sai asked to install globally.
+
+| Tool | Source / License | Install location | Guardrails | Status |
+|---|---|---|---|---|
+| ponytail | DietrichGebert/ponytail, MIT | **Global (user-level):** `~/.claude/skills/ponytail*` and `~/.cursor/skills-cursor/ponytail*` | SKILL.md only; Node hooks, statusline and update check NOT installed, so no telemetry and no network. | Installed globally per Sai. 6 skills: ponytail, -audit, -debt, -gain, -help, -review. |
+| graphify | Graphify-Labs/graphify, Apache-2.0 | Skill: `.claude/skills/graphify` + `.cursor/rules/graphify.mdc`. CLI: box venv `/workspace/tools/graphify-env` (`graphifyy` 0.9.97, pip, not global). | Query log OFF (`GRAPHIFY_QUERY_LOG_DISABLE=1`). No telemetry. Never point at real PHI. | Installed project-level. CLI runs from the box venv, not a global `uv tool`. |
+| anatomy | wheresryan22/anatomy, MIT | Skill: `.claude/skills/anatomy` + `.cursor/rules/anatomy.mdc`. Example kit stays on the box at `/workspace/tools/anatomy`. | Needs Node 20.10+ and Chrome/Chromium. For demo/pitch figures only. | Installed project-level (skill vendored; ~10-40 MB kit not committed). |
+| meta-n | minnesotanlp/meta-n, MIT | Box venv `/workspace/tools/meta-n/.venv` (editable install). | Research tool, NOT a skill. Not wired into Claude Code or Cursor. | Installed as a research tool. `import meta_n` works. |
+| REA | morluto/rea, MIT | Clone only: `/workspace/tools/rea`. | NOT added to `.mcp.json` or `.cursor/mcp.json`. **Never point REA at insurer, clearinghouse or any third-party site**; opt-in by hand, only on software we own. | Cloned, not wired. |
+| Agent-Reach | Panniantong/Agent-Reach, MIT | Box venv `/workspace/tools/Agent-Reach/.venv`; isolated home `/workspace/tools/agent-reach-home` (`AGENT_REACH_HOME`). | **Login channels are left OFF.** Its default channels (github, youtube, bilibili, v2ex, web) need no login and read no cookies. The login channels (twitter, reddit, facebook, instagram, xiaohongshu, linkedin, boss, xueqiu) copy cookies from the box browser on `agent-reach login <channel>` only; that command is never run. There is no hard flag that guarantees no-cookie-access, so it is installed but unwired and login is disabled by policy. | Installed, isolated, unwired, login disabled. |
+| apple-design-skill | dickwu/apple-design-skill, **no license** | Untracked local only: `.claude/skills/apple-design-local/` (git-ignored). | Reproduces Apple HIG text; no license. Never committed to the public repo. | Installed local-only, not committed. |
+| claude-red | SnailSploit/Claude-Red, MIT | Clone only on the box: `/workspace/tools/Claude-Red`. | 79 offensive-security skills (exploit dev, EDR evasion, container escape, SSRF/RCE/SQLi, credential access). SkillSpector 100/100, 15 CRITICAL, 512 HIGH (real capabilities, not false positives). | **Not wired into the public repo** (liability for a public healthcare repo). Held for Sai's explicit go. See note below. |
+
+### REA — scope note (repeat)
+Never point REA at insurer, clearinghouse or third-party sites. It helps an RCM product in no way; reverse-engineering payer or
+vendor software can break their terms. Use only on software we own, opt-in by hand.
+
+### claude-red — why it is not wired into this repo
+Sai approved installing "all except watermarks-remover". For claude-red the batch install was done as an **outside-the-repo clone only**
+(`/workspace/tools/Claude-Red`), not a project-level wire-in. Putting 79 offensive-security skills into a **public** healthcare repo is a
+real liability: they would load with agent privileges in a repo that also holds PHI/compliance context, and the repo is public. For
+security testing of Arthai Health we already have the defensive `security-and-hardening` skill, the `security-auditor` agent, and the
+`/security-review` command. To use claude-red, install it OUTSIDE this repo, opt-in per category, against a dedicated test deployment
+Sai owns, never prod or anything with real data:
+```bash
+~/claude-red/install.sh --category web --target ~/.claude/skills/claude-red   # web/api/auth only; review each SKILL first
+```
+
+## Added 2026-10-28 (global / user-level installs, Sai approved)
+
+Sai asked for these at user level (`~/.claude` and Cursor user config) so every project gets them, not only this repo.
+Telemetry is off for all. None of this is committed to the repo; it lives in the box user config and `/workspace/tools`.
+
+| Tool | Source / License | Global location | Guardrails / telemetry |
+|---|---|---|---|
+| ponytail | DietrichGebert/ponytail, MIT | `~/.claude/skills/ponytail*`, `~/.cursor/skills-cursor/ponytail*` (6 skills) | SKILL.md only; no Node hooks, statusline or update check, so no telemetry/network. |
+| Agent-Reach | Panniantong/Agent-Reach, MIT | CLI on PATH via `~/.local/bin/agent-reach` (box venv). Isolated home `/workspace/tools/agent-reach-home`. | Wrapper hard-blocks the `login` subcommand, so it never reads the box browser's cookies/profiles. Only no-login channels (github, youtube, bilibili, v2ex, web) work. Not auto-wired as an MCP. |
+| REA | morluto/rea, MIT | NOT registered as a global MCP. Clone only: `/workspace/tools/rea`. | Not auto-enabled for any project. **Never point REA at insurer, clearinghouse or any third-party site**; opt-in by hand, only on software we own. |
+| apple-design | dickwu/apple-design-skill, **no license** | `~/.claude/skills/apple-design-local`, `~/.cursor/skills-cursor/apple-design-local` | Reproduces Apple HIG text; no license. Never committed to any repo. User-config only. |
+| claude-red | SnailSploit/Claude-Red, MIT | `~/.claude/skills/claude-red`, `~/.cursor/skills-cursor/claude-red` (24 categories, offensive) | 79 offensive-security skills. User-config only, never committed to a repo. Use only against a dedicated test deployment Sai owns, never prod/PHI. |
+| Strix | usestrix/strix (`strix-agent` 1.7.0), MIT | CLI on PATH via `~/.local/bin/strix` (box venv `/workspace/tools/strix-env`). | Wrapper sets `STRIX_TELEMETRY=0` (opt-out of PostHog). **Run only against Sai's own code or local targets.** Needs Docker (sandbox image) and an LLM key to run. |
+
+### Strix — SkillSpector scan (2026-10-28), real findings
+Report: `/workspace/curious/skillspector-strix-2026-10-28.md`. Raw verdict: **100/100 CRITICAL, "DO NOT INSTALL"** — driven by volume
+(563 components) and by the fact that Strix is an offensive pentest agent, so the scanner flags its intended capabilities.
+- **1 CRITICAL (TT3)**: `strix/tools/proxy/caido_api.py:78` — a value from `os.environ.get` flows into `urllib.request.urlopen`.
+  This is Strix's client talking to its own local Caido proxy using an env-configured URL/token. Benign in context, not a backdoor.
+- **239 HIGH**: mostly PE3 (82, process/command execution), SSRF1 (21), RA1 (20), SC2 (18, subprocess/shell), TM1/TM2 (tool misuse),
+  E2 (eval/exec). These are the pentest tool's own features (it runs exploits, probes SSRF, drives a browser and a proxy), not hidden malware.
+- **148 MEDIUM**: output handling, deserialization, YAML rules, config-dir writes — expected for a CLI agent with a sandbox.
+- **Verdict**: like claude-red, the score reflects that Strix is offensive by design. No sign of a supply-chain backdoor in the flagged
+  lines. Installed globally for Sai, telemetry off, to be used only on his own code or local targets.
