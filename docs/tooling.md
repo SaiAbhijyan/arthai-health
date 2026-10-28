@@ -156,6 +156,8 @@ Official Anthropic plugin (automation recommender). Flags are its own docs listi
 ### everything-claude-code / ECC (affaan-m/ECC) — use with care, cherry-pick only
 MIT, ~290k stars, 1,000+ skills. Too broad to vendor; 247 HIGH static flags. Nothing vendored. `skills/prompt-optimizer` scanned clean (15/100).
 
+**Update 2026-10-28 (D-019):** Sai approved the full install at project level. ECC commit 25278e7d7b6c is in `.claude/` and `.cursor/`. Some hooks are disabled. Read D-019 before you enable a hook. Do not install ECC globally.
+
 ## Avoid
 - **Agent-Reach (Panniantong/Agent-Reach)**: reuses cookies from your logged-in browsers over CDP to scrape X/Reddit/etc.
   Session-hijack and ToS risk. Use official APIs (X API/MCP, `gh`, YouTube Data API) instead.
