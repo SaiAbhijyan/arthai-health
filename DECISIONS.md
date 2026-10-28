@@ -58,3 +58,116 @@ Write an entry when choosing a library, pattern, schema, protocol, model/prompt 
 - Decision: B, with `TELEMETRY_DISABLED=1`, fastembed embeddings and repo-local storage. Do not install the cognee agent skills, hook or cognee-mcp.
 - Consequences: Agents get a local knowledge graph. Follow-up: run the live test with the Baseten key; re-scan on upgrade; pin the version.
 - Links: docs/tooling.md (cognee), .env.example, requirements.txt, scripts/cognee_smoke.py
+
+### D-004: Plan and benefit data from CMS Exchange PUFs, mapped to fictional payers
+- Date: 2026-10-28 | Status: Proposed
+- Deciders: Sai (agent-drafted, Phase 1 research)
+- Context: The eligibility, denial and appeal agents need realistic plan benefits. Real insurer names in a demo can suggest that a real insurer denied a claim.
+- Options considered:
+  - A: CMS Exchange PUFs 2026 (free, no signup, "AS IS" disclaimer). Pros: real benefit shapes. Cons: real issuer names; FFE states only.
+  - B: CMS Marketplace API. Pros: live data. Cons: API key signup, 60-day key expiry, not for bulk extraction.
+  - C: Invent all benefits. Pros: simple. Cons: less realistic.
+- Decision: A. Take a one-state subset, map it to fictional payers, add synthetic TiC in-network files validated against the CMS TiC schema.
+- Consequences: Realistic numbers with no real insurer in the story. Follow-up: keep the CMS disclaimer; never label altered data as CMS data.
+- Links: docs/data-plan.md section 1
+
+### D-005: Providers: fictional practice with Luhn-valid NPIs that NPPES does not know
+- Date: 2026-10-28 | Status: Proposed
+- Deciders: Sai (agent-drafted)
+- Context: Claims need NPIs. NPPES (API v2.1, free, no signup) returns real providers.
+- Options considered:
+  - A: Use real NPIs from NPPES. Cons: real people in a synthetic denial story.
+  - B: Fictional practice; NPIs pass the Luhn check and return zero NPPES results. Pros: realistic format, no real person.
+- Decision: B. Use NPPES only to confirm that our NPIs are absent; record the response as a fixture; CI never calls NPPES.
+- Consequences: No real provider in data. Follow-up: one manual NPPES check per new NPI.
+- Links: docs/data-plan.md section 2
+
+### D-006: Clearinghouse: own X12 payer mock; free vendor sandboxes optional
+- Date: 2026-10-28 | Status: Proposed
+- Deciders: Sai (agent-drafted)
+- Context: We need 270/271, 837, 276/277 and 835. No free sandbox covers all four. Stedi sandbox = mock 270/271 only; Availity Demo = canned 270/271 and 276/277; Optum sandbox = canned values, credentials by request; Claim.MD test = one fixed eligibility response; pVerify and Office Ally = credentials from the vendor.
+- Options considered:
+  - A: Depend on a vendor sandbox. Cons: signup, partial coverage, canned data only.
+  - B: Own payer mock for all flows, plus an optional Stedi 270/271 sandbox call. Pros: full control, synthetic data, no signup needed for the demo.
+- Decision: B. Vendor signups only with Sai's yes. No production clearinghouse traffic.
+- Consequences: Full end-to-end demo. Cons: we cannot claim TR3 compliance (TR3 guides are paid).
+- Links: docs/data-plan.md section 3
+
+### D-007: Patients: seeded Python generator first, Synthea later
+- Date: 2026-10-28 | Status: Proposed
+- Deciders: Sai (agent-drafted)
+- Context: Synthea (Apache-2.0) needs Java 17+; Java is not on the build box; Phase 1 installs no tools.
+- Options considered:
+  - A: Project-local JDK + Synthea. Pros: rich clinical history. Cons: install approval, SNOMED/CPT content check.
+  - B: Synthea on Modal. Cons: uses credits.
+  - C: Seeded Python generator for the RCM fields only. Pros: fast, deterministic.
+- Decision: C for the demo; A after approval if clinical history matters.
+- Consequences: Simple patients. Follow-up: check whether Synthea output contains CPT before any commit.
+- Links: docs/data-plan.md section 4
+
+### D-008: Code sets: values only for X12 and CPT; subsets with attribution for HCPCS II and ICD-10-CM
+- Date: 2026-10-28 | Status: Proposed
+- Deciders: Sai (agent-drafted)
+- Context: X12 holds copyright to CARC/RARC (free to view; CSV subscription $295/year, internal use; production embedding needs an X12 license). AMA CPT needs a license for any use in products, and prohibits training or fine-tuning AI on the CPT data file. HCPCS II is CMS. ICD-10-CM is free from CDC/NCHS (WHO holds the base ICD-10 copyright).
+- Options considered:
+  - A: Commit full code lists with descriptions. Cons: license risk in a public repo.
+  - B: Code values plus our own labels for X12 and CPT; small attributed subsets for HCPCS II and ICD-10-CM.
+- Decision: B. No CPT content in training data. Ask Sai about the AMA CPT Developer Program.
+- Consequences: Lower legal risk. Supersedes the "load the public CARC and RARC code lists" line in docs/laya-plan.md for licensing.
+- Links: docs/data-plan.md section 5
+
+### D-009: Synthetic denials, appeals and call transcripts from a scenario table
+- Date: 2026-10-28 | Status: Proposed
+- Deciders: Sai (agent-drafted)
+- Context: No public denial or call data exists without PHI.
+- Options considered:
+  - A: LLM-only generation. Cons: labels drift; hard to verify.
+  - B: Hand-written scenario table + seeded generator for ground truth; optional Meta-model paraphrase with a second-model label check; 50-row human audit.
+- Decision: B. Synthetic ID prefixes, 555-01xx phones, example.com emails, no SSN/MBI fields, PHI scanner in CI. Calls go only to our mock IVR.
+- Consequences: Verifiable labels. Follow-up: golden set goes to evals/golden/ only after Sai approves.
+- Links: docs/data-plan.md section 6
+
+### D-010: LLM: Meta Model API direct, Baseten Muse Spark Open as fallback
+- Date: 2026-10-28 | Status: Proposed
+- Deciders: Sai (agent-drafted)
+- Context: The handoff named Baseten `muse-spark-open-1026` through OmniRoute. That ID is not in Baseten's docs; Baseten lists `meta-models/muse-spark-open`. Meta Model API serves `muse-spark-1.3` directly.
+- Options considered:
+  - A: Baseten through OmniRoute. Cons: unverified ID, extra hop.
+  - B: Meta Model API direct; Baseten fallback; one OpenAI-compatible client configured from env.
+- Decision: B. Contributor mode only with Sai's yes and synthetic data.
+- Consequences: Simple path. Follow-up: confirm the model list with a real key.
+- Links: docs/adr/0004-stack.md
+
+### D-011: OmniRoute only for developer tools, not in the product path
+- Date: 2026-10-28 | Status: Proposed
+- Deciders: Sai (agent-drafted)
+- Context: OmniRoute 3.8.52 (MIT) runs on the box. The "7B free tokens/day" claim is not in its README; the README claims about 1.62B tokens/month as an aggregate of separate third-party free tiers that each need their own account.
+- Options considered:
+  - A: Route all product calls through OmniRoute. Cons: ToS surface, extra process, fast release cadence.
+  - B: Developer tools only (pi, experiments).
+- Decision: B. Never connect consumer or web-session providers.
+- Consequences: Product depends only on Meta and Baseten endpoints.
+- Links: docs/adr/0004-stack.md, docs/tooling.md
+
+### D-012: Runtime memory: propose cognee 1.6.5 behind a flag, default off
+- Date: 2026-10-28 | Status: Proposed (pending Sai's yes; not installed)
+- Deciders: Sai (agent-drafted)
+- Context: Sai asked for agent memory that both Claude Code and Cursor can share. No memory plugin is installed; claude-mem is not approved. cognee 1.6.5 is Apache-2.0; telemetry is on by default and stops when `TELEMETRY_DISABLED` is set; defaults are SQLite, LanceDB and a local "ladybug" graph store.
+- Options considered:
+  - A: cognee 1.6.5 local. Pros: graph + vector memory. Cons: heavy dependencies; needs LLM and embeddings; telemetry default on.
+  - B: Postgres + pgvector in our database. Pros: no new dependency. Cons: we build retrieval ourselves.
+  - C: No runtime memory; DECISIONS.md and AGENTS.md for dev memory.
+- Decision: A as a proposal, behind `MEMORY_BACKEND`, with `TELEMETRY_DISABLED=1` and `ENV=dev`. Fall back to B if time is short. Dev-tool memory stays in DECISIONS.md, AGENTS.md and docs/data-plan.md.
+- Consequences: Follow-up: SkillSpector scan, rule check on non-Meta embeddings, then install at project level.
+- Links: docs/adr/0004-stack.md
+
+### D-013: Compute: Modal for batch and fine-tune jobs, inside free credits
+- Date: 2026-10-28 | Status: Proposed
+- Deciders: Sai (agent-drafted)
+- Context: LAYA fine-tune and optional Synthea batch need a GPU or a container. Modal Starter gives $30/month free credits; the hackathon lists $100 Modal credits for select participants. L4 costs about $0.80/hour.
+- Options considered:
+  - A: Modal. Pros: per-second billing, credits. Cons: account needed.
+  - B: Local CPU only. Pros: free. Cons: slow fine-tune.
+- Decision: A with `max_containers=1`, a timeout and a spend limit; B as fallback.
+- Consequences: Follow-up: Sai confirms the credits before the first run.
+- Links: docs/adr/0004-stack.md, docs/laya-plan.md

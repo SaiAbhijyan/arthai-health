@@ -3,6 +3,7 @@
 ## Project
 Arthai Health (AI agents that get you paid): RCM agent suite. Python 3.12, FastAPI, LangGraph, Postgres, React/TS (SSE).
 Synthetic data ONLY. Never add real patient data, real payer creds, or PHI to code, tests, logs, prompts or fixtures.
+Data sources, licenses and data layout: `docs/data-plan.md` is the single source for every agent (Claude Code, Cursor, Grok). Read it before any data, code-set or fixture work. Stack: `docs/adr/0004-stack.md`.
 
 ## Commands (run before you say "done")
 make lint        # ruff + mypy --strict + eslint + tsc
