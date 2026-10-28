@@ -61,3 +61,4 @@ packages/ rcm_models (Pydantic), x12 (837/835 parse+build), policy_rag, cci_gate
 - `docs/rcm/primer.md`: RCM steps, X12 transactions, denial codes (values only), appeal process.
 - `docs/rcm/research.md`: market numbers, competitors, papers, open-source repos, with links.
 - `docs/architecture.md`: denial -> analysis -> appeal -> voice call flow, components, trust layer.
+- `docs/research/originals/`: full Oct 26 research pages, word for word (old Revora name, not maintained). Background only; the docs above win. See its README.
