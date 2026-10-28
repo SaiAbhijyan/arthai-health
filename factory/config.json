@@ -23,6 +23,7 @@
     "*payer*", "*insurer*", "*voice*", "*call*", "*twilio*", "*telephony*",
     "*deploy*", "Dockerfile*", "*docker-compose*", "*modal*", "*fly.toml", "*vercel*", "infra/*", "terraform/*",
     ".github/*", "Makefile", "factory/*", ".claude/*", "AGENTS.md", "CLAUDE.md",
+    "data/*", "scripts/*",
     "*requirements*.txt", "pyproject.toml", "*lock*", "package.json"
   ],
   "protected_paths": [
