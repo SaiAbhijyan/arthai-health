@@ -17,3 +17,7 @@ Vendored agent skills/agents (copied unmodified unless noted; scanned with NVIDI
   (vendored; `factory/bin/job` modified to add the `escalate_paths` merge guard).
 - `factory/config.json`, `factory/checks.sh`, `.claude/agents/{intake,spec-writer,builder,reviewer-*,approver}.md`
   and `.claude/skills/factory/SKILL.md` were written for Arthai Health. Upstream v2 does not ship agent files.
+
+## Python dependencies
+
+- cognee 1.6.5 (https://github.com/topoteretes/cognee), Apache-2.0. Installed with pip into `.venv`. Not vendored.

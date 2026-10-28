@@ -47,3 +47,14 @@ Write an entry when choosing a library, pattern, schema, protocol, model/prompt 
 - Decision: B. See docs/tooling.md.
 - Consequences: Re-scan on update; prune unused skills after Nov 4.
 - Links: docs/adr/0003-third-party-agent-tooling.md, THIRD_PARTY_NOTICES.md
+
+### D-004: Use cognee (local, telemetry off) as agent memory
+- Date: 2026-10-28 | Status: Accepted
+- Deciders: Sai (agent-installed after SkillSpector scan)
+- Context: The appeal and call agents need memory of payer rules, appeal results per denial code and insurer call notes. Data must stay local and synthetic.
+- Options considered:
+  - A: claude-mem. Pros: popular. Cons: records all agent activity, installs globally, optional cloud sync.
+  - B: cognee 1.6.5 in the project venv. Pros: Apache-2.0, local files for storage, local embeddings, works with an OpenAI-compatible endpoint (Baseten Muse). Cons: large dependency tree (torch, GLiNER), telemetry on by default.
+- Decision: B, with `TELEMETRY_DISABLED=1`, fastembed embeddings and repo-local storage. Do not install the cognee agent skills, hook or cognee-mcp.
+- Consequences: Agents get a local knowledge graph. Follow-up: run the live test with the Baseten key; re-scan on upgrade; pin the version.
+- Links: docs/tooling.md (cognee), .env.example, requirements.txt, scripts/cognee_smoke.py

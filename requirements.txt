@@ -1,0 +1,3 @@
+# Python dependencies for Arthai Health tooling. Install into the project venv:
+#   uv venv .venv && uv pip install --python .venv/bin/python -r requirements.txt
+cognee[gliner]==1.6.5  # gliner = local graph extraction when no LLM key is set

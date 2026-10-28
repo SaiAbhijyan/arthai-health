@@ -21,6 +21,41 @@ Rule: project-level only. Nothing here is installed globally by this repo. Never
 | find-skills (vercel-labs/skills, MIT) | `.claude/skills/find-skills`, `.cursor/rules/find-skills.mdc` | Discover skills via `npx skills find`; patched to require SkillSpector scan + project scope. Scan SAFE 12/100. |
 | prompt-audit (our own) | `.claude/commands/prompt-audit.md`, `.cursor/rules/prompt-audit.mdc` | Audit checklist for Muse/voice/tool prompts. For Claude API prompts use the built-in `/doctor prompt-audit <path>`. |
 
+## Python packages installed in the repo
+
+### cognee (topoteretes/cognee) — installed, project venv only
+Apache-2.0, about 33k stars. Version 1.6.5 (pinned in `requirements.txt` as `cognee[gliner]==1.6.5`).
+Use: memory for the Arthai agents (payer rules, appeal results per denial code, notes from insurer calls).
+Scan: `/workspace/curious/skillspector-cognee.md` (100/100 CRITICAL). We read the flagged lines. All were false positives (key and `.env` mentions, docs).
+
+Rules:
+- Install into `.venv` only. Do not install it globally.
+- Put only synthetic data into cognee. Do not put real PHI into cognee.
+- Set `TELEMETRY_DISABLED=1` before you import cognee. Cognee sends anonymous usage data to `test.prometh.ai` by default.
+- Keep all cognee data in the repo. `.cognee_data/` and `.cognee_system/` are git-ignored.
+- Do not commit `.env`. Put the Baseten key in `.env` or in your shell only.
+
+Setup:
+```bash
+uv venv .venv --python 3.12
+uv pip install --python .venv/bin/python -r requirements.txt
+cp .env.example .env            # then set LLM_API_KEY (Baseten key)
+set -a; . ./.env; set +a
+.venv/bin/python scripts/cognee_smoke.py
+```
+
+Settings (`.env.example`):
+- LLM: Muse Spark Open on Baseten. `LLM_PROVIDER=custom`, `LLM_MODEL=openai/meta-models/muse-spark-open-1026`, `LLM_ENDPOINT=https://inference.baseten.co/v1`.
+- Embeddings: local fastembed (`BAAI/bge-small-en-v1.5`, 384 dimensions). No key. Text does not leave the box.
+- Storage, logs and model cache: `.cognee_data/`, `.cognee_system/` (logs and Hugging Face cache are in `.cognee_system/`).
+- `LITELLM_LOCAL_MODEL_COST_MAP=True` stops litellm from downloading its price list from GitHub.
+- `AUTO_FEEDBACK=false` stops an extra LLM call on each turn. Set it to `true` only after the key works.
+
+Notes:
+- With no LLM key, `cognify` uses the local GLiNER model (about 750 MB, downloaded once from Hugging Face). With the key set, cognee uses Muse.
+- Smoke test (2026-10-28, no LLM key): `add`, `cognify` and `search` (CHUNKS) worked on one synthetic payer rule. No telemetry was sent. The only host contacted was `huggingface.co` (model download).
+- Cognee ships agent skills (`.agents/skills`, linked from `.claude/skills`), a Claude Code SessionStart hook and `cognee-mcp`. We did not install them. Scans: `skillspector-cognee-skills.md` (80/100 HIGH, false positives), `skillspector-cognee-mcp.md` (100/100 CRITICAL, pinned dependencies with known advisories in its `uv.lock`).
+
 ## Tools (not installed in the repo; set up per developer)
 ### OmniRoute (diegosouzapw/OmniRoute) — use with care
 MIT, ~81k stars, very active (pushed today). Model/token gateway across 350+ providers. `postinstall` only rebuilds `better-sqlite3`.

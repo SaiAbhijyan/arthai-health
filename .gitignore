@@ -3,3 +3,9 @@
 
 # software factory job state
 /factory/jobs/
+
+# cognee local storage and secrets
+.cognee_data/
+.cognee_system/
+.env
+.venv/
