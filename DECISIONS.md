@@ -221,3 +221,31 @@ Write an entry when choosing a library, pattern, schema, protocol, model/prompt 
 - Decision: B. Calls go only to our own mock insurer. Never call a real insurer.
 - Consequences: Follow-up: ADR 0005 (voice design) verifies the license of each code package and each voice model live (no non-commercial voices) and records CPU latency measured on the box. Scan each voice tool with SkillSpector and document it before install. Free tiers that need no card go on a list for Sai only; no signups.
 - Links: docs/data-plan.md section 6.1 step 6 and R7, docs/adr/0004-stack.md
+
+### D-019: Install the full ECC (everything-claude-code) at project level, with some hooks disabled
+- Date: 2026-10-28 | Status: Accepted
+- Deciders: Sai (approved on 2026-10-28 with the risk known); agent-installed by Mini Chief
+- Context: Sai wants more agents, skills and commands for the build. The SkillSpector scan of ECC (/workspace/curious/skillspector-ecc.md) gives 100/100 CRITICAL with 247 HIGH flags. D-003 and docs/tooling.md said "cherry-pick only". Sai accepted this risk and asked for the full install in this repo only.
+- Options considered:
+  - A: Cherry-pick some skills only. Pros: small attack surface. Cons: Sai does not get the full set.
+  - B: Full install at project level (.claude/ and .cursor/), not global, with risky hooks disabled. Pros: all ECC agents, skills, commands and rules. Cons: large attack surface, about 27 MB of third-party files, about 6k tokens of rules that are always loaded.
+- Decision: B. Source: github.com/affaan-m/ECC, commit 25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b (version 2.2.3), MIT license. Installer: `scripts/install-apply.js --target claude-project --profile full --enable-hooks`, then `--target cursor --profile full --no-hooks`.
+- Installed: Claude: 71 agents, 311 skills, 97 commands, 122 rule files (.claude/rules/ecc) and 27 ECC hook entries in .claude/settings.json. Cursor: 71 agents, 311 skills, 97 commands and 121 rule files. No ECC hooks in Cursor.
+- Safety changes:
+  - Disabled hooks (`ECC_DISABLED_HOOKS` in .claude/settings.json):
+    - `pre:mcp-health-check`, `post:mcp-health-check`: they send HTTP requests to MCP servers.
+    - `pre:observe`, `post:observe:continuous-learning`: they record all tool input and output, and they can start a background Haiku observer.
+    - `stop:cost-tracker`, `post:session-activity-tracker`, `post:ecc-metrics-bridge`, `post:skill:track`, `post:bash:command-log-audit`, `post:bash:command-log-cost`: local usage analytics. Command logs can hold secrets.
+    - `stop:evaluate-session`: it writes learned skills outside the repo.
+    - `pre:bash:auto-tmux-dev`: it starts and kills tmux sessions. It can break the `arthai` tmux session.
+    - `stop:format-typecheck`, `post:quality-gate`: they can run `npx`, which can download packages. They also duplicate our `make fmt` hook.
+    - `stop:desktop-notify`: the build box has no desktop.
+  - `ECC_GOVERNANCE_CAPTURE=0`. `ECC_AGENT_DATA_HOME=~/.claude/ecc-arthai`, so ECC session data does not mix with the global ~/.claude skills and sessions.
+  - The installer wrote absolute worktree paths into the hook commands. We changed them to use `CLAUDE_PROJECT_DIR`, so the hooks work in each clone and factory worktree.
+  - Cursor: we kept our .cursor/mcp.json. ECC tried to add the github, playwright and context7 MCP servers. We did not add them.
+  - The installer writes ~/.claude/ecc/state.db (an install record). We deleted it after the install. Uninstall uses .claude/ecc/install-state.json and .cursor/ecc-install-state.json.
+  - Makefile: lint and typecheck skip .claude/ and .cursor/. ECC adds about 200 Python files that are third-party code.
+- Audit: no ECC hook runs `git push`, reads ~/.ssh or credentials, or runs `curl | sh`. plan-canvas-pending sends HTTP to 127.0.0.1 only. ECC file names and agent names do not clash with the factory agents (builder, reviewer, approver, intake, spec-writer, reviewer-*, security-auditor) or with our skills and commands. No renames were necessary.
+- Consequences: Agents get many more tools. ECC hooks do not merge or push, so the factory merge guard stays in force. This change touches .claude/*, so it escalates to Sai. gateguard-fact-force can stop the first edit or a destructive command in a session and ask for facts, so headless factory jobs can use more turns. config-protection blocks edits to linter and formatter config. On conflict, AGENTS.md, CLAUDE.md and the factory rules win over ECC rules. Follow-ups: scan again when you update ECC. After Nov 4, remove the skills that we do not use (healthcare RCM does not need most of them).
+- Links: THIRD_PARTY_NOTICES.md (ECC), docs/tooling.md (ECC), /workspace/curious/skillspector-ecc.md
+

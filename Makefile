@@ -9,7 +9,8 @@ VENV := .venv-dev
 PY := $(VENV)/bin/python
 # Pre-existing dev-tool scripts, not product code. Not linted until someone cleans them up.
 LEGACY := scripts/cognee_smoke.py scripts/hooks/decision_reminder.py
-PYFILES = $(filter-out $(LEGACY),$(shell git ls-files -co --exclude-standard -- '*.py'))
+# Vendored agent tooling (ECC and other skills under .claude/ and .cursor/) is third-party code. Do not lint it (D-019).
+PYFILES = $(filter-out $(LEGACY),$(shell git ls-files -co --exclude-standard -- '*.py' ':!:.claude/**' ':!:.cursor/**'))
 
 .PHONY: dev lint typecheck test
 
