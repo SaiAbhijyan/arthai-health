@@ -54,3 +54,10 @@ Follow `docs/hackathon-workflow.md`: phase -> skill/command/MCP, daily loop, tmu
 ## Architecture map
 services/ eligibility, intake, coding, claims, clearinghouse_gw, payer_mock, remits, denials, voice, ar, billing, ledger, review, audit, gateway
 packages/ rcm_models (Pydantic), x12 (837/835 parse+build), policy_rag, cci_gate
+
+## Product and RCM docs
+- `docs/product/idea.md`: problem, users, solution, hackathon scope, long-term vision, demo story.
+- `docs/product/hackathon.md`: hackathon rules, judging, prizes, fit check, submission checklist.
+- `docs/rcm/primer.md`: RCM steps, X12 transactions, denial codes (values only), appeal process.
+- `docs/rcm/research.md`: market numbers, competitors, papers, open-source repos, with links.
+- `docs/architecture.md`: denial -> analysis -> appeal -> voice call flow, components, trust layer.
