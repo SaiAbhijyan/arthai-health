@@ -1,12 +1,12 @@
 # Arthai Health: data plan (Phase 1)
 
 Status: Proposed. Phase 1 is research and plan only. This branch adds no data and no code.
-Owner: Sai. Drafted by the Grok build agent. Checked: 2026-10-28 (America/New_York).
+Owner: Sai. Drafted by the Grok build agent. Checked: 2026-10-28 (America/New_York). Revised 2026-10-28 after Mini Chief's review.
 
 This file is the single source of truth for data sources, data licenses and data layout.
 Claude Code, Cursor and Grok read this file through `AGENTS.md`. If another doc conflicts with this file on data or licensing, this file wins. Log the conflict in `DECISIONS.md`.
 
-Related: `docs/adr/0004-stack.md` (stack), `DECISIONS.md` D-004 to D-013, `docs/laya-plan.md`.
+Related: `docs/adr/0004-stack.md` (stack), `DECISIONS.md` D-005 to D-014 (this plan) and D-004 (cognee, Accepted), `docs/laya-plan.md`.
 
 ## 0. Rules for all data
 
@@ -316,22 +316,23 @@ What we verified:
 - Dates: hackathon started Oct 26. Submissions are due **Nov 4, 9:00 PM ET**. Judging Nov 4 to 8. Finals Nov 9.
 - Tracks: Indie (individual builders and students; judged on "creativity, technical ambition, and whether it works") and Startup.
 - Models: "Use the Muse Spark series, Muse Wonder, Muse Image and SAM 3.1 through Meta Model API, run Meta open weights models, and code faster with Muse Code".
-- Partner credits for "select participants": Baseten $100 (plus 2M TPM), Modal $100, Fireworks $100.
+- Partner credits listed for "select participants": Baseten $100 (plus 2M TPM), Modal $100, Fireworks $100.
+- Sai's credits (reported by Mini Chief on 2026-10-28; we did not see the consoles): Meta Model API $150 approved, Baseten $100 approved, Modal $100 approved (Sai is redeeming it), Fireworks $100 pending. Cost estimates are in `docs/adr/0004-stack.md` finding 6.
 - Eligibility on the public page: open worldwide, except sanctioned countries and regions; Meta and Cerebral Valley staff, government-affiliated people and their families are not eligible.
 - The page says: "Official Rules will be published before the Hackathon begins on October 26, 2026 and must be accepted by the selected participants."
 
-What we could **not** find: the Official Rules text. The Cerebral Valley "Event Waiver" page loads only with JavaScript, and our fetch got no text. Common rule URLs returned 404. The rules are probably in the participant portal or Discord. Third-party blogs say participants get $150 of Meta Model API credit: **UNVERIFIED** on a Meta page.
+What we could **not** find: the Official Rules text. The Cerebral Valley "Event Waiver" page loads only with JavaScript, and our fetch got no text. Common rule URLs returned 404. The rules are probably in the participant portal or Discord. Third-party blogs say participants get $150 of Meta Model API credit. No Meta page says so, but Sai's $150 Meta credit is approved (see above).
 
 Questions for Sai (read the Official Rules in the participant portal and answer):
 
 1. **F1 STEM OPT.** The public page does not exclude any visa status. Can a solo Indie entrant on F1 STEM OPT accept a cash prize? Check the Official Rules for tax forms (W-9 or W-8BEN) and ask the school DSO whether prize work fits the OPT terms. This is not legal advice.
-2. **Required Meta model use.** Must the core AI calls use Meta models? Is a non-Meta helper model (LAYA, 421M, Apache-2.0) allowed for triage? Are non-Meta embedding models allowed (cognee needs embeddings)?
+2. **Required Meta model use.** Must the core AI calls use Meta models? Is a non-Meta helper model (LAYA, 421M, Apache-2.0) allowed for triage? Are non-Meta embedding models allowed? cognee on `main` (D-004) uses local fastembed `BAAI/bge-small-en-v1.5`.
 3. **Muse Spark Open on Baseten.** Does a call to Muse Spark Open through Baseten count as "Meta open weights models"? (We think yes; confirm.)
 4. **Data rules.** Do the rules ban real personal data or require a data statement? Must we disclose synthetic data and public datasets (CMS, CDC, X12 code values)?
 5. **IP.** Who owns the submission? Does Meta get a license to the code, the video or the content? Is a public GitHub repo required?
 6. **Prior work.** May we use code written before Oct 26 (this repo was started on Oct 26; some tooling may be older)?
 7. **What to submit.** Video length, repo link, written description, live demo URL, team and track fields, and the submission portal.
-8. **Credits.** Did Sai's account receive Meta Model API credits and the Baseten, Modal and Fireworks credits? Sai's rule is: no paid usage beyond free credits.
+8. **Credits.** Meta, Baseten and Modal are approved; Fireworks is pending. Do the rules limit how credits are used (for example, only for the submitted project)? Sai's rule is: no paid usage beyond free credits.
 9. **Healthcare.** Do the rules restrict medical or healthcare use cases, or require a disclaimer?
 10. **Term "REA".** In the handoff, "REA" matches the REA tool in `docs/tooling.md` (`morluto/rea`, a reverse-engineering MCP server, marked "NOT wired"). We read the rule as "do not use REA or any reverse-engineering on insurer or clearinghouse sites". Confirm.
 
@@ -340,8 +341,8 @@ Questions for Sai (read the Official Rules in the participant portal and answer)
 | # | Risk | Effect | Mitigation |
 |---|---|---|---|
 | R1 | The Official Rules forbid a part of the stack (LAYA, non-Meta embeddings) or a data source. | Rework or disqualification. | Sai reads the rules on Oct 29. Keep LAYA and cognee behind flags. |
-| R2 | The model ID `muse-spark-open-1026` does not exist. Baseten docs show `meta-models/muse-spark-open`. | Calls fail on demo day. | Use the IDs in ADR 0004. Add a startup check that lists the models. |
-| R3 | Credits run out, or a call bills Sai. | Breaks Sai's "no paid usage" rule. | Set spend limits in each console. Count tokens per run. Use Contributor mode only with synthetic data and only if Sai agrees. |
+| R2 | Model ID conflict: Baseten's 2026-10-26 email to Sai names `meta-models/muse-spark-open-1026` (key works only with that model); Baseten's public docs show `meta-models/muse-spark-open`. | Calls fail if the wrong ID is configured. | When the key is loaded, call `GET /v1/models` and use the returned ID. Add a startup check. Meta Model API is the fallback. |
+| R3 | Credits run out, or a call bills Sai. Approved: Meta $150, Baseten $100, Modal $100; Fireworks pending. | Breaks Sai's "no paid usage" rule. | Set spend limits in each console. Do not add a payment method. Count tokens per run and compare with the estimate in ADR 0004 finding 6. Use Contributor mode only with synthetic data and only if Sai agrees. |
 | R4 | Code-set licensing (CPT, X12 text). | Legal risk in a public repo. | Section 5: codes only, no descriptors, no training on CPT. |
 | R5 | No free sandbox covers 837, 276/277 and 835 end to end. | Cannot show a "real" clearinghouse round-trip. | Own payer mock. Optional Stedi 270/271 sandbox call. |
 | R6 | Synthea needs Java, which is not on the box. | Delay. | Option C (seeded Python generator). |
