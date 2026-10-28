@@ -93,27 +93,28 @@ Write an entry when choosing a library, pattern, schema, protocol, model/prompt 
 - Consequences: Full end-to-end demo. Cons: we cannot claim TR3 compliance (TR3 guides are paid).
 - Links: docs/data-plan.md section 3
 
-### D-008: Patients: seeded Python generator first, Synthea later
-- Date: 2026-10-28 | Status: Proposed
-- Deciders: Sai (agent-drafted)
-- Context: Synthea (Apache-2.0) needs Java 17+; Java is not on the build box; Phase 1 installs no tools.
+### D-008: Patients: Synthea (pinned release) with a project-local JDK 17
+- Date: 2026-10-28 | Status: Accepted
+- Deciders: Sai (picked 2026-10-28, relayed by Mini Chief); agent-drafted
+- Context: Synthea (Apache-2.0) needs Java 17+. Java was not on the build box. Its provider files describe real facilities.
 - Options considered:
-  - A: Project-local JDK + Synthea. Pros: rich clinical history. Cons: install approval, SNOMED/CPT content check.
+  - A: Project-local JDK + pinned Synthea jar. Pros: realistic demographics and encounters. Cons: two downloads (about 400 MB) to verify.
   - B: Synthea on Modal. Cons: uses credits.
-  - C: Seeded Python generator for the RCM fields only. Pros: fast, deterministic.
-- Decision: C for the demo; A after approval if clinical history matters.
-- Consequences: Simple patients. Follow-up: check whether Synthea output contains CPT before any commit.
+  - C: Seeded Python generator. Pros: fast. Cons: less realistic.
+- Decision: A. Temurin JDK 17 and a versioned Synthea jar in `/workspace/tools`, sha256-checked by a script, git-ignored. Use only demographics and encounter dates; drop SSN, license, passport, street, provider and organization fields.
+- Consequences: Realistic patients. Follow-up: tests fail on any Synthea provider or organization data in `data/`.
 - Links: docs/data-plan.md section 4
 
-### D-009: Code sets: values only for X12 and CPT; subsets with attribution for HCPCS II and ICD-10-CM
-- Date: 2026-10-28 | Status: Proposed
-- Deciders: Sai (agent-drafted)
+### D-009: Code sets: free sources only; HCPCS Level II plus code values; no CPT
+- Date: 2026-10-28 | Status: Accepted
+- Deciders: Sai (picked 2026-10-28, relayed by Mini Chief); agent-drafted
 - Context: X12 holds copyright to CARC/RARC (free to view; CSV subscription $295/year, internal use; production embedding needs an X12 license). AMA CPT needs a license for any use in products, and prohibits training or fine-tuning AI on the CPT data file. HCPCS II is CMS. ICD-10-CM is free from CDC/NCHS (WHO holds the base ICD-10 copyright).
 - Options considered:
   - A: Commit full code lists with descriptions. Cons: license risk in a public repo.
-  - B: Code values plus our own labels for X12 and CPT; small attributed subsets for HCPCS II and ICD-10-CM.
-- Decision: B. No CPT content in training data. Ask Sai about the AMA CPT Developer Program.
-- Consequences: Lower legal risk. Supersedes the "load the public CARC and RARC code lists" line in docs/laya-plan.md for licensing.
+  - B: AMA CPT Developer Program license. Cons: application; Sai wants free resources only.
+  - C: CARC/RARC code values with our own labels; HCPCS Level II and ICD-10-CM subsets with attribution; no CPT at all.
+- Decision: C. No AMA license. No CPT codes or descriptors in the repo or in training data. Other free public sources are fine for research and data.
+- Consequences: Lower legal risk; claims use HCPCS Level II only. Supersedes the "load the public CARC and RARC code lists" line in docs/laya-plan.md for licensing.
 - Links: docs/data-plan.md section 5
 
 ### D-010: Synthetic denials, appeals and call transcripts from a scenario table
@@ -171,3 +172,14 @@ Write an entry when choosing a library, pattern, schema, protocol, model/prompt 
 - Decision: A with `max_containers=1`, a timeout and a spend limit; B as fallback.
 - Consequences: Follow-up: confirm the Modal credit shows in the workspace before the first run.
 - Links: docs/adr/0004-stack.md, docs/laya-plan.md
+
+### D-015: Meta Contributor mode allowed, synthetic data only
+- Date: 2026-10-28 | Status: Accepted
+- Deciders: Sai (picked 2026-10-28, relayed by Mini Chief); agent-drafted
+- Context: Meta Model API Contributor mode (`muse-spark-1.3-contributor`, `muse-spark-1.2-contributor`) costs $0.10 / $0.20 per 1M input / output tokens instead of $1.25 / $4.25, and lets Meta train future models on the prompts and responses. Rate limit 150 RPM, 3M TPM.
+- Options considered:
+  - A: Standard mode only. Pros: no training on our content. Cons: about 12 to 20 times the token price.
+  - B: Contributor mode for synthetic-data work. Pros: credits last much longer. Cons: Meta may train on our prompts and synthetic data.
+- Decision: B. Contributor mode only ever sees synthetic data. The rest of D-011 (Baseten primary, Meta fallback) stays Proposed.
+- Consequences: Follow-up: a guard in the LLM client refuses any input that fails the PHI scan.
+- Links: docs/adr/0004-stack.md, docs/data-plan.md section 6.4

@@ -1,12 +1,12 @@
 # Arthai Health: data plan (Phase 1)
 
 Status: Proposed. Phase 1 is research and plan only. This branch adds no data and no code.
-Owner: Sai. Drafted by the Grok build agent. Checked: 2026-10-28 (America/New_York). Revised 2026-10-28 after Mini Chief's review.
+Owner: Sai. Drafted by the Grok build agent. Checked: 2026-10-28 (America/New_York). Revised 2026-10-28 after Mini Chief's review and Sai's picks (D-008, D-009, D-015 Accepted).
 
 This file is the single source of truth for data sources, data licenses and data layout.
 Claude Code, Cursor and Grok read this file through `AGENTS.md`. If another doc conflicts with this file on data or licensing, this file wins. Log the conflict in `DECISIONS.md`.
 
-Related: `docs/adr/0004-stack.md` (stack), `DECISIONS.md` D-005 to D-014 (this plan) and D-004 (cognee, Accepted), `docs/laya-plan.md`.
+Related: `docs/adr/0004-stack.md` (stack), `DECISIONS.md` D-005 to D-015 (this plan) and D-004 (cognee, Accepted), `docs/laya-plan.md`.
 
 ## 0. Rules for all data
 
@@ -170,7 +170,7 @@ Validation (in `packages/x12`):
 | URL | https://github.com/synthetichealth/synthea |
 | License | Apache-2.0 (GitHub API). About 3,400 stars. Last push 2026-10-21. |
 | Release | `master-branch-latest`, asset `synthea-with-dependencies.jar`, published 2026-10-21 (UTC). |
-| Needs | Java JDK 17 or newer. **Java is not installed on the build box.** |
+| Needs | Java JDK 17 or newer. Phase 2 installs a project-local Temurin JDK 17 under `/workspace/tools` (D-008). |
 | Output | FHIR R4 (US Core 6.1.0 by default), optional CSV, C-CDA, CPCDS (claims-like), bulk NDJSON. |
 | Command | `./run_synthea -s <seed> -p <population> <state> [city]` |
 | Cost | Free. |
@@ -178,20 +178,21 @@ Validation (in `packages/x12`):
 
 Caveat: Synthea output uses clinical code systems such as SNOMED CT, LOINC and RxNorm. SNOMED CT has its own license terms (in the US, through the NLM UMLS license). **UNVERIFIED** today: whether Synthea's output also contains CPT codes. Check this in Phase 2 before we commit Synthea output.
 
-Options for Phase 2 (Sai selects one):
+Decision (Sai, 2026-10-28, D-008 Accepted): **Synthea is the patient-data source.** It replaces the seeded Python patient generator.
 
-- A: Install a project-local JDK 17 under `/workspace/tools` (needs approval and a SkillSpector-style check). Run Synthea with a fixed seed, 50 patients, one state.
-- B: Run Synthea once in a Modal container (uses Modal credits).
-- C: Do not use Synthea. Generate the small patient fields that RCM needs (name, birth date, sex, member ID, plan) with a seeded Python generator. This is the fastest path.
-
-Recommendation: C for the demo, A later if clinical history matters.
+- Install a project-local JDK 17 (Eclipse Temurin) under `/workspace/tools`, not globally. Verify its sha256 before use.
+- Pin the Synthea release jar (a versioned tag, not the rolling `master-branch-latest`). Verify its sha256 before use.
+- A script in `scripts/` fetches and checks both tools. Both stay git-ignored and outside the repo.
+- Run Synthea with a fixed seed, a fixed clinician seed and a fixed reference date. Export CSV only.
+- Use Synthea for patient demographics and encounter dates only. Drop Synthea's SSN, driver's license, passport, street address, provider and organization fields. Synthea's provider files describe real facilities, so our claims use only the fictional practice (section 2.2).
+- Do not copy Synthea's SNOMED CT, LOINC or RxNorm codes into our claims. Claims use HCPCS Level II and ICD-10-CM from our catalog (section 5).
 
 Layout and validation:
 
 ```
 data/synthetic/patients/patients.jsonl      # patient_id SYN-P-0001.., fake names, DOB, sex
 data/synthetic/patients/coverage.jsonl      # member_id ZZ-prefixed, payer_id, plan_id, dates
-data/synthetic/patients/synthea/            # only if option A or B; FHIR bundles, git-ignored above 5 MB
+build/synthea/                              # raw Synthea CSV output, git-ignored, rebuilt from the pinned jar and seed
 ```
 
 1. Pydantic model per record. 2. Seeded and deterministic: the same seed gives the same sha256. 3. The PHI scan in section 7.4 runs on every file.
@@ -203,7 +204,7 @@ data/synthetic/patients/synthea/            # only if option A or B; FHIR bundle
 | CARC (Claim Adjustment Reason Codes) | X12 | https://x12.org/codes/claim-adjustment-reason-codes | Free to **view** online. X12 holds "exclusive copyright" to all its work products. The CSV "Code List Update Subscription" costs **$295/year** and gives **internal** use rights only. To embed X12 content in a production product, you need an X12 Internal or Commercial Use license. A Developer License covers development only. | Store code values only (for example `CO-197`) with **our own** short category label. Do not copy X12 description text into the repo. Link to x12.org for the text. Ask X12 (ip@x12.org) or Sai before we ship descriptions. |
 | RARC (Remittance Advice Remark Codes) | X12 (code list) | https://x12.org/codes/remittance-advice-remark-codes | Same as CARC. | Same as CARC. |
 | Claim Adjustment Group Codes (CO, PR, OA, PI) | X12 | X12 external code list | Same as CARC. | Use the two-letter values only. |
-| CPT (HCPCS Level I) | AMA | https://www.ama-assn.org/practice-management/cpt/cpt-licensing-frequently-asked-questions-faqs (updated 2026-07-14) | Copyrighted by the AMA. A license is needed to "use, reference or display" CPT content, also to develop and test products. The AMA prohibits the use of the CPT Standard Data File to **train or fine-tune AI models**. The AMA CPT Developer Program offers a 12-month royalty-free development license (needs an application). | Do **not** commit CPT descriptors. Do **not** train LAYA or any model on CPT content. For the demo, prefer HCPCS Level II codes. If the story needs an office-visit code, ask Sai whether to apply to the AMA Developer Program. Until then, show only a code number from a placeholder table with our own generic label, and mark it "CPT® is a registered trademark of the AMA". |
+| CPT (HCPCS Level I) | AMA | https://www.ama-assn.org/practice-management/cpt/cpt-licensing-frequently-asked-questions-faqs (updated 2026-07-14) | Copyrighted by the AMA. A license is needed to "use, reference or display" CPT content, also to develop and test products. The AMA prohibits the use of the CPT Standard Data File to **train or fine-tune AI models**. The AMA CPT Developer Program offers a 12-month royalty-free development license (needs an application). | Decision (Sai, 2026-10-28, D-009 Accepted): **no AMA license and no CPT at all.** Do not commit CPT codes or descriptors. Do not train LAYA or any model on CPT content. Claims use HCPCS Level II codes only. |
 | HCPCS Level II | CMS | https://www.cms.gov/medicare/coding-billing/healthcare-common-procedure-system | CMS maintains it. Public federal code set. Quarterly updates (a January 2027 file is pending). | Commit a small subset with CMS attribution. |
 | ICD-10-CM | CDC/NCHS (US modification of WHO ICD-10) | Files from https://www.cms.gov/medicare/coding-billing/icd-10-codes (2027 files, effective 2026-10-01 to 2027-09-30) and https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Publications/ICD10CM/ (HTTP 200) | Free download, no signup. **Caveat:** the brief says "public domain", but WHO holds the copyright of the base ICD-10. CDC permits free use with attribution, and asks users not to change the content. We could not open the CDC license page (cdc.gov returned HTTP 403 to our fetch): **UNVERIFIED** wording. | Commit a small subset with attribution to CDC/NCHS. Do not edit code titles. Add "ICD-10-CM, CDC/NCHS, FY2027" in `data/manifest.yaml`. |
 | ICD-10-PCS | CMS | Same CMS page | Federal. Inpatient procedures only. | Not needed for the outpatient demo. |
@@ -217,13 +218,13 @@ data/reference/codes/carc.csv        # code, group_hint, arthai_category, x12_ur
 data/reference/codes/rarc.csv        # code, arthai_category, x12_url               (no X12 text)
 data/reference/codes/hcpcs_l2_subset.csv   # code, short_desc, source=CMS, quarter
 data/reference/codes/icd10cm_fy2027_subset.csv  # code, title, source=CDC/NCHS
-data/reference/codes/cpt_placeholder.csv   # code, arthai_label only; no AMA descriptors
 data/reference/codes/LICENSES.md
 ```
 
 1. A test fails if any CSV in `data/reference/codes/` has a column with X12 or AMA description text.
-2. A test checks that each code value matches its format (CARC: 1 to 3 characters; RARC: `M`, `MA` or `N` plus digits; HCPCS II: letter plus 4 digits; ICD-10-CM: letter, digit, then up to 5 more characters).
-3. Agents look up codes in this catalog only (AGENTS.md: "No free-text ICD/CPT codes").
+2. A test fails if any procedure code in `data/` is not a HCPCS Level II code from our catalog (no CPT).
+3. A test checks that each code value matches its format (CARC: 1 to 3 characters; RARC: `M`, `MA` or `N` plus digits; HCPCS II: letter plus 4 digits; ICD-10-CM: letter, digit, then up to 5 more characters).
+4. Agents look up codes in this catalog only (AGENTS.md: "No free-text ICD/CPT codes").
 
 ## 6. Synthetic denials, appeals and insurer call transcripts
 
@@ -278,7 +279,7 @@ Add a few **adversarial** transcripts. In these, the payer rep tries to inject i
 4. NPIs are from section 2.2 only.
 5. A PHI scanner runs in CI on `data/`, `tests/`, prompts and logs. It fails on SSN patterns, phone numbers outside `555-01xx`, emails outside `example.com`, MBI patterns and any NPI that is not in the fictional list.
 6. Prompts to any model contain only synthetic records.
-7. Meta Contributor mode lets Meta train on our prompts and outputs (see ADR 0004). This is acceptable only because the data is synthetic. Sai decides.
+7. Meta Contributor mode lets Meta train on our prompts and outputs. Sai approved it (D-015 Accepted) on one condition: Contributor mode only ever sees synthetic data. Real data never goes to any model.
 
 ### 6.5 Layout
 
@@ -323,6 +324,13 @@ What we verified:
 
 What we could **not** find: the Official Rules text. The Cerebral Valley "Event Waiver" page loads only with JavaScript, and our fetch got no text. Common rule URLs returned 404. The rules are probably in the participant portal or Discord. Third-party blogs say participants get $150 of Meta Model API credit. No Meta page says so, but Sai's $150 Meta credit is approved (see above).
 
+Sai's answers so far (2026-10-28, relayed by Mini Chief):
+
+- Meta Contributor mode: **yes**, synthetic data only (D-015 Accepted).
+- Code sets: free resources only. HCPCS Level II plus code values; **no** AMA CPT license (D-009 Accepted). Other free public sources are fine for research and data.
+- Patients: **Synthea** with a project-local JDK 17 and a pinned release (D-008 Accepted).
+- Still open: vendor sandbox signups (no signups at all for now) and voice (TTS and telephony).
+
 Questions for Sai (read the Official Rules in the participant portal and answer):
 
 1. **F1 STEM OPT.** The public page does not exclude any visa status. Can a solo Indie entrant on F1 STEM OPT accept a cash prize? Check the Official Rules for tax forms (W-9 or W-8BEN) and ask the school DSO whether prize work fits the OPT terms. This is not legal advice.
@@ -345,7 +353,7 @@ Questions for Sai (read the Official Rules in the participant portal and answer)
 | R3 | Credits run out, or a call bills Sai. Approved: Meta $150, Baseten $100, Modal $100; Fireworks pending. | Breaks Sai's "no paid usage" rule. | Set spend limits in each console. Do not add a payment method. Count tokens per run and compare with the estimate in ADR 0004 finding 6. Use Contributor mode only with synthetic data and only if Sai agrees. |
 | R4 | Code-set licensing (CPT, X12 text). | Legal risk in a public repo. | Section 5: codes only, no descriptors, no training on CPT. |
 | R5 | No free sandbox covers 837, 276/277 and 835 end to end. | Cannot show a "real" clearinghouse round-trip. | Own payer mock. Optional Stedi 270/271 sandbox call. |
-| R6 | Synthea needs Java, which is not on the box. | Delay. | Option C (seeded Python generator). |
+| R6 | Synthea needs a JDK and a 200 MB jar; its output includes real facility names and codes we must not use. | Delay, or real data in claims. | Pinned, checksum-checked tools (D-008). Keep only demographics and encounter dates; tests fail on Synthea provider or organization fields. |
 | R7 | Voice: Meta Model API has speech-to-text (Muse Voice Transcribe) but we found no Meta text-to-speech. | Voice-call demo is incomplete. | Decide TTS and telephony in Phase 2. Calls go only to our mock IVR. |
 | R8 | Synthetic data is too clean, so the demo looks fake and evals look too good. | Low judge trust. | Noise, adversarial rows, split by template and payer. |
 | R9 | Schedule: `docs/hackathon-workflow.md` planned the core flow for Oct 27 to 29. Phase 2 has not started. | Less time. | Cut scope with the milestones below. Freeze features on Nov 2. |
