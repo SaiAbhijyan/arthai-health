@@ -12,3 +12,9 @@
 
 # untracked local-only skills (no license / not for public repo)
 .claude/skills/apple-design-local/
+
+# dev tools venv (Makefile)
+.venv-dev/
+.ruff_cache/
+.mypy_cache/
+__pycache__/

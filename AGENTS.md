@@ -7,9 +7,11 @@ Data sources, licenses and data layout: `docs/data-plan.md` is the single source
 
 ## Commands (run before you say "done")
 make lint        # ruff + mypy --strict + eslint + tsc
+make typecheck   # mypy --strict only (part of make lint)
 make test        # pytest -q ; vitest run
 make eval        # golden denial/coding sets; fails if metrics drop below thresholds in evals/thresholds.yaml
 make e2e         # one synthetic claim end to end against mock payer
+# GNU make 4.4.1 is in /workspace/tools/bin (not global): export PATH=/workspace/tools/bin:$PATH
 
 ## Rules
 - Plan first: for any change > ~50 lines, write/refresh a plan in docs/plans/<task>.md and wait for approval.
