@@ -1,0 +1,8 @@
+---
+description: Opt-in codebase knowledge-graph queries. Only when the user says /graphify or asks to map/graph a codebase.
+alwaysApply: false
+---
+Only if the user explicitly asks: follow .claude/skills/graphify/SKILL.md.
+The graphify CLI is NOT installed globally. Use the project-local build-box venv:
+/workspace/tools/graphify-env/bin/graphify. Keep the query log OFF: export GRAPHIFY_QUERY_LOG_DISABLE=1.
+Never point graphify at data that holds real PHI.

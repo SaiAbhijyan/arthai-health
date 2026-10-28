@@ -162,7 +162,34 @@ Write an entry when choosing a library, pattern, schema, protocol, model/prompt 
 - Consequences: D-004 stays as is. Follow-up: run the LLM path of the smoke test with the Baseten key.
 - Links: DECISIONS.md D-004, docs/adr/0004-stack.md, docs/tooling.md
 
-### D-014: Compute: Modal for batch and fine-tune jobs, inside free credits
+### D-014: Vetting-batch tool installs (2026-10-28)
+- Date: 2026-10-28 | Status: Accepted
+- Deciders: Sai (explicit: "except the watermarks install all"; later "install these globally"; ponytail global)
+- Context: Sai approved installing the remaining vetted tools, watermarks-remover excluded. Each was scanned with SkillSpector before install.
+- Decisions:
+  - ponytail: installed GLOBALLY (user-level `~/.claude/skills`, `~/.cursor/skills-cursor`), SKILL.md only, no Node hooks/telemetry.
+  - graphify, anatomy: project-level skills in `.claude/skills` + `.cursor/rules`. graphify CLI runs from a box venv (`graphifyy`), not a global `uv tool`; query log off.
+  - meta-n: research venv on the box, not a skill.
+  - Agent-Reach: isolated box venv + global wrapper that blocks `login`, so it never reads the box browser's cookies. Not wired as an MCP.
+  - REA: clone only, not registered as a global MCP and not auto-enabled; never to be pointed at insurer/clearinghouse/third-party sites.
+  - apple-design (dickwu): no license, so user-config + git-ignored local only; never committed to any repo.
+  - claude-red (offensive, 79 skills): installed to user config only (`~/.claude`, `~/.cursor`), NOT wired into this public repo. Use only against a test deployment Sai owns.
+  - Strix (usestrix/strix): installed globally (box venv + wrapper), telemetry off; run only on Sai's own code or local targets. Scan was 100/100 CRITICAL by volume/offensive-by-design; the one CRITICAL is a benign env→urlopen in its Caido proxy client. Needs Docker + an LLM key to run.
+  - watermarks-remover: NOT installed (irrelevant, legal/ethical risk).
+- Consequences: Offensive tools (claude-red, Strix) stay out of the public repo and are scoped to Sai-owned targets. Telemetry off everywhere.
+- Links: docs/tooling.md (sections dated 2026-10-28)
+
+### D-015: Install Headroom (box tool) and claude-mem (global), tracking off
+- Date: 2026-10-28 | Status: Accepted
+- Deciders: Sai (explicit: "all", for Headroom and claude-mem; he accepted the global claude-mem install)
+- Context: Sai wants token savings (Headroom) and session memory across Claude Code sessions (claude-mem). Both send usage data by default. claude-mem installs only at user level.
+- Decisions:
+  - Headroom 0.42.0: `uv tool` in `/workspace/tools`, not global. Start it only with `scripts/headroom.sh`. The script sets `HEADROOM_TELEMETRY=off`, `HEADROOM_BEACON=off` and `DO_NOT_TRACK=1`. The proxy listens on `127.0.0.1:8787` in tmux window `arthai:headroom`. `headroom wrap claude` is opt-in only and not used, because it changes global config.
+  - claude-mem 15.4.0: global Claude Code plugin. Telemetry, cloud sync, TeamBrain, Telegram, Notion, Grok Bot memory writes, CCS Align and Chroma are off. Secret redaction is on. Shell commands that touch secrets are skipped.
+- Consequences: Headroom compresses only the sessions that opt in. claude-mem records all Claude Code sessions on the box in `~/.claude-mem` and uses Claude plan quota for summaries. Re-scan with SkillSpector before any upgrade. Keep the versions pinned.
+- Links: docs/tooling.md (Headroom, claude-mem), scripts/headroom.sh, .env.example
+
+### D-016: Compute: Modal for batch and fine-tune jobs, inside free credits
 - Date: 2026-10-28 | Status: Proposed
 - Deciders: Sai (agent-drafted)
 - Context: LAYA fine-tune and optional Synthea batch need a GPU or a container. Modal Starter gives $30/month free credits. The $100 hackathon Modal credit is approved; Sai is redeeming it. L4 costs about $0.80/hour, so $100 is about 125 L4 hours.
@@ -173,7 +200,7 @@ Write an entry when choosing a library, pattern, schema, protocol, model/prompt 
 - Consequences: Follow-up: confirm the Modal credit shows in the workspace before the first run.
 - Links: docs/adr/0004-stack.md, docs/laya-plan.md
 
-### D-015: Meta Contributor mode allowed, synthetic data only
+### D-017: Meta Contributor mode allowed, synthetic data only
 - Date: 2026-10-28 | Status: Accepted
 - Deciders: Sai (picked 2026-10-28, relayed by Mini Chief); agent-drafted
 - Context: Meta Model API Contributor mode (`muse-spark-1.3-contributor`, `muse-spark-1.2-contributor`) costs $0.10 / $0.20 per 1M input / output tokens instead of $1.25 / $4.25, and lets Meta train future models on the prompts and responses. Rate limit 150 RPM, 3M TPM.
@@ -183,3 +210,14 @@ Write an entry when choosing a library, pattern, schema, protocol, model/prompt 
 - Decision: B. Contributor mode only ever sees synthetic data. The rest of D-011 (Baseten primary, Meta fallback) stays Proposed.
 - Consequences: Follow-up: a guard in the LLM client refuses any input that fails the PHI scan.
 - Links: docs/adr/0004-stack.md, docs/data-plan.md section 6.4
+
+### D-018: Voice: free only, browser call to our own mock insurer, local STT and TTS
+- Date: 2026-10-28 | Status: Accepted
+- Deciders: Sai (picked 2026-10-28, relayed by Mini Chief); agent-drafted
+- Context: The demo needs an insurer voice call. Sai rules out a paid phone line and any signup that needs a card. Meta Model API has speech-to-text, but we found no Meta text-to-speech (data-plan R7).
+- Options considered:
+  - A: Paid telephony (for example a phone number from a telephony vendor). Pros: real phone call. Cons: paid, needs a signup and a card.
+  - B: Browser call (WebRTC / Web Audio) to our own mock insurer rep, with local open-source speech-to-text (Whisper or faster-whisper) and text-to-speech (Piper or Kokoro). Pros: free, no signup, no real insurer. Cons: CPU-only latency on the box.
+- Decision: B. Calls go only to our own mock insurer. Never call a real insurer.
+- Consequences: Follow-up: ADR 0005 (voice design) verifies the license of each code package and each voice model live (no non-commercial voices) and records CPU latency measured on the box. Scan each voice tool with SkillSpector and document it before install. Free tiers that need no card go on a list for Sai only; no signups.
+- Links: docs/data-plan.md section 6.1 step 6 and R7, docs/adr/0004-stack.md

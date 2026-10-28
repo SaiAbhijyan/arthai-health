@@ -1,7 +1,7 @@
 # 4. Model, triage, memory and compute stack for the hackathon build
 Date: 2026-10-28 (revised the same day after Mini Chief's review)
 ## Status
-Proposed, except Contributor mode, which is Accepted (D-015, Sai 2026-10-28: yes, synthetic data only). The rest waits for Sai's approval and for the answers to the rule questions in `docs/data-plan.md` section 7.
+Proposed, except Contributor mode, which is Accepted (D-017, Sai 2026-10-28: yes, synthetic data only). The rest waits for Sai's approval and for the answers to the rule questions in `docs/data-plan.md` section 7.
 Memory is already decided: `DECISIONS.md` D-004 (Accepted, cognee 1.6.5). This ADR does not re-open D-004.
 
 Note on the number: the brief asked for `docs/adr/0001-stack.md`. ADR 0001 already exists (`0001-modular-monolith.md`), so this ADR uses the next free number, 0004.
@@ -92,7 +92,7 @@ Gaps we found (for follow-up, not blockers):
 Option C (proposed):
 
 1. **LLM, primary: Baseten Muse Spark Open**, with the model ID that `GET /v1/models` returns for Sai's key (expected `meta-models/muse-spark-open-1026` per the email). Use it for agent text work, batch generation and cognee (already configured on `main`).
-2. **LLM, secondary: Meta Model API `muse-spark-1.3`** (Standard mode). Use it as the fallback, and as the primary if the Baseten models-list check fails. Contributor mode is **Accepted** (D-015): use `muse-spark-1.3-contributor` for synthetic-data work only.
+2. **LLM, secondary: Meta Model API `muse-spark-1.3`** (Standard mode). Use it as the fallback, and as the primary if the Baseten models-list check fails. Contributor mode is **Accepted** (D-017): use `muse-spark-1.3-contributor` for synthetic-data work only.
 3. **Config:** product client vars `ARTHAI_LLM_BASE_URL`, `ARTHAI_LLM_MODEL`, `ARTHAI_LLM_API_KEY`, plus `ARTHAI_LLM_FALLBACK_*`. We use a prefix so that the product does not collide with cognee's `LLM_*` vars. A startup check calls `GET /v1/models` on both providers and fails if a configured model is missing.
 4. **OmniRoute:** developer tools only (pi, experiments), as in `docs/tooling.md`. Not in the product runtime path. Never connect consumer or web-session providers.
 5. **LAYA:** optional triage behind `TRIAGE_BACKEND=laya|llm`. Default `llm` until the rule question is answered and LAYA beats the LLM on the held-out set.
@@ -109,6 +109,6 @@ Option C (proposed):
   2. Sai confirms the rules (non-Meta embeddings for cognee, LAYA).
   3. Select a TTS option.
   4. Fix the cognee gaps in finding 4 (relative paths, CPT text in the smoke script).
-  5. When Sai approves, accept D-011 to D-014 (they are still Proposed, so their status line can change). D-015 (Contributor mode) is already Accepted.
+  5. When Sai approves, accept D-011 to D-013 and D-016 (they are still Proposed, so their status line can change). D-017 (Contributor mode) is already Accepted.
 
-Links: `DECISIONS.md` D-004 (cognee, Accepted), D-011 to D-014, D-015 (Contributor mode, Accepted); `docs/data-plan.md`; `docs/tooling.md`; `docs/laya-plan.md`.
+Links: `DECISIONS.md` D-004 (cognee, Accepted), D-011 to D-013, D-016 (Modal), D-017 (Contributor mode, Accepted), D-018 (voice, Accepted); `docs/data-plan.md`; `docs/tooling.md`; `docs/laya-plan.md`.

@@ -75,19 +75,63 @@ OmniRoute does not read provider env vars itself. `add-keys` passes them with `p
 `/v1/*` needs an OmniRoute client key: make one with `omniroute keys` (see `--help`) and set `OMNIROUTE_API_KEY`. Base URL for clients: `http://127.0.0.1:20128/v1`.
 Use only API-key providers (Meta, Baseten, Fireworks, Modal). Do not connect consumer subscriptions.
 
-### Headroom (headroomlabs-ai/headroom) — use with care
-Apache-2.0, ~78k stars. Context compression proxy/MCP. **Anonymous telemetry beacon is ON by default.** Disable before use:
-```bash
-uv tool install --python 3.13 "headroom-ai[all]"
-export HEADROOM_TELEMETRY=off HEADROOM_BEACON=off DO_NOT_TRACK=1
-headroom proxy --port 8787        # or: headroom wrap claude ; undo: headroom unwrap claude
-```
-Not added to `.mcp.json` (installer writes user scope; telemetry default).
+### Headroom (headroomlabs-ai/headroom) — installed 2026-10-28, box tool, tracking off
+- Version: `headroom-ai[proxy]==0.42.0`. License: Apache-2.0. SkillSpector re-scan 2026-10-28: `/workspace/curious/skillspector-headroom-2026-10-28.md`.
+- Install location: `uv tool` scoped to `/workspace/tools/uv-tools`. The binary is `/workspace/tools/bin/headroom`. It is not global and not in the repo venv.
+- State: `/workspace/tools/headroom-data` (set by `HEADROOM_WORKSPACE_DIR`). The Kompress model cache is in `~/.cache/huggingface`.
+- Use `scripts/headroom.sh` only. The script always sets `HEADROOM_TELEMETRY=off`, `HEADROOM_BEACON=off` and `DO_NOT_TRACK=1`. It also adds `--no-telemetry` and `--no-subscription-tracking`.
+- The proxy runs in the tmux window `arthai:headroom` and listens on `127.0.0.1:8787` only.
 
-### claude-mem (thedotmack/claude-mem) — use with care, not for this repo by default
-Apache-2.0, ~103k stars. Captures all session activity, compresses with an LLM, runs a local worker service, optional cloud sync and
-Telegram/Discord/Slack feeds. Installs globally (`npx claude-mem install`). Risk: it would store everything agents see; keep cloud sync
-and feeds off. We use DECISIONS.md + AGENTS.md as memory instead.
+```bash
+scripts/headroom.sh start     # start the proxy in tmux window arthai:headroom
+scripts/headroom.sh status    # health check and beacon state ("Upload beacon: OFF")
+scripts/headroom.sh claude    # opt-in: one Claude Code session through the proxy
+scripts/headroom.sh stop
+```
+
+Verification (2026-10-28):
+1. `GET /health` returns `"status":"healthy"`, version 0.42.0.
+2. `headroom telemetry` shows `Upload beacon: OFF (DO_NOT_TRACK=1)` and `Local stats: OFF`.
+3. Sink test: we pointed `HEADROOM_TELEMETRY_ENDPOINT` at a local listener. With the three variables set, the listener got 0 requests. As a control, with `HEADROOM_BEACON=on`, it got 1 request (8 KB) at shutdown. Thus the switch works.
+4. The only outbound connection is the `/health` upstream probe (HEAD to `api.anthropic.com`). This is not telemetry. To stop it, set `HEADROOM_SKIP_UPSTREAM_CHECK=1`.
+
+Rules:
+- Do NOT run `headroom wrap claude`, `headroom init` or `headroom install`. They change global Claude Code configuration. Use `scripts/headroom.sh claude` instead. It sets `ANTHROPIC_BASE_URL` for one process only.
+- Do not use `--memory` or `--learn`. `--learn` writes to `AGENTS.md`, `MEMORY.md` and `.cursor/rules`.
+- Do not send real PHI through the proxy. Synthetic data only.
+
+### claude-mem (thedotmack/claude-mem) — installed 2026-10-28, GLOBAL (Sai accepted), tracking off
+- Version: 15.4.0. License: Apache-2.0. SkillSpector re-scan 2026-10-28: `/workspace/curious/skillspector-claude-mem-2026-10-28.md`. We read the CRITICAL and new HIGH findings. They are false positives: a local worker call in `save_goals.py`, and a bundled SDK line that sets `mcpServers: {}`.
+- Install: `npx claude-mem@15.4.0 install --ide claude-code --provider claude --runtime worker --no-auto-start`. This is a user-level Claude Code plugin (`claude-mem@thedotmack`) with a launcher at `~/.local/bin/claude-mem`. Nothing is in this repo.
+- Data: `~/.claude-mem/` (SQLite `claude-mem.db`, logs, `settings.json`, `telemetry.json`). Chroma vector search is off, so search uses SQLite only.
+- Worker: Bun process on `127.0.0.1:37700`. Hooks start it with each Claude Code session. Manual start: `npx claude-mem@15.4.0 start`.
+- LLM use: it summarizes sessions with Sai's logged-in Claude plan (`claude-haiku-4-5`). This uses plan quota. It does not use an API key.
+
+Settings in `~/.claude-mem/settings.json`:
+
+| Key | Value | Why |
+|---|---|---|
+| `CLAUDE_MEM_WORKER_HOST` | `127.0.0.1` | Worker is local only |
+| `CLAUDE_MEM_CLOUD_SYNC_HUB_URL`, `CLAUDE_MEM_CLOUD_SYNC_TOKEN`, `CLAUDE_MEM_TEAMBRAIN_URL` | empty | Cloud sync and TeamBrain off |
+| `CLAUDE_MEM_TELEGRAM_ENABLED`, `CLAUDE_MEM_TELEGRAM_WRAPUPS_ENABLED` | `false` | Telegram feed off (default was `true`) |
+| `CLAUDE_MEM_NOTION_ENABLED` | `false` | Notion export off |
+| `CLAUDE_MEM_GROK_BOT_AWARENESS_ENABLED`, `CLAUDE_MEM_GROK_BOT_INJECT_ENABLED`, `CLAUDE_MEM_CCS_ALIGN_ENABLED` | `false` | Stops writes into the box agents' memory folders (default was `true`) |
+| `CLAUDE_MEM_CHROMA_ENABLED` | `false` | No Chroma process and no Chroma telemetry |
+| `CLAUDE_MEM_REDACT_ENABLED`, `CLAUDE_MEM_REDACT_GENERIC_ENABLED` | `true` | Replaces API keys, tokens and `*_API_KEY=` values with `<redacted/>` before storage |
+| `CLAUDE_MEM_SKIP_BASH_PATTERNS` | `.env`, `printenv`, `env`, `secrets/`, `.pem`, `id_rsa`, `credentials` | Does not record shell commands that touch secrets |
+
+Telemetry: `~/.claude-mem/telemetry.json` has `"enabled": false`. `npx claude-mem telemetry status` shows `DISABLED`, decided by the config file. Thus the setting stays off without env variables.
+
+Discord and Slack: version 15.4.0 has no Discord or Slack feed. The only Discord item is a community link in the viewer.
+
+Secrets:
+- claude-mem has no file-path exclusion for `.env`. Protection has three layers: (1) this repo denies `Read(./.env)`, `Read(./.env.*)` and `Read(./secrets/**)` in `.claude/settings.json`, so the content never enters a session; (2) the skip pattern above; (3) auto-redaction.
+- To exclude a full project, add its path glob to `CLAUDE_MEM_EXCLUDED_PROJECTS`.
+- Wrap sensitive text in `<private>...</private>`. claude-mem does not store it.
+
+Verification (2026-10-28): the worker listens on `127.0.0.1:37700` only. `/api/health` returns `ok`, version 15.4.0. After 60 s it had no outbound TCP connections. The installer reported `Cloud sync: OFF (local)`.
+
+Uninstall: `npx claude-mem@15.4.0 uninstall`, then delete `~/.claude-mem`.
 
 ### ponytail (DietrichGebert/ponytail) — use with care
 MIT, ~177k stars. "Lazy senior dev" ruleset + hooks (Node scripts, statusline). One HIGH (output parsing regex in metrics, benign).
@@ -177,3 +221,59 @@ SkillSpector `--no-llm` scores large codebases 100/100 because of volume. The ve
 | pi (earendil-works/pi, was badlogic/pi-mono, MIT), `@earendil-works/pi-coding-agent` 1.4.0 | small terminal coding agent | 100/100. 0 CRITICAL. HIGHs are in CHANGELOG/docs/test fixtures, plus `package-manager-cli.ts` (npm install of extensions) and MCP OAuth. Normal for a coding agent with a bash tool. | Installed under `/workspace/tools/pi`, run with `scripts/pi.sh`, telemetry off. Do not install pi extensions without a scan. |
 | LAYA (NandhaKishorM/laya, Apache-2.0), open-source Jev | System 1 decision model, 421M | 100/100. 18 CRITICAL: 15 are `exec(compile())` in tests and research scripts; 2 are env → `urlopen` (timeout value, a ModelScope prefetch script); 1 in a Java dev script. None in the runtime path we use. Weights download from Hugging Face. | venv `/workspace/tools/laya-env`. Plan: `docs/laya-plan.md`. Not a repo dependency yet. |
 | REA (morluto/rea, MIT), `rea-agents` | MCP server to reverse-engineer binaries, Electron/JS apps, .NET, websites | 100/100. 7 CRITICAL `exec(compile())` in pwndbg/pwntools debugger bridges; 611 HIGH SC9, mostly docs/translations. Expected for a debugger tool. | NOT wired. It does not help an RCM product, and reverse-engineering payer or vendor software can break their terms. Opt-in only, by hand: `npx rea-agents@6.4.0 setup --client claude_code --dry-run` first, and only on software we own. |
+
+## Added 2026-10-28 (vetting batch, Sai approved "all except watermarks-remover")
+
+All items were scanned with SkillSpector (`--no-llm`) before install; reports are in `/workspace/curious/skillspector-*.md`
+(scanned 2026-10-26). Rule reminder: project-level only, except ponytail, which Sai asked to install globally.
+
+| Tool | Source / License | Install location | Guardrails | Status |
+|---|---|---|---|---|
+| ponytail | DietrichGebert/ponytail, MIT | **Global (user-level):** `~/.claude/skills/ponytail*` and `~/.cursor/skills-cursor/ponytail*` | SKILL.md only; Node hooks, statusline and update check NOT installed, so no telemetry and no network. | Installed globally per Sai. 6 skills: ponytail, -audit, -debt, -gain, -help, -review. |
+| graphify | Graphify-Labs/graphify, Apache-2.0 | Skill: `.claude/skills/graphify` + `.cursor/rules/graphify.mdc`. CLI: box venv `/workspace/tools/graphify-env` (`graphifyy` 0.9.97, pip, not global). | Query log OFF (`GRAPHIFY_QUERY_LOG_DISABLE=1`). No telemetry. Never point at real PHI. | Installed project-level. CLI runs from the box venv, not a global `uv tool`. |
+| anatomy | wheresryan22/anatomy, MIT | Skill: `.claude/skills/anatomy` + `.cursor/rules/anatomy.mdc`. Example kit stays on the box at `/workspace/tools/anatomy`. | Needs Node 20.10+ and Chrome/Chromium. For demo/pitch figures only. | Installed project-level (skill vendored; ~10-40 MB kit not committed). |
+| meta-n | minnesotanlp/meta-n, MIT | Box venv `/workspace/tools/meta-n/.venv` (editable install). | Research tool, NOT a skill. Not wired into Claude Code or Cursor. | Installed as a research tool. `import meta_n` works. |
+| REA | morluto/rea, MIT | Clone only: `/workspace/tools/rea`. | NOT added to `.mcp.json` or `.cursor/mcp.json`. **Never point REA at insurer, clearinghouse or any third-party site**; opt-in by hand, only on software we own. | Cloned, not wired. |
+| Agent-Reach | Panniantong/Agent-Reach, MIT | Box venv `/workspace/tools/Agent-Reach/.venv`; isolated home `/workspace/tools/agent-reach-home` (`AGENT_REACH_HOME`). | **Login channels are left OFF.** Its default channels (github, youtube, bilibili, v2ex, web) need no login and read no cookies. The login channels (twitter, reddit, facebook, instagram, xiaohongshu, linkedin, boss, xueqiu) copy cookies from the box browser on `agent-reach login <channel>` only; that command is never run. There is no hard flag that guarantees no-cookie-access, so it is installed but unwired and login is disabled by policy. | Installed, isolated, unwired, login disabled. |
+| apple-design-skill | dickwu/apple-design-skill, **no license** | Untracked local only: `.claude/skills/apple-design-local/` (git-ignored). | Reproduces Apple HIG text; no license. Never committed to the public repo. | Installed local-only, not committed. |
+| claude-red | SnailSploit/Claude-Red, MIT | Clone only on the box: `/workspace/tools/Claude-Red`. | 79 offensive-security skills (exploit dev, EDR evasion, container escape, SSRF/RCE/SQLi, credential access). SkillSpector 100/100, 15 CRITICAL, 512 HIGH (real capabilities, not false positives). | **Not wired into the public repo** (liability for a public healthcare repo). Held for Sai's explicit go. See note below. |
+
+### REA — scope note (repeat)
+Never point REA at insurer, clearinghouse or third-party sites. It helps an RCM product in no way; reverse-engineering payer or
+vendor software can break their terms. Use only on software we own, opt-in by hand.
+
+### claude-red — why it is not wired into this repo
+Sai approved installing "all except watermarks-remover". For claude-red the batch install was done as an **outside-the-repo clone only**
+(`/workspace/tools/Claude-Red`), not a project-level wire-in. Putting 79 offensive-security skills into a **public** healthcare repo is a
+real liability: they would load with agent privileges in a repo that also holds PHI/compliance context, and the repo is public. For
+security testing of Arthai Health we already have the defensive `security-and-hardening` skill, the `security-auditor` agent, and the
+`/security-review` command. To use claude-red, install it OUTSIDE this repo, opt-in per category, against a dedicated test deployment
+Sai owns, never prod or anything with real data:
+```bash
+~/claude-red/install.sh --category web --target ~/.claude/skills/claude-red   # web/api/auth only; review each SKILL first
+```
+
+## Added 2026-10-28 (global / user-level installs, Sai approved)
+
+Sai asked for these at user level (`~/.claude` and Cursor user config) so every project gets them, not only this repo.
+Telemetry is off for all. None of this is committed to the repo; it lives in the box user config and `/workspace/tools`.
+
+| Tool | Source / License | Global location | Guardrails / telemetry |
+|---|---|---|---|
+| ponytail | DietrichGebert/ponytail, MIT | `~/.claude/skills/ponytail*`, `~/.cursor/skills-cursor/ponytail*` (6 skills) | SKILL.md only; no Node hooks, statusline or update check, so no telemetry/network. |
+| Agent-Reach | Panniantong/Agent-Reach, MIT | CLI on PATH via `~/.local/bin/agent-reach` (box venv). Isolated home `/workspace/tools/agent-reach-home`. | Wrapper hard-blocks the `login` subcommand, so it never reads the box browser's cookies/profiles. Only no-login channels (github, youtube, bilibili, v2ex, web) work. Not auto-wired as an MCP. |
+| REA | morluto/rea, MIT | NOT registered as a global MCP. Clone only: `/workspace/tools/rea`. | Not auto-enabled for any project. **Never point REA at insurer, clearinghouse or any third-party site**; opt-in by hand, only on software we own. |
+| apple-design | dickwu/apple-design-skill, **no license** | `~/.claude/skills/apple-design-local`, `~/.cursor/skills-cursor/apple-design-local` | Reproduces Apple HIG text; no license. Never committed to any repo. User-config only. |
+| claude-red | SnailSploit/Claude-Red, MIT | `~/.claude/skills/claude-red`, `~/.cursor/skills-cursor/claude-red` (24 categories, offensive) | 79 offensive-security skills. User-config only, never committed to a repo. Use only against a dedicated test deployment Sai owns, never prod/PHI. |
+| Strix | usestrix/strix (`strix-agent` 1.7.0), MIT | CLI on PATH via `~/.local/bin/strix` (box venv `/workspace/tools/strix-env`). | Wrapper sets `STRIX_TELEMETRY=0` (opt-out of PostHog). **Run only against Sai's own code or local targets.** Needs Docker (sandbox image) and an LLM key to run. |
+
+### Strix — SkillSpector scan (2026-10-28), real findings
+Report: `/workspace/curious/skillspector-strix-2026-10-28.md`. Raw verdict: **100/100 CRITICAL, "DO NOT INSTALL"** — driven by volume
+(563 components) and by the fact that Strix is an offensive pentest agent, so the scanner flags its intended capabilities.
+- **1 CRITICAL (TT3)**: `strix/tools/proxy/caido_api.py:78` — a value from `os.environ.get` flows into `urllib.request.urlopen`.
+  This is Strix's client talking to its own local Caido proxy using an env-configured URL/token. Benign in context, not a backdoor.
+- **239 HIGH**: mostly PE3 (82, process/command execution), SSRF1 (21), RA1 (20), SC2 (18, subprocess/shell), TM1/TM2 (tool misuse),
+  E2 (eval/exec). These are the pentest tool's own features (it runs exploits, probes SSRF, drives a browser and a proxy), not hidden malware.
+- **148 MEDIUM**: output handling, deserialization, YAML rules, config-dir writes — expected for a CLI agent with a sandbox.
+- **Verdict**: like claude-red, the score reflects that Strix is offensive by design. No sign of a supply-chain backdoor in the flagged
+  lines. Installed globally for Sai, telemetry off, to be used only on his own code or local targets.

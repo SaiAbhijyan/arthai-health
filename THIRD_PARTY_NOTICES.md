@@ -21,3 +21,52 @@ Vendored agent skills/agents (copied unmodified unless noted; scanned with NVIDI
 ## Python dependencies
 
 - cognee 1.6.5 (https://github.com/topoteretes/cognee), Apache-2.0. Installed with pip into `.venv`. Not vendored.
+
+## Vetting batch added 2026-10-28 (scanned with SkillSpector --no-llm on 2026-10-26)
+
+Vendored agent skills (copied; SKILL.md only unless noted):
+
+| Path | Source | License |
+|---|---|---|
+| .claude/skills/graphify | https://github.com/Graphify-Labs/graphify | Apache-2.0 |
+| .claude/skills/anatomy | https://github.com/wheresryan22/anatomy (Copyright (c) 2026 Ryan) | MIT |
+
+Installed globally per Sai, NOT committed to this repo (user-level `~/.claude/skills` and `~/.cursor/skills-cursor`):
+
+| Path | Source | License |
+|---|---|---|
+| ponytail, ponytail-audit, ponytail-debt, ponytail-gain, ponytail-help, ponytail-review | https://github.com/DietrichGebert/ponytail (Copyright (c) 2026 DietrichGebert) | MIT |
+
+Installed on the build box only (NOT in this repo):
+
+| Path | Source | License |
+|---|---|---|
+| /workspace/tools/meta-n (research tool, own venv) | https://github.com/minnesotanlp/meta-n (Copyright (c) 2026 Zae Myung Kim) | MIT |
+| /workspace/tools/rea (clone only, not wired) | https://github.com/morluto/rea (Copyright (c) 2026 morluto) | MIT |
+| /workspace/tools/Agent-Reach (own venv, isolated, unwired) | https://github.com/Panniantong/Agent-Reach (Copyright (c) 2025 Agent Eyes) | MIT |
+| /workspace/tools/graphify-env (graphifyy 0.9.97 CLI, pip venv) | https://github.com/Graphify-Labs/graphify | Apache-2.0 |
+| /workspace/tools/Claude-Red (clone only, NOT wired, see docs/tooling.md) | https://github.com/SnailSploit/Claude-Red (Copyright (c) 2024-2025 SnailSploit / Kai Aizen) | MIT |
+
+Local-only, NOT committed (no license; git-ignored):
+
+| Path | Source | License |
+|---|---|---|
+| .claude/skills/apple-design-local/ (git-ignored) | https://github.com/dickwu/apple-design-skill | None (reproduces Apple HIG text; kept off the public repo) |
+
+## Vetting batch, 2026-10-28
+
+Vendored into this repo (scanned with SkillSpector `--no-llm`; reports in `/workspace/curious/skillspector-*.md`):
+
+| Path | Source | License |
+|---|---|---|
+| .claude/skills/graphify (SKILL.md only; `.cursor/rules/graphify.mdc` our wrapper) | https://github.com/Graphify-Labs/graphify | Apache-2.0 |
+| .claude/skills/anatomy (SKILL.md only; `.cursor/rules/anatomy.mdc` our wrapper) | https://github.com/wheresryan22/anatomy | MIT |
+
+Installed on the build box or in user config, **not vendored into this repo**:
+- ponytail (DietrichGebert/ponytail, MIT) — global user skills `~/.claude/skills`, `~/.cursor/skills-cursor`.
+- meta-n (minnesotanlp/meta-n, MIT) — research venv `/workspace/tools/meta-n/.venv`.
+- Agent-Reach (Panniantong/Agent-Reach, MIT) — box venv, global wrapper, login disabled.
+- REA (morluto/rea, MIT) — clone only `/workspace/tools/rea`, not wired.
+- Strix / strix-agent (usestrix/strix, MIT) — box venv `/workspace/tools/strix-env`, global wrapper, telemetry off.
+- claude-red (SnailSploit/Claude-Red, MIT) — global user skills only; offensive, never committed to a repo.
+- apple-design-skill (dickwu, **no license**) — user config + git-ignored local only; never committed.

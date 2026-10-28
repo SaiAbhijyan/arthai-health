@@ -1,0 +1,7 @@
+---
+description: Opt-in isometric SVG explainer figures for docs, slides and the pitch. Only when the user asks for a diagram/figure/isometric illustration.
+alwaysApply: false
+---
+Only if the user explicitly asks: follow .claude/skills/anatomy/SKILL.md.
+The full example kit (examples/, kit/, ~10-40 MB) lives on the build box at /workspace/tools/anatomy, not in this repo.
+Needs Node.js 20.10+ and Chrome/Chromium for the checks.

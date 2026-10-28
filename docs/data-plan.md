@@ -1,12 +1,12 @@
 # Arthai Health: data plan (Phase 1)
 
 Status: Proposed. Phase 1 is research and plan only. This branch adds no data and no code.
-Owner: Sai. Drafted by the Grok build agent. Checked: 2026-10-28 (America/New_York). Revised 2026-10-28 after Mini Chief's review and Sai's picks (D-008, D-009, D-015 Accepted).
+Owner: Sai. Drafted by the Grok build agent. Checked: 2026-10-28 (America/New_York). Revised 2026-10-28 after Mini Chief's review and Sai's picks (D-008, D-009, D-017 Accepted; voice D-018 Accepted).
 
 This file is the single source of truth for data sources, data licenses and data layout.
 Claude Code, Cursor and Grok read this file through `AGENTS.md`. If another doc conflicts with this file on data or licensing, this file wins. Log the conflict in `DECISIONS.md`.
 
-Related: `docs/adr/0004-stack.md` (stack), `DECISIONS.md` D-005 to D-015 (this plan) and D-004 (cognee, Accepted), `docs/laya-plan.md`.
+Related: `docs/adr/0004-stack.md` (stack), `DECISIONS.md` D-005 to D-013 and D-016 to D-018 (this plan) and D-004 (cognee, Accepted), `docs/laya-plan.md`.
 
 ## 0. Rules for all data
 
@@ -279,7 +279,7 @@ Add a few **adversarial** transcripts. In these, the payer rep tries to inject i
 4. NPIs are from section 2.2 only.
 5. A PHI scanner runs in CI on `data/`, `tests/`, prompts and logs. It fails on SSN patterns, phone numbers outside `555-01xx`, emails outside `example.com`, MBI patterns and any NPI that is not in the fictional list.
 6. Prompts to any model contain only synthetic records.
-7. Meta Contributor mode lets Meta train on our prompts and outputs. Sai approved it (D-015 Accepted) on one condition: Contributor mode only ever sees synthetic data. Real data never goes to any model.
+7. Meta Contributor mode lets Meta train on our prompts and outputs. Sai approved it (D-017 Accepted) on one condition: Contributor mode only ever sees synthetic data. Real data never goes to any model.
 
 ### 6.5 Layout
 
@@ -326,10 +326,11 @@ What we could **not** find: the Official Rules text. The Cerebral Valley "Event 
 
 Sai's answers so far (2026-10-28, relayed by Mini Chief):
 
-- Meta Contributor mode: **yes**, synthetic data only (D-015 Accepted).
+- Meta Contributor mode: **yes**, synthetic data only (D-017 Accepted).
 - Code sets: free resources only. HCPCS Level II plus code values; **no** AMA CPT license (D-009 Accepted). Other free public sources are fine for research and data.
 - Patients: **Synthea** with a project-local JDK 17 and a pinned release (D-008 Accepted).
-- Still open: vendor sandbox signups (no signups at all for now) and voice (TTS and telephony).
+- Voice: free only. A browser call to our own mock insurer rep, with local speech-to-text and text-to-speech (D-018 Accepted). No paid phone line and no signup that needs a card.
+- Still open: vendor sandbox signups (no signups at all for now).
 
 Questions for Sai (read the Official Rules in the participant portal and answer):
 
@@ -354,7 +355,7 @@ Questions for Sai (read the Official Rules in the participant portal and answer)
 | R4 | Code-set licensing (CPT, X12 text). | Legal risk in a public repo. | Section 5: codes only, no descriptors, no training on CPT. |
 | R5 | No free sandbox covers 837, 276/277 and 835 end to end. | Cannot show a "real" clearinghouse round-trip. | Own payer mock. Optional Stedi 270/271 sandbox call. |
 | R6 | Synthea needs a JDK and a 200 MB jar; its output includes real facility names and codes we must not use. | Delay, or real data in claims. | Pinned, checksum-checked tools (D-008). Keep only demographics and encounter dates; tests fail on Synthea provider or organization fields. |
-| R7 | Voice: Meta Model API has speech-to-text (Muse Voice Transcribe) but we found no Meta text-to-speech. | Voice-call demo is incomplete. | Decide TTS and telephony in Phase 2. Calls go only to our mock IVR. |
+| R7 | Voice: Meta Model API has speech-to-text (Muse Voice Transcribe) but we found no Meta text-to-speech. | Voice-call demo is incomplete. | D-018: browser call (WebRTC) with local STT and TTS, no telephony. ADR 0005 records licenses and CPU latency. Calls go only to our mock IVR. |
 | R8 | Synthetic data is too clean, so the demo looks fake and evals look too good. | Low judge trust. | Noise, adversarial rows, split by template and payer. |
 | R9 | Schedule: `docs/hackathon-workflow.md` planned the core flow for Oct 27 to 29. Phase 2 has not started. | Less time. | Cut scope with the milestones below. Freeze features on Nov 2. |
 | R10 | OmniRoute is a large, fast-moving router with "TLS stealth" and consumer web providers. | ToS and supply-chain risk. | Keep it out of the product runtime path (ADR 0004). |

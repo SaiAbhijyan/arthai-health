@@ -20,6 +20,14 @@ def _spy(host, *a, **k):
     return _orig(host, *a, **k)
 socket.getaddrinfo = _spy
 
+# Resolve repo-relative storage paths (from .env.example) to absolute;
+# cognee needs absolute roots at runtime.
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+for _var in ("DATA_ROOT_DIRECTORY", "SYSTEM_ROOT_DIRECTORY", "COGNEE_LOGS_DIR", "HF_HOME"):
+    _val = os.environ.get(_var)
+    if _val and not os.path.isabs(_val):
+        os.environ[_var] = os.path.abspath(os.path.join(REPO_ROOT, _val))
+
 import cognee  # noqa: E402
 from cognee.shared import utils as cu  # noqa: E402
 
@@ -32,7 +40,7 @@ cu._send_telemetry_request = _spy_send
 
 NOTE = (
     "SYNTHETIC payer rule (fake payer 'Acme Health Plan', fake data): "
-    "CARC 197 denials (precertification/authorization absent) for CPT 72148 lumbar MRI "
+    "CARC 197 denials (precertification/authorization absent) for procedure code 72148 "
     "can be appealed within 60 days if the provider attaches the prior-auth request "
     "and the ordering physician's notes."
 )
@@ -49,7 +57,7 @@ async def main():
         print("cognify: OK")
         step = "search"
         res = await cognee.search(
-            query_text="What can I do about a CARC 197 denial on an MRI?",
+            query_text="What can I do about a CARC 197 denial on procedure 72148?",
             query_type=cognee.SearchType.CHUNKS,
             datasets=["payer_rules_smoke"],
             top_k=3,

@@ -9,3 +9,6 @@
 .cognee_system/
 .env
 .venv/
+
+# untracked local-only skills (no license / not for public repo)
+.claude/skills/apple-design-local/
