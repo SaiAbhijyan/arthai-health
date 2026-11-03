@@ -31,12 +31,13 @@ export function makeScene(P) {
   const cyl = (cx, cy, r, z, h, style = {}, steps = 28, bevel = 0) => S(k.cylinder(cx, cy, r, z, h, P, steps, bevel), style);
   const screws = (plan, inset, z, size = 0.5) => D(k.corners(plan, inset).map(([x, y]) => at([x, y, z])), { size, tone: "mid" });
   // Text on the front face (y = plan.y + plan.d), reading along +x. zTop is the baseline height.
-  // Part text smaller than MIN_TEXT is too small to read at the 830 px GitHub width.
-  // It is not drawn. The legend carries those facts.
-  const MIN_TEXT = 8;
-  const drop = (text) => { DROPPED.add(String(text)); return ""; };
-  const front = (x, y, z, text, size = 6, tone = "hi") => (size < MIN_TEXT ? drop(text) : k.faceTextSvg(k.sideMatrix([x, y], z, P, "left"), text, { size, tone }));
-  const top = (x, y, z, text, size = 5, tone = "hi") => (size < MIN_TEXT ? drop(text) : k.faceTextSvg(k.topMatrix([x, y], z, P, "x"), text, { size, tone }));
+  // Part text smaller than MIN_TEXT is not drawn. Text smaller than LEGIBLE is drawn
+  // as texture only: it is too small to read at the 830 px GitHub width.
+  // The alt text must not name either kind. The legend carries those facts.
+  const MIN_TEXT = 8, LEGIBLE = 12;
+  const note = (text, size) => { if (size < LEGIBLE) SMALL.add(String(text)); return size < MIN_TEXT; };
+  const front = (x, y, z, text, size = 6, tone = "hi") => (note(text, size) ? "" : k.faceTextSvg(k.sideMatrix([x, y], z, P, "left"), text, { size, tone }));
+  const top = (x, y, z, text, size = 5, tone = "hi") => (note(text, size) ? "" : k.faceTextSvg(k.topMatrix([x, y], z, P, "x"), text, { size, tone }));
   // A painted track on a top face. Chevrons painted on long segments show the direction of flow.
   function track(pts, z, tone = "mid", opts = {}) {
     const w = opts.width ?? 2;
@@ -91,7 +92,8 @@ export function makeScene(P) {
       const base = h - 3 - size - i * gap;
       if (base < 1) console.warn(`plinth "${name}": line ${i + 1} is below the plinth (baseline ${base.toFixed(1)})`);
       if (line.length * s * 0.62 > plan.w - 12) console.warn(`plinth "${name}": "${line}" is wider than the plinth`);
-      out.push(front(plan.x + 7, y, base, line, s, t));
+      // Station labels are readable at 830 px (checked in the renders), so no texture check.
+      out.push(k.faceTextSvg(k.sideMatrix([plan.x + 7, y], base, P, "left"), line, { size: s, tone: t }));
     });
     return out.join("");
   }
@@ -204,14 +206,17 @@ export function frame({ W, H, drawH, fig, title, hint, readout, legend = [], col
 
 const NOTICE = "<!-- Built with the anatomy kit (kit/iso-kit.mjs), Copyright (c) 2026 Ryan, MIT License. Commit " + KIT_COMMIT + ". The embedded CSS comes from that kit. See docs/images/NOTICE-anatomy-MIT.txt. All data in this figure is synthetic. -->";
 
-// Text that the scene did not draw. The alt text must not name it.
-const DROPPED = new Set();
+// Part text that is not drawn or too small to read. The alt text must not name it.
+const SMALL = new Set();
 
 export function writeFigure(path, { W, H, label, body }) {
   const esc = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const bad = [...DROPPED].filter((t) => t.length >= 3 && new RegExp(`\\b${esc(t)}\\b`, "i").test(label));
+  // Check each whole string of 5 or more characters, and each ID-like token (it has a digit).
+  const whole = [...SMALL].filter((t) => t.length >= 5 || /\d/.test(t));
+  const ids = [...SMALL].flatMap((t) => t.split(/[\s:·,]+/)).filter((t) => t.length >= 3 && /\d/.test(t));
+  const bad = [...new Set([...whole, ...ids])].filter((t) => new RegExp(`(^|[^\\w-])${esc(t)}($|[^\\w-])`, "i").test(label));
   if (bad.length) {
-    console.error(`${path}: the alt text names text that is not drawn: ${bad.join(", ")}`);
+    console.error(`${path}: the alt text names part text that is not drawn or too small to read: ${bad.join(", ")}`);
     process.exit(4);
   }
   const svg = NOTICE + "\n" + `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="iso iso-svg" data-theme="light" role="img" aria-label="${label.replace(/"/g, "&quot;")}"><title>${label.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</title><style>${k.ISO_CSS}</style>${body.join("")}</svg>\n`;

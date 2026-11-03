@@ -107,7 +107,7 @@ body.push(s.cards(VERIFY.x + 22, VERIFY.y + 20, HP, { n: 2, w: 100, d: 40, id: "
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 5. Planned code lookups. A card catalog has drawers for HCPCS Level II, ICD-10-CM, CARC values and RARC values. The CPT drawer has a padlock and a red bar. An agent asks the catalog for CARC 197. The catalog answers CARC 197: prior_auth. Planned repo tests check the format of each code value. A test fails on a CPT code.",
+  label: "Fig 5. Planned code lookups. A card catalog has five drawers for the code sets in the legend. The fifth drawer has a padlock and a red bar, because we use no CPT. An agent asks the catalog for a code on a black track. The catalog answers on a black track. Planned repo tests check the format of each code value.",
   body,
 });
 console.log("wrote", OUT);

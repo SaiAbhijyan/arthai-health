@@ -112,7 +112,7 @@ body.push(s.cards(OUTC.x + 14, OUTC.y + 16, HP, { n: 3, w: 116, d: 50, id: "REF 
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 4. Planned voice agent. A browser call links on a blue two-way line to our own mock payer rep. Black tracks take the rep audio to local speech-to-text. They take the text to the agent turn and the reply to local text-to-speech (TTS). The agent turn uses an LLM and says that it is an AI. A dashed track takes the spoken reply back into the call. A green track takes the result to a call outcome card. The card shows the example reference SYN-REF-0007.",
+  label: "Fig 4. Planned voice agent. A browser call links on a blue two-way line to our own mock payer rep. Black tracks take the rep audio to local speech-to-text. They take the text to the agent turn and the reply to local text-to-speech (TTS). The agent turn uses an LLM and says that it is an AI. A dashed track takes the spoken reply back into the call. A green track takes the result to a call outcome card. The card shows an example reference number.",
   body,
 });
 console.log("wrote", OUT);

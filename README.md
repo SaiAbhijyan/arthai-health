@@ -64,7 +64,7 @@ Fig 1 shows the whole planned flow. The numbers match the stations in the figure
 4. The **triage step and the CCI gate** score the denial. The gate sends the claim on the auto path or to a human.
 5. The **review console** holds the human queue, the approvals and the audit trail.
 6. The **appeal writer** drafts the letter with an LLM. The planned model is Muse, a Meta model (D-011, proposed).
-7. After tier 2 approval of the appeal, the **voice agent** calls the mock payer rep in the browser.
+7. After its own tier 2 approval (PR #9, `docs/architecture.md`, section 5.3), the **voice agent** calls the mock payer rep in the browser.
 8. **AR follow-up** ranks the open claims for the next action.
 9. The **eval and feedback loop** turns reviewer edits into eval cases.
 
@@ -79,17 +79,17 @@ All components in this section are **planned**. The module names come from the a
 ### Triage and the CCI gate (planned)
 
 <p align="center">
-  <img src="docs/images/arthai-triage-gate.svg" width="100%" alt="Fig 2. Planned triage step and CCI gate. A synthetic denial goes to the triage step. The default scorer is the LLM, and LAYA is optional. The CCI gate has seven example category pins. Claim A has a tight set, for example one raised pin. It goes on a green track to the auto path. Claim B has a wide set, for example three raised pins. It goes on a red track to the human queue. A calibration station feeds the gate on a blue dotted track.">
+  <img src="docs/images/arthai-triage-gate.svg" width="100%" alt="Fig 2. Planned triage step and CCI gate. A synthetic denial goes to the triage step. The default scorer is the LLM, and LAYA is optional. The CCI gate has seven example category pins. The first claim has one raised pin, so its set has one label. It goes on a green track to the auto path. The second claim has three raised pins, so its set has more than one label. It goes on a red track to the human queue. A calibration station feeds the gate on a blue dotted track.">
 </p>
 
 - The triage step returns a typed decision: the denial category, the appeal decision and the priority.
 - LAYA can do this step. LAYA is a small open "System 1" decision model (about 421M parameters, Apache-2.0). It is not a Meta model. See [docs/laya-plan.md](docs/laya-plan.md).
 - LAYA is optional. The switch is `TRIAGE_BACKEND=laya|llm`. The default is `llm` until the rule question is answered and LAYA beats the LLM on the held-out set ([ADR 0004](docs/adr/0004-stack.md), proposed).
-- The CCI gate (`cci_gate`, based on `cci-sdk`) turns the scores into a conformal prediction set. A tight set takes the auto path, for example a set with one label. A wide set goes to the human queue (PR #9, `docs/architecture.md`).
+- The CCI gate (`cci_gate`, based on `cci-sdk`) turns the scores into a conformal prediction set. If the set has one label, the claim takes the auto path. If the set has more than one label, the claim goes to the human queue (PR #14, `docs/research/sota-rcm-model.md`, section 5.3).
 - The docs do not yet say what happens to an empty set. This is an open question.
-- The research plans the gate on LAYA scores (PR #14, section 5.3). The docs do not yet say how the default `llm` backend gives scores to the gate.
+- The research plans the gate on LAYA scores (PR #14, `docs/research/sota-rcm-model.md`, section 5.3). The docs do not yet say how the default `llm` backend gives scores to the gate.
 - The gate has a coverage target (1 − alpha). It is not a raw confidence threshold.
-- **Limit:** the conformal guarantee is an average over cases like the calibration set. It is not a promise about one claim (PR #14, section 5.3).
+- **Limit:** the conformal guarantee is an average over cases like the calibration set. It is not a promise about one claim (PR #14, `docs/research/sota-rcm-model.md`, section 5.3).
 - **Limit:** do not trust the raw LAYA confidence before calibration. The base checkpoint warns that some calibration temperatures are invalid ([docs/laya-plan.md](docs/laya-plan.md)).
 
 ### Appeal writer (planned)
@@ -99,7 +99,7 @@ All components in this section are **planned**. The module names come from the a
 </p>
 
 - The appeal writer retrieves chunks of payer policy and writes the letter.
-- An LLM writes the text. The planned model is Muse, a Meta model (D-011, proposed). With `TRIAGE_BACKEND=laya`, LAYA makes the triage scores and the LLM only writes (PR #14, section 5.3).
+- An LLM writes the text. The planned model is Muse, a Meta model (D-011, proposed). With `TRIAGE_BACKEND=laya`, LAYA makes the triage scores and the LLM only writes (PR #14, `docs/research/sota-rcm-model.md`, section 5.3).
 - The citation gate checks that each statement maps to a retrieved chunk ID. If a statement has no source, the draft goes back to the writer.
 - A human approves the letter before it goes out. In the hackathon, every external action needs approval.
 - The payer policies in the demo are fictional. Example payer IDs start with `ZZP`.
@@ -108,7 +108,7 @@ All components in this section are **planned**. The module names come from the a
 ### Voice agent (planned)
 
 <p align="center">
-  <img src="docs/images/arthai-voice-agent.svg" width="100%" alt="Fig 4. Planned voice agent. A browser call links on a blue two-way line to our own mock payer rep. Black tracks take the rep audio to local speech-to-text. They take the text to the agent turn and the reply to local text-to-speech (TTS). The agent turn uses an LLM and says that it is an AI. A dashed track takes the spoken reply back into the call. A green track takes the result to a call outcome card. The card shows the example reference SYN-REF-0007.">
+  <img src="docs/images/arthai-voice-agent.svg" width="100%" alt="Fig 4. Planned voice agent. A browser call links on a blue two-way line to our own mock payer rep. Black tracks take the rep audio to local speech-to-text. They take the text to the agent turn and the reply to local text-to-speech (TTS). The agent turn uses an LLM and says that it is an AI. A dashed track takes the spoken reply back into the call. A green track takes the result to a call outcome card. The card shows an example reference number.">
 </p>
 
 - The voice demo is free only. It uses a browser call (WebRTC and Web Audio) to our own mock payer rep. It uses no paid phone line. It uses no signup that needs a card (D-018, accepted).
@@ -122,7 +122,7 @@ All components in this section are **planned**. The module names come from the a
 ### Code lookups (planned)
 
 <p align="center">
-  <img src="docs/images/arthai-code-lookups.svg" width="100%" alt="Fig 5. Planned code lookups. A card catalog has drawers for HCPCS Level II, ICD-10-CM, CARC values and RARC values. The CPT drawer has a padlock and a red bar. An agent asks the catalog for CARC 197. The catalog answers CARC 197: prior_auth. Planned repo tests check the format of each code value. A test fails on a CPT code.">
+  <img src="docs/images/arthai-code-lookups.svg" width="100%" alt="Fig 5. Planned code lookups. A card catalog has five drawers for the code sets in the legend. The fifth drawer has a padlock and a red bar, because we use no CPT. An agent asks the catalog for a code on a black track. The catalog answers on a black track. Planned repo tests check the format of each code value.">
 </p>
 
 - Agents look up codes in our catalog only. There are no free-text codes in a claim, a prompt or a letter ([AGENTS.md](AGENTS.md)).
@@ -136,7 +136,7 @@ All components in this section are **planned**. The module names come from the a
 ### Review console and audit (planned)
 
 <p align="center">
-  <img src="docs/images/arthai-review-console.svg" width="100%" alt="Fig 6. Planned review console and audit trail. Two queue trays hold AI-flagged claims and a random QA sample. A screen shows the timeline of synthetic claim SYN-C-000042. Every action goes to an append-only audit trail of hash-linked blocks. An approvals panel has approve, edit and reject buttons. A blue dotted track takes a reviewer edit to the feedback station.">
+  <img src="docs/images/arthai-review-console.svg" width="100%" alt="Fig 6. Planned review console and audit trail. Two queue trays hold claims for review. A screen shows the timeline of a synthetic claim. Every action goes to an append-only audit trail of linked blocks. An approvals panel has three buttons for a human click. A blue dotted track takes a reviewer edit to the feedback station.">
 </p>
 
 - The console has two queues. One holds the claims that the AI flags. The other holds a random QA sample of claims that the AI handled alone. The random sample measures the true quality.
@@ -316,7 +316,7 @@ Research that is not on `main` yet:
 | Makefile gate: `dev`, `lint`, `typecheck`, `test` | Built |
 | Tests: pytest files for the factory merge guard and the README figures | Built |
 | cognee 1.6.5, pinned in `requirements.txt`, telemetry off | Pinned (D-004). No product code uses it yet. The LLM path is not tested yet. |
-| Synthetic data generators ([docs/data-plan.md](docs/data-plan.md), section 9; tracked in GitHub issues [#2](https://github.com/SaiAbhijyan/arthai-health/issues/2) to [#8](https://github.com/SaiAbhijyan/arthai-health/issues/8), titled "Phase 2 (a)" to "Phase 2 (g)" on 2026-11-02) | Planned |
+| Synthetic data generators ([docs/data-plan.md](docs/data-plan.md), section 9 milestone table; open GitHub issues [#2](https://github.com/SaiAbhijyan/arthai-health/issues/2) to [#8](https://github.com/SaiAbhijyan/arthai-health/issues/8). We read their titles with `gh` on 2026-11-02: "Phase 2 (a)" to "Phase 2 (g)".) | Planned |
 | Claim builder and scrubber | Planned |
 | Payer and clearinghouse mock | Planned |
 | Remit posting | Planned |
@@ -353,7 +353,7 @@ Third-party files and their licenses are listed in [THIRD_PARTY_NOTICES.md](THIR
 | CARC, RARC | Claim adjustment reason codes and remittance advice remark codes. They tell why a payer paid less or denied. |
 | CCI gate | Our gate for the triage step, built on `cci-sdk` conformal prediction. It is not the CMS NCCI edit list. |
 | Hackathon | The demo event that sets the first scope. See [docs/hackathon-workflow.md](docs/hackathon-workflow.md). |
-| Conformal set | The set of labels that the gate thinks can be true. A tight set means sure. A wide set means not sure. The docs do not yet set the size limit. |
+| Conformal set | The set of labels that the gate thinks can be true. One label means sure. More labels mean not sure (PR #14, `docs/research/sota-rcm-model.md`, section 5.3). |
 | HCPCS Level II, ICD-10-CM | Public code sets for supplies and services (CMS) and for diagnoses (CDC/NCHS) |
 | LLM | Large language model |
 | System 1 model | A small, fast model that gives typed decisions, not free text (LAYA) |
@@ -373,7 +373,7 @@ To rebuild the figures:
 
 1. Get the anatomy kit at the pinned commit.
 2. Set `ANATOMY_KIT` to the path of `kit/iso-kit.mjs`. The build stops if this variable is not set.
-3. Run each build script with Node.js. We tested the rebuild with Node.js v20.19.2. The build checks the sha256 of the kit file and stops if it does not match. It does not draw part text below size 8. It stops if the alt text names text that it did not draw.
+3. Run each build script with Node.js. We tested the rebuild with Node.js v20.19.2. The build checks the sha256 of the kit file and stops if it does not match. It does not draw part text below size 8. Part text below size 12 is texture only. The build stops if the alt text names such text.
 4. Check that the SVG files did not change. Run this check on a clean working tree.
 
 ```bash

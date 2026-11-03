@@ -89,7 +89,7 @@ body.push(s.gauge(FEED.x + 180, FEED.y + 38, HP, 22, 0.7));
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 6. Planned review console and audit trail. Two queue trays hold AI-flagged claims and a random QA sample. A screen shows the timeline of synthetic claim SYN-C-000042. Every action goes to an append-only audit trail of hash-linked blocks. An approvals panel has approve, edit and reject buttons. A blue dotted track takes a reviewer edit to the feedback station.",
+  label: "Fig 6. Planned review console and audit trail. Two queue trays hold claims for review. A screen shows the timeline of a synthetic claim. Every action goes to an append-only audit trail of linked blocks. An approvals panel has three buttons for a human click. A blue dotted track takes a reviewer edit to the feedback station.",
   body,
 });
 console.log("wrote", OUT);

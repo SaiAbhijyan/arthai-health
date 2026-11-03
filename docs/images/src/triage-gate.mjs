@@ -21,7 +21,7 @@ const body = [frame({
   fig: "Fig 2",
   title: "Triage + CCI gate (planned)",
   hint: "Synthetic denials only. Design from PR #9 / #14 research, not yet decided. Not built.",
-  readout: "tight set: auto path · wide set: human",
+  readout: "1 label: auto path · more labels: human",
   legend: [
     "1  A synthetic denied line arrives from remit posting (example: SYN-D-000042, adjustment CO-197).",
     "2  The triage step gives three results: the category, the appeal decision (yes or no) and the priority.",
@@ -29,9 +29,8 @@ const body = [frame({
     "   The research plans the gate on LAYA scores. The docs do not yet say how the LLM gives scores to the gate.",
     "3  The CCI gate turns the scores into a conformal prediction set. Each pin is one example",
     "   category. The category list is not final (docs/data-plan.md section 6.1). A raised pin is in the set.",
-    "4  Claim A: the set is tight (example: 1 label), so the claim takes the auto path to the appeal writer.",
-    "5  Claim B: the set is wide (example: 3 labels), so the claim goes to the human queue.",
-    "   The docs do not yet set the size limit between tight and wide.",
+    "4  First claim: the set has 1 label, so the claim takes the auto path to the appeal writer (PR #14 section 5.3).",
+    "5  Second claim: the set has more than 1 label (here 3), so the claim goes to the human queue.",
     "6  A synthetic calibration slice sets the gate for a target coverage of 1 - alpha.",
     "   The guarantee is an average over cases, not a promise about one claim.",
     "Tracks. Chevrons show the direction.",
@@ -104,7 +103,7 @@ for (const [p, num, name, sub, tone] of [[AUTO, "4", "AUTO PATH", "TO APPEAL", "
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 2. Planned triage step and CCI gate. A synthetic denial goes to the triage step. The default scorer is the LLM, and LAYA is optional. The CCI gate has seven example category pins. Claim A has a tight set, for example one raised pin. It goes on a green track to the auto path. Claim B has a wide set, for example three raised pins. It goes on a red track to the human queue. A calibration station feeds the gate on a blue dotted track.",
+  label: "Fig 2. Planned triage step and CCI gate. A synthetic denial goes to the triage step. The default scorer is the LLM, and LAYA is optional. The CCI gate has seven example category pins. The first claim has one raised pin, so its set has one label. It goes on a green track to the auto path. The second claim has three raised pins, so its set has more than one label. It goes on a red track to the human queue. A calibration station feeds the gate on a blue dotted track.",
   body,
 });
 console.log("wrote", OUT);
