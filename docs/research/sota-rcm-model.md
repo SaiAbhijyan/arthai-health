@@ -9,7 +9,7 @@
 | Writing standard | ASD-STE100 Simplified Technical English rules (short sentences, active voice, one idea for each sentence) |
 | Data rule | Synthetic data only for the hackathon. No real PHI. See `docs/data-plan.md`. |
 | Code rule | No code or material from the author's former or current employers. All approaches in this document come from public sources. |
-| Internal sources | `docs/research/originals/build-guide.md` is on the PR #9 branch (not merged yet). `docs/research/rea-teardown.md` is in PR #13. The other `docs/` files are on `main`. |
+| Internal sources | `docs/research/originals/build-guide.md` is on `main` (PR #9, merged). `docs/research/rea-teardown.md` is in PR #13 (not merged). The other `docs/` files are on `main`. |
 
 ## How to read this document
 

@@ -152,7 +152,7 @@ flowchart LR
 
 | Stage | What breaks | Where AI fits |
 | --- | --- | --- |
-| Scheduling and registration | Registration errors are the #3 denial cause (32%) | Voice or chat intake (your Tekcel work), insurance card OCR, field validation |
+| Scheduling and registration | Registration errors are the #3 denial cause (32%) | Voice or chat intake ([removed: employer name] work), insurance card OCR, field validation |
 | Eligibility and benefits | 271 responses often lack details, so someone calls; CAQH sizes this at $11.7B | Auto 270/271, voice agent for missing benefit details (the Infinitus model) |
 | Prior auth | Authorizations are the #2 denial cause (35%) | LLM over payer policy, packet assembly, status calls |
 | Charge capture and CDI | Missed charges and missing documentation specificity | LLM chart-gap detection (SmarterDx, Fathom) |
@@ -641,7 +641,7 @@ flowchart LR
 | Data | Synthea patients, CARC mix weighted to the Experian cause ranking |
 | Eval | Conformal coverage vs target alpha, appeal citation violations, call success rate, $ per claim |
 
-- ✗ PHI and HIPAA: synthetic data only, never Tekcel or client data. Real use needs BAAs with every vendor. Don't claim compliance.
+- ✗ PHI and HIPAA: synthetic data only, never [removed: employer name] or client data. Real use needs BAAs with every vendor. Don't claim compliance.
 - ✗ Call legality: the FCC ruled AI voices are "artificial" under the TCPA ([FCC 24-17](https://docs.fcc.gov/public/attachments/FCC-24-17A1.pdf)). Disclose the AI, get consent before recording (some states require all parties to agree), and only call the mock payer in the demo.
 - ✗ Hackathon rules: confirm non-Meta models (Laya, TTS) are allowed, and keep Muse doing the visible work.
 - ✗ Coding hallucination: catalog-constrain and verify codes.

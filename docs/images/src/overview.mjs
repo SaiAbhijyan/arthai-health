@@ -27,7 +27,7 @@ const body = [frame({
   W, H, drawH: DRAW,
   fig: "Fig 1",
   title: "Arthai Health: planned flow",
-  hint: "Synthetic data only. Design from PR #9 / #14 research, not yet decided. None is built.",
+  hint: "Synthetic data only. Design from the research docs, not yet decided. None is built.",
   readout: "9 stations · all planned",
   cols: 1,
   legend: [

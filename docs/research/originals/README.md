@@ -37,4 +37,6 @@ This repo is public, so these items were taken out of `hackathon-brief.md` and r
 - The hackathon Discord **team ID** (2 places: section 1 status table and the section 10 checklist).
 - **3 Discord channel links** (intro, credits and team search posts) in the section 1 status table.
 
-Nothing else was removed. The pages had no secrets or keys, no real patient data (all examples are synthetic), and no CPT descriptor text (they mention CPT only as a code set, with no code descriptions).
+On 2026-11-03, the names of employers were taken out of `hackathon-brief.md` (2 places) and `build-guide.md` (2 places). Each one is replaced with a `[removed: employer name]` or `[removed: employer names]` marker.
+
+Nothing else was removed or changed. The pages had no secrets or keys, no real patient data (all examples are synthetic), and no CPT descriptor text (they mention CPT only as a code set, with no code descriptions).

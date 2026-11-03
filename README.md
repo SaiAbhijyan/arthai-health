@@ -6,9 +6,9 @@ Arthai Health is a planned set of AI agents for healthcare billing work. The age
 
 > **Status: plan and tooling only.** The `main` branch holds design documents, agent rules, a software factory and a few tests. No product code is built yet. Every product in this file is **planned**. See [Status](#status-built-and-planned).
 >
-> Many component details come from research in [PR #9](https://github.com/SaiAbhijyan/arthai-health/pull/9) and [PR #14](https://github.com/SaiAbhijyan/arthai-health/pull/14). These PRs are not merged yet, so those details can change. If a PR document and [DECISIONS.md](DECISIONS.md) do not agree, use DECISIONS.md.
+> Many component details come from the research docs: [docs/architecture.md](docs/architecture.md), [docs/product/idea.md](docs/product/idea.md), [docs/rcm/research.md](docs/rcm/research.md) and [docs/research/sota-rcm-model.md](docs/research/sota-rcm-model.md). These docs are research, not decisions, so those details can change. If a research doc and [DECISIONS.md](DECISIONS.md) do not agree, use DECISIONS.md.
 
-Arthai Health does billing and admin automation. It does not give medical advice. All data is synthetic. The rules forbid real patient data (PHI).
+Arthai Health does billing and admin automation. It does not give medical advice. All patient, claim and payer data is synthetic. The code sets are public reference data, not synthetic data (see [Data policy](#data-policy)). The rules forbid real patient data (PHI).
 
 ## Contents
 
@@ -28,9 +28,9 @@ Arthai Health does billing and admin automation. It does not give medical advice
 
 ### The problem
 
-Payers deny many claims. Billing staff must find the cause of each denial, fix it and appeal. They also spend a long time on the phone with payers. The research for this project, in [PR #9](https://github.com/SaiAbhijyan/arthai-health/pull/9), found these numbers in public reports:
+Payers deny many claims. Billing staff must find the cause of each denial, fix it and appeal. They also spend a long time on the phone with payers. The research for this project, in [docs/rcm/research.md](docs/rcm/research.md), found these numbers in public reports:
 
-| Fact | Source (as cited in PR #9, `docs/rcm/research.md`, section 1) |
+| Fact | Source (as cited in `docs/rcm/research.md`, section 1) |
 |---|---|
 | The average initial denial rate in 2025 was 11.6%. | Kodiak 2025 |
 | The rework of one denial costs about $103. | HFMA chapter deck 2025 |
@@ -48,7 +48,7 @@ The core loop for the hackathon has six steps. These step numbers are not the Fi
 5. A voice agent calls our own payer mock to follow up. The call outcome updates the claim.
 6. A review console shows the claim timeline, the audit trail and the approvals.
 
-The design has two main parts. The CCI gate (conformal prediction) decides which claims go to a human. A voice call updates the claim with the call outcome. The research found no vendor whose public marketing puts both parts first. This is a reading of marketing pages, not a measured fact (PR #9, `docs/product/idea.md`).
+The design has two main parts. The CCI gate (conformal prediction) decides which claims go to a human. A voice call updates the claim with the call outcome. The research found no vendor whose public marketing puts both parts first. This is a reading of marketing pages, not a measured fact ([docs/product/idea.md](docs/product/idea.md)).
 
 ## Architecture overview
 
@@ -64,13 +64,13 @@ Fig 1 shows the whole planned flow. The numbers in this list match the stations 
 4. The **triage step and the CCI gate** score the denial. The gate sends the claim on the auto path or to a human.
 5. The **review console** holds the human queue, the approvals and the audit trail.
 6. The **appeal writer** drafts the letter with an LLM. The planned model is Muse, a Meta model (D-011, proposed).
-7. After its own tier 2 approval (PR #9, `docs/architecture.md`, section 5.3), the **voice agent** calls the payer mock rep in the browser.
+7. After its own tier 2 approval (`docs/architecture.md`, section 5.3), the **voice agent** calls the payer mock rep in the browser.
 8. **AR follow-up** ranks the open claims for the next action.
 9. The **eval and feedback loop** turns reviewer edits into eval cases.
 
-A claim that goes to the human queue can still get an appeal. The claim goes from the human queue to the appeal writer. In the hackathon, every send and every call needs tier 2 approval in the console. The appeal goes out and the call starts only after that approval (PR #9, `docs/architecture.md`, sections 1 and 5.3).
+A claim that goes to the human queue can still get an appeal. The claim goes from the human queue to the appeal writer. In the hackathon, every send and every call needs tier 2 approval in the console. The appeal goes out and the call starts only after that approval (`docs/architecture.md`, sections 1 and 5.3).
 
-The planned deployment is a modular monolith with a separate payer mock, voice worker and console (D-001). Modules talk through a Postgres outbox. A LangGraph supervisor runs each claim to an end state. It stops before every send and every call. The core is deterministic: EDI build, payment posting and the ledger are code. AI does classification, drafting and conversation. Source: [ADR 0001](docs/adr/0001-modular-monolith.md) and `docs/architecture.md` in PR #9.
+The planned deployment is a modular monolith with a separate payer mock, voice worker and console (D-001). Modules talk through a Postgres outbox. A LangGraph supervisor runs each claim to an end state. It stops before every send and every call. The core is deterministic: EDI build, payment posting and the ledger are code. AI does classification, drafting and conversation. Source: [ADR 0001](docs/adr/0001-modular-monolith.md) and [docs/architecture.md](docs/architecture.md).
 
 ## Components
 
@@ -79,17 +79,17 @@ All components in this section are **planned**. The module names come from the a
 ### Triage and the CCI gate (planned)
 
 <p align="center">
-  <img src="docs/images/arthai-triage-gate.svg" width="100%" alt="Fig 2. Planned triage step and CCI gate. A synthetic denial goes to the triage step. The default scorer is the LLM, and LAYA is optional. The CCI gate has seven example category pins. The first claim has one raised pin, so its set has one label. It goes on a green track to the auto path. The second claim has three raised pins, so its set has more than one label. It goes on a red track to the human queue. A calibration station feeds the gate on a blue dotted track.">
+  <img src="docs/images/arthai-triage-gate.svg" width="100%" alt="Fig 2. Planned triage step and CCI gate. A synthetic denial goes to the triage step. The default scorer is the LLM, and LAYA is optional. The CCI gate has seven example category pins. The first claim has one raised pin, so its set has one label. It goes on a green track to the auto path. The second claim has three raised pins, so its set has more than one label. It goes on a red track to the human queue. An empty set also goes to the human queue. A calibration station feeds the gate on a blue dotted track.">
 </p>
 
 - The triage step returns a typed decision: the denial category, the appeal decision and the priority.
 - LAYA can do this step. LAYA is a small open "System 1" decision model (about 421M parameters, Apache-2.0). It is not a Meta model. See [docs/laya-plan.md](docs/laya-plan.md).
 - LAYA is optional. The switch is `TRIAGE_BACKEND=laya|llm`. The default is `llm` until the rule question is answered and LAYA beats the LLM on the held-out set ([ADR 0004](docs/adr/0004-stack.md), proposed).
-- The CCI gate (`cci_gate`, based on `cci-sdk`) turns the scores into a conformal set. If the set has one label, the claim takes the auto path. If the set has more than one label, the claim goes to the human queue (PR #14, `docs/research/sota-rcm-model.md`, section 5.3).
-- The docs do not yet say what happens to an empty set. This is an open question.
-- The research plans the gate on LAYA scores (PR #14, `docs/research/sota-rcm-model.md`, section 5.3). The docs do not yet say how the default `llm` backend gives scores to the gate.
+- The CCI gate (`cci_gate`, based on `cci-sdk`) turns the scores into a conformal set. If the set has one label, the claim takes the auto path. If the set has more than one label, the claim goes to the human queue (`docs/research/sota-rcm-model.md`, section 5.3).
+- If the set is empty (no label), the claim goes to the human queue. If the gate fails or gets scores that are not valid, the claim also goes to the human queue. Only a set with exactly one label takes the auto path ([D-020](DECISIONS.md), proposed).
+- The research plans the gate on LAYA scores (`docs/research/sota-rcm-model.md`, section 5.3). With the default `llm` backend, the LLM gives one score for each category in a closed list. The gate calibrates these scores in the same way ([ADR 0004](docs/adr/0004-stack.md), "LAYA and CCI scoring", proposed).
 - The gate has a coverage target (1 − alpha). It is not a raw confidence threshold.
-- **Limit:** the conformal guarantee is an average over cases like the calibration set. It is not a promise about one claim (PR #14, `docs/research/sota-rcm-model.md`, section 5.3).
+- **Limit:** the conformal guarantee is an average over cases like the calibration set. It is not a promise about one claim (`docs/research/sota-rcm-model.md`, section 5.3).
 - **Limit:** do not trust the raw LAYA confidence before calibration. The base checkpoint warns that some calibration temperatures are invalid ([docs/laya-plan.md](docs/laya-plan.md)).
 
 ### Appeal writer (planned)
@@ -99,7 +99,7 @@ All components in this section are **planned**. The module names come from the a
 </p>
 
 - The appeal writer retrieves chunks of payer policy and writes the letter.
-- An LLM writes the text. The planned model is Muse, a Meta model (D-011, proposed). With `TRIAGE_BACKEND=laya`, LAYA makes the triage scores and the LLM only writes (PR #14, `docs/research/sota-rcm-model.md`, section 5.3).
+- An LLM writes the text. The planned model is Muse, a Meta model (D-011, proposed). With `TRIAGE_BACKEND=laya`, LAYA makes the triage scores and the LLM only writes (`docs/research/sota-rcm-model.md`, section 5.3).
 - The citation gate checks that each statement maps to a retrieved chunk ID. If a statement has no source, the draft goes back to the writer.
 - A human approves the letter before it goes out. In the hackathon, every external action needs approval.
 - The payer policies in the demo are fictional. Example payer IDs start with `ZZP`.
@@ -114,9 +114,10 @@ All components in this section are **planned**. The module names come from the a
 - The voice demo is free only. It uses a browser call (WebRTC and Web Audio) to our own payer mock rep. It uses no paid phone line. It uses no signup that needs a card (D-018, accepted).
 - Speech-to-text runs locally. The candidates are Whisper and faster-whisper.
 - Text-to-speech runs locally. The candidates are Piper and Kokoro.
-- ADR 0004 item 8 and D-018 disagree about speech-to-text. ADR 0004 names Muse Voice Transcribe. D-018 (accepted) names local speech-to-text. This file follows D-018. DECISIONS.md does not yet log the conflict.
+- ADR 0004 item 8 now follows D-018: speech-to-text runs locally. The demo does not use Muse Voice Transcribe.
 - Before install, each voice tool gets a SkillSpector scan. Each voice model gets a license check. D-018 does not allow non-commercial voices.
 - The agent says that it is an AI and announces the recording. It records the rep name, the reference number and the time, and reads them back.
+- The payer mock gives each call a synthetic reference number in the format `SYN-REF-` and six digits, for example `SYN-REF-000007` ([D-021](DECISIONS.md), proposed).
 - The agent calls only the payer mock. **Never call a real payer.**
 
 ### Code lookups (planned)
@@ -141,7 +142,7 @@ All components in this section are **planned**. The module names come from the a
 - The console has two queues. One holds the claims that the AI flags. The other holds a random QA sample of claims that the AI handled alone. The random sample measures the true quality.
 - The claim timeline shows each AI and human action, the model, the prompt version and the sources.
 - Every AI action writes an `audit_event` ([AGENTS.md](AGENTS.md)). The event records the actor, the model, the prompt version, the input hash, the tools, the output and the approver.
-- The audit table is append-only. Each row stores the hash of the row before it (PR #9, `docs/architecture.md`, section 5.1).
+- The audit table is append-only. Each row stores the hash of the row before it (`docs/architecture.md`, section 5.1).
 - High-risk actions go through `approvals.require()`: send an appeal, place a call, post a payment, write off. Write-offs and refunds need two people.
 - A reviewer edit becomes an eval case. The eval loop then recalibrates the gate on recent reviewed claims.
 
@@ -151,21 +152,21 @@ These products appear in Fig 1. They have no figure of their own. Code lookups (
 
 | Product | What it does (planned) | Source |
 |---|---|---|
-| Claim builder and scrubber | Builds the 837. Runs the CMS NCCI and MUE edits. Gives a denial-risk score. | PR #9 `docs/architecture.md` section 3 |
+| Claim builder and scrubber | Builds the 837. Runs the CMS NCCI and MUE edits. Gives a denial-risk score. | `docs/architecture.md` section 3 |
 | Payer and clearinghouse mock | Decides on synthetic claims. Sends 835 and 277 files. Plays the phone rep. | [D-007](DECISIONS.md), [docs/data-plan.md](docs/data-plan.md) section 3 |
-| Remit posting | Reads the 835. Posts payments. Finds each denied line and its root-cause category. | PR #9 `docs/architecture.md` section 3 |
-| AR follow-up | Ranks open claims by age and priority. Reads 276/277 status. | PR #9 `docs/product/idea.md` section 4.2 |
-| Eval and feedback loop | Keeps golden sets and metrics. Turns reviewer edits into eval cases. Recalibrates the gate. | PR #9 `docs/architecture.md` section 5.4 |
+| Remit posting | Reads the 835. Posts payments. Finds each denied line and its root-cause category. | `docs/architecture.md` section 3 |
+| AR follow-up | Ranks open claims by age and priority. Reads 276/277 status. | `docs/product/idea.md` section 4.2 |
+| Eval and feedback loop | Keeps golden sets and metrics. Turns reviewer edits into eval cases. Recalibrates the gate. | `docs/architecture.md` section 5.4 |
 
 ### Supporting parts (planned or proposed)
 
 - **Memory:** cognee 1.6.5 is pinned in `requirements.txt`, with telemetry off (D-004, accepted). A switch, `MEMORY_BACKEND=cognee|none`, controls product use. With `none`, the demo still runs if cognee fails (D-013, proposed).
 - **Compute:** Modal for the LAYA fine-tune and batch jobs, inside the free credits (D-016, proposed).
-- **Developer tools:** OmniRoute is for developer tools only. It is not in the product path (D-012, proposed).
+- **Developer tools:** OmniRoute is for developer tools only. It is not in the product path. Product LLM calls go through one OpenAI-compatible client directly to the Meta-model providers (D-012 and D-022, proposed).
 
 ## Data policy
 
-All data in this project is synthetic. The single source of truth for data sources, licenses and data layout is [docs/data-plan.md](docs/data-plan.md).
+All patient, claim, payer and call data in this project is synthetic. The code sets (HCPCS Level II and ICD-10-CM subsets, CARC and RARC code values) are public reference data with attribution. They are not synthetic, and they contain no PHI. The single source of truth for data sources, licenses and data layout is [docs/data-plan.md](docs/data-plan.md).
 
 Rules:
 
@@ -186,7 +187,7 @@ Planned sources and licenses:
 | Denials, appeals, calls | A hand-written scenario table and a seeded generator | [D-010](DECISIONS.md) (proposed) |
 | Model calls | Meta Contributor mode lets Meta train on our prompts and outputs. Thus only synthetic data goes there. | [D-017](DECISIONS.md) (accepted) |
 
-Synthetic IDs use the prefixes in the data plan: `SYN-P-`, `SYN-C-`, `SYN-D-`, member IDs `ZZ` and payer IDs `ZZP`. Phone numbers use `555-0100` to `555-0199`. Emails use `example.com`.
+Synthetic IDs use the prefixes in the data plan: `SYN-P-`, `SYN-C-`, `SYN-D-`, `SYN-REF-` (call reference numbers), member IDs `ZZ` and payer IDs `ZZP`. Phone numbers use `555-0100` to `555-0199`. Emails use `example.com`.
 
 The data plan (docs/data-plan.md, section 6.4) plans a PHI scanner in CI. It fails on these items:
 
@@ -194,6 +195,7 @@ The data plan (docs/data-plan.md, section 6.4) plans a PHI scanner in CI. It fai
 - phone numbers outside `555-01xx`
 - emails outside `example.com`
 - NPIs that are not in the fictional list
+- call reference numbers that do not match the `SYN-REF-` format (D-021)
 
 ## Quickstart
 
@@ -239,7 +241,7 @@ Main files only:
 ├── AGENTS.md            # rules for all coding agents (CLAUDE.md points here)
 ├── CLAUDE.md            # Claude Code specifics
 ├── CONTRIBUTING.md
-├── DECISIONS.md         # decision log, D-001 to D-019
+├── DECISIONS.md         # decision log, D-001 to D-022
 ├── Makefile             # dev, lint, typecheck, test
 ├── README.md            # this file
 ├── SETUP.md             # older setup notes
@@ -250,12 +252,16 @@ Main files only:
 ├── requirements-dev.txt
 ├── docs/
 │   ├── adr/             # architecture decision records 0001 to 0004
+│   ├── architecture.md  # planned flow, components and trust layer
 │   ├── data-plan.md     # data sources, licenses and layout (single source)
 │   ├── golden-play-guide.md
 │   ├── hackathon-workflow.md
 │   ├── images/          # README figures (SVG) and their build scripts in src/
 │   ├── laya-plan.md
 │   ├── plans/           # task plans
+│   ├── product/         # product idea and hackathon rules
+│   ├── rcm/             # RCM primer and market research
+│   ├── research/        # model research and the Oct 26 research snapshots
 │   └── tooling.md       # third-party skills and tools, with scan notes
 ├── factory/             # software factory: issue -> spec -> build -> gate -> review -> PR
 ├── scripts/             # dev-tool wrappers (headroom, omniroute, pi) and the cognee smoke test
@@ -292,6 +298,9 @@ Read [DECISIONS.md](DECISIONS.md) for every decision. For data and licensing, [d
 | D-017 | Meta Contributor mode, synthetic data only | Accepted |
 | D-018 | Voice: free only, browser call to our own mock insurer | Accepted |
 | D-019 | README figures: anatomy kit core only, pinned | Proposed |
+| D-020 | CCI gate: an empty set or a gate error goes to a human | Proposed |
+| D-021 | Format of synthetic call reference numbers (`SYN-REF-`) | Proposed |
+| D-022 | Product LLM calls do not go through OmniRoute; AGENTS.md follows D-012 | Proposed |
 
 ADRs:
 
@@ -300,16 +309,16 @@ ADRs:
 - [ADR 0003: third-party agent tooling](docs/adr/0003-third-party-agent-tooling.md)
 - [ADR 0004: model, triage, memory and compute stack](docs/adr/0004-stack.md) (proposed, except D-017)
 
-Research that is not on `main` yet:
+Research docs (research, not decisions):
 
-- [PR #9](https://github.com/SaiAbhijyan/arthai-health/pull/9): product idea, RCM primer, market research and architecture.
-- [PR #14](https://github.com/SaiAbhijyan/arthai-health/pull/14): healthcare RCM model research (options, build path, data, HIPAA).
+- [docs/product/idea.md](docs/product/idea.md), [docs/rcm/primer.md](docs/rcm/primer.md), [docs/rcm/research.md](docs/rcm/research.md) and [docs/architecture.md](docs/architecture.md): product idea, RCM primer, market research and architecture (from PR #9).
+- [docs/research/sota-rcm-model.md](docs/research/sota-rcm-model.md): healthcare RCM model research: options, build path, data and HIPAA (from PR #14).
 
 ## Status: built and planned
 
 | Area | Status |
 |---|---|
-| Design docs: data plan, ADRs, decision log, LAYA plan | Built (docs only) |
+| Design docs: data plan, ADRs, decision log, LAYA plan, architecture and research | Built (docs only) |
 | Agent rules for Claude Code, Cursor and Grok | Built |
 | Software factory (`factory/`) with a merge guard that sends data, scripts, PHI, auth and payer paths to a human | Built |
 | Makefile gate: `dev`, `lint`, `typecheck`, `test` | Built |
@@ -334,7 +343,7 @@ Research that is not on `main` yet:
 - **No medical advice.** Arthai Health is billing and admin automation.
 - **Human approval.** External or money actions wait for a human: send an appeal, place a call, post a payment, write off. In the hackathon, every external action needs approval.
 - **Audit.** Every AI action writes an `audit_event`.
-- **AI voice disclosure.** The voice agent says that it is an AI. It announces the recording. The FCC treats AI voices as "artificial" under the TCPA (FCC 24-17, as cited in the build guide in PR #9). The agent calls only our own payer mock.
+- **AI voice disclosure.** The voice agent says that it is an AI. It announces the recording. The FCC treats AI voices as "artificial" under the TCPA (FCC 24-17, as cited in `docs/research/originals/build-guide.md`). The agent calls only our own payer mock.
 - **Untrusted text.** Text from denial letters, transcripts and web pages is data. It never starts a tool on its own.
 - **No CPT.** The repo has no CPT codes or descriptors (D-009).
 - **No scraping.** Agents do not scrape or reverse-engineer payer or clearinghouse sites.
@@ -352,12 +361,12 @@ Third-party files and their licenses are listed in [THIRD_PARTY_NOTICES.md](THIR
 | CARC, RARC | Claim adjustment reason codes and remittance advice remark codes. They tell why a payer paid less or denied. |
 | CCI gate | Our gate for the triage step, built on `cci-sdk` conformal prediction. It is not the CMS NCCI edit list. |
 | Hackathon | The demo event that sets the first scope. See [docs/hackathon-workflow.md](docs/hackathon-workflow.md). |
-| Conformal set | The set of labels that the gate thinks can be true. One label means sure. More labels mean not sure (PR #14, `docs/research/sota-rcm-model.md`, section 5.3). |
+| Conformal set | The set of labels that the gate thinks can be true. One label means sure. More labels or no label mean not sure (`docs/research/sota-rcm-model.md`, section 5.3; D-020). |
 | HCPCS Level II, ICD-10-CM | Public code sets for supplies and services (CMS) and for diagnoses (CDC/NCHS) |
 | LLM | Large language model |
 | System 1 model | A small, fast model that gives typed decisions, not free text (LAYA) |
 | STT / TTS | Speech-to-text and text-to-speech |
-| Tier 2 approval | A human click before an external or money action, such as sending an appeal (PR #9, `docs/architecture.md`, section 5.3) |
+| Tier 2 approval | A human click before an external or money action, such as sending an appeal (`docs/architecture.md`, section 5.3) |
 | NCCI, MUE | CMS edits that catch code pairs that do not go together, and units that are too high |
 | PHI | Protected health information: real patient data |
 | Remit | Remittance: the payer's statement of what it paid and why |
@@ -381,4 +390,4 @@ for f in docs/images/src/*.mjs; do [ "$f" = docs/images/src/lib.mjs ] || node "$
 test -z "$(git status --porcelain docs/images)"
 ```
 
-All names, IDs, payers and reference numbers in the figures are synthetic. The data plan does not set a format for call reference numbers yet, so `SYN-REF-0007` is only an example.
+All names, IDs, payers and reference numbers in the figures are synthetic. `SYN-REF-000007` in Fig 4 uses the call reference format in D-021 and [docs/data-plan.md](docs/data-plan.md), section 6.4.

@@ -159,7 +159,7 @@ Links are in `docs/rcm/research.md`.
 ## Sources
 
 - [P2] "Revora Build Guide", Grok Bot Page, 2026-10-26 (private): https://cursor.com/canvas/store-2f9b6419-214d-4ae3-ba39-6b55775ac5bc/0d09f3df-55fe-44ed-b292-b147cf442cb6
-- `docs/data-plan.md`, section 5 and section 6 (Forge, PR #1, not merged): https://github.com/SaiAbhijyan/arthai-health/pull/1
+- `docs/data-plan.md`, section 5 and section 6 (Forge, PR #1, merged): https://github.com/SaiAbhijyan/arthai-health/pull/1
 - `data/synthetic/scenarios.yaml` (Forge, branch `feat/phase2-synthetic-data`, work in progress).
 - CMS Original Medicare appeals: https://www.cms.gov/medicare/appeals-grievances/fee-for-service
 - 42 CFR 424.44: https://www.ecfr.gov/current/title-42/chapter-IV/subchapter-B/part-424/subpart-C/section-424.44

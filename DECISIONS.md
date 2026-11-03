@@ -232,3 +232,36 @@ Write an entry when choosing a library, pattern, schema, protocol, model/prompt 
 - Decision: B. The build imports only `kit/iso-kit.mjs` at commit `1482e8469b0a9e0d8cc18ea2740a01423d29ae80` and checks its sha256 first. Never run or import `publish.mjs` or `session.mjs`.
 - Consequences: Good: figures rebuild from scripts in `docs/images/src/`. Bad: a rebuild needs the kit on disk. Follow-up: keep the MIT notice in `docs/images/NOTICE-anatomy-MIT.txt` and THIRD_PARTY_NOTICES.md.
 - Links: docs/plans/readme-anatomy.md, docs/tooling.md (anatomy), README.md (About the figures)
+
+### D-020: CCI gate: an empty set or a gate error goes to a human
+- Date: 2026-11-03 | Status: Proposed
+- Deciders: Sai asked for a rule (2026-11-03, relayed by Mini Chief, with "route the claim to a human" as the default); agent-drafted
+- Context: The research (`docs/research/sota-rcm-model.md` section 5.3) says what the gate does with a set of 1 label (auto path) and with more than 1 label (human). It did not say what happens with an empty set. Split conformal prediction can give an empty set when no label passes the threshold. The docs also did not say how the default `llm` triage backend gives scores to the gate.
+- Options considered:
+  - A: Take the top-scoring label on the auto path. Cons: the gate found no label it trusts, so this hides an uncertain case.
+  - B: Send the claim to the human queue. Pros: fails closed; the reviewer sees the case. Cons: more human work.
+- Decision: B. Only a set with exactly 1 label takes the auto path. A set with 0 labels (`empty_set`), 2 or more labels (`wide_set`), or a gate error or scores that are not valid (`gate_error`) sends the claim to the human queue. The `llm` backend gives one score for each category in a closed list. Each backend has its own calibration.
+- Consequences: Good: the gate never auto-routes a claim that it is not sure about. Bad: more claims go to a human. Follow-up: the eval reports the empty-set rate; tests for each of the 4 results come with the `cci_gate` code.
+- Links: docs/adr/0004-stack.md ("LAYA and CCI scoring"), docs/research/sota-rcm-model.md section 5.3, README.md (Triage and the CCI gate)
+
+### D-021: Format of synthetic call reference numbers (SYN-REF)
+- Date: 2026-11-03 | Status: Proposed
+- Deciders: Sai asked for a format (2026-11-03, relayed by Mini Chief); agent-drafted
+- Context: The voice agent records the reference number that the payer rep gives. The README figure used a 4-digit example, but no doc set the format. Real payer reference numbers must never appear in the repo.
+- Options considered:
+  - A: Free text. Cons: tests cannot check it; a real number can slip in.
+  - B: A fixed synthetic format that matches the other IDs (`SYN-C-000001`, `SYN-D-000001`).
+- Decision: B. Format: `SYN-REF-` and exactly 6 digits. Regex `^SYN-REF-[0-9]{6}$`. Example: `SYN-REF-000007`. Only our payer mock makes these numbers, one for each call, in sequence from `000001` for each seeded run. The same seed gives the same numbers. The field is `extracted.reference_number` in `CallTranscript`.
+- Consequences: Good: tests and the PHI scanner can check each reference number. Follow-up: the planned PHI scanner fails on a reference number that does not match the regex.
+- Links: docs/data-plan.md sections 6.2 and 6.4, README.md (Voice agent), docs/images/src/voice-agent.mjs
+
+### D-022: Product LLM calls do not go through OmniRoute; AGENTS.md follows D-012
+- Date: 2026-11-03 | Status: Proposed
+- Deciders: Sai asked to fix the conflict (2026-11-03, relayed by Mini Chief); agent-drafted
+- Context: `AGENTS.md` said "LLM calls go through OmniRoute". D-012 and ADR 0004 item 4 say that OmniRoute is for developer tools only and is not in the product path. `docs/hackathon-workflow.md` and `docs/laya-plan.md` also sent product model calls through OmniRoute. Agents read `AGENTS.md` first, so the conflict could put OmniRoute in the product path.
+- Options considered:
+  - A: Change D-012 and the ADR to put OmniRoute in the product path. Cons: ToS surface of third-party free tiers, extra process, fast release cadence (ADR 0004 finding 2).
+  - B: Change `AGENTS.md` and the workflow docs to match D-012.
+- Decision: B. Product LLM calls go through one OpenAI-compatible client directly to Baseten or the Meta Model API (D-011). OmniRoute is for developer tools only (for example pi), on `127.0.0.1`, with API-key providers only. Never connect consumer or web-session providers. Never send private code to a provider that trains on inputs without Sai's OK.
+- Consequences: Good: one rule in every doc. Bad: none for the product; OmniRoute stays available for developer tools. D-012 stays Proposed until Sai approves.
+- Links: AGENTS.md (Workflow), docs/adr/0004-stack.md item 4, docs/hackathon-workflow.md, docs/laya-plan.md

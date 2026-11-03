@@ -12,14 +12,14 @@ const HP = 44;
 const QUEUES = { x: 24, y: 30, w: 170, d: 110, r: 4 };
 const CONSOLE = { x: 234, y: 30, w: 250, d: 110, r: 4 };
 const AUDIT = { x: 524, y: 30, w: 230, d: 110, r: 4 };
-const APPROVE = { x: 234, y: 240, w: 250, d: 84, r: 4 };
-const FEED = { x: 524, y: 240, w: 230, d: 84, r: 4 };
+const APPROVE = { x: 160, y: 256, w: 240, d: 84, r: 4 };
+const FEED = { x: 556, y: 256, w: 200, d: 84, r: 4 };
 
 const body = [frame({
   W, H, drawH: DRAW,
   fig: "Fig 6",
   title: "Review console + audit (planned)",
-  hint: "Synthetic claims only. Design from PR #9 / #14 research, not yet decided. Not built.",
+  hint: "Synthetic claims only. Design from the research docs, not yet decided. Not built.",
   readout: "every AI action writes an audit_event",
   legend: [
     "1  Two queues: claims the AI flags (wide set, guardrail hit, high dollar) and a random QA",
@@ -38,11 +38,13 @@ const body = [frame({
 })];
 body.push(s.bench(BENCH, 12));
 const z = 0.4;
-body.push(s.link(QUEUES, QUEUES.x + QUEUES.w - 14, CONSOLE, CONSOLE.x + 16, 156));
-body.push(s.link(CONSOLE, CONSOLE.x + CONSOLE.w - 14, AUDIT, AUDIT.x + 16, 156));
-// 2 -> 4: around the left end of the approvals plinth to its front edge
-body.push(s.track([[440, CONSOLE.y + CONSOLE.d + 6], [440, 190], [500, 190], [500, 282], [APPROVE.x + APPROVE.w + 6, 282]], z, "hi"));
-body.push(s.link(APPROVE, APPROVE.x + APPROVE.w - 14, FEED, FEED.x + 16, 344, "blue", { dotted: true, width: 2.4 }));
+// Tracks run in the open aisle between the rows, so no plinth hides them. Each end segment is long enough for a chevron.
+body.push(s.link(QUEUES, QUEUES.x + QUEUES.w - 40, CONSOLE, CONSOLE.x + 40, 160));
+body.push(s.link(CONSOLE, CONSOLE.x + CONSOLE.w - 20, AUDIT, AUDIT.x + 40, 160));
+// 2 -> 4: down the aisle on the right of the approvals plinth, then into its right side
+body.push(s.track([[CONSOLE.x + CONSOLE.w - 60, CONSOLE.y + CONSOLE.d + 6], [CONSOLE.x + CONSOLE.w - 60, 282], [APPROVE.x + APPROVE.w + 6, 282]], z, "hi"));
+// 4 -> 5: straight across the aisle between the approvals and the feedback station
+body.push(s.track([[APPROVE.x + APPROVE.w + 6, 316], [FEED.x - 6, 316]], z, "blue", { dotted: true, width: 2.4 }));
 
 // 1 queues: two trays
 body.push(s.plinth(QUEUES, HP, { num: "1", name: "TWO QUEUES", sub: "FLAGGED + RANDOM QA", size: 13 }));
@@ -85,7 +87,7 @@ body.push(s.plinth(APPROVE, HP, { num: "4", name: "APPROVALS", sub: "HUMAN CLICK
 // 5 feedback to eval
 body.push(s.plinth(FEED, HP, { num: "5", name: "FEEDBACK", sub: "EDIT -> EVAL CASE", size: 13 }));
 body.push(s.cards(FEED.x + 14, FEED.y + 14, HP, { n: 3, w: 110, d: 46, id: "EDIT: reason=wrong_policy", rules: 2, idSize: 5.4 }));
-body.push(s.gauge(FEED.x + 180, FEED.y + 38, HP, 22, 0.7));
+body.push(s.gauge(FEED.x + 160, FEED.y + 38, HP, 22, 0.7));
 
 writeFigure(OUT, {
   W, H,

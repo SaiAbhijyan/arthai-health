@@ -19,7 +19,7 @@ const body = [frame({
   W, H, drawH: DRAW,
   fig: "Fig 3",
   title: "Appeal writer (planned)",
-  hint: "Fictional payer policy. Design from PR #9 / #14 research, not yet decided. Not built.",
+  hint: "Fictional payer policy. Design from the research docs, not yet decided. Not built.",
   readout: "no citation, no letter · no approval, no send",
   legend: [
     "1  Inputs: the synthetic denial record, the facts from the record, and retrieved chunks",

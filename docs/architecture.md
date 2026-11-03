@@ -140,5 +140,5 @@ Source: [P2] 3.5, 4.7, 4.9.
 
 - [P2] "Revora Build Guide", Grok Bot Page, 2026-10-26 (private): https://cursor.com/canvas/store-2f9b6419-214d-4ae3-ba39-6b55775ac5bc/0d09f3df-55fe-44ed-b292-b147cf442cb6
 - `DECISIONS.md` on main (D-001, D-004).
-- PR #1 (not merged): https://github.com/SaiAbhijyan/arthai-health/pull/1 (`docs/adr/0004-stack.md`, `docs/data-plan.md`, D-005 to D-013, and the Contributor-mode entry).
+- PR #1 (merged): https://github.com/SaiAbhijyan/arthai-health/pull/1 (`docs/adr/0004-stack.md`, `docs/data-plan.md`, D-005 to D-013, and the Contributor-mode entry).
 - `AGENTS.md` (architecture map, audit and approval rules).

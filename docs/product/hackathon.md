@@ -55,7 +55,7 @@ Banned ideas (the list is not complete): AI medical advice (mental health, skin)
 | Judges read it as AI medical advice | Frame it as billing and admin automation for billing staff. No diagnosis, no treatment output, no clinical answers to patients. Say this in the README and in the first 10 seconds of the video. |
 | Judges read it as a dashboard | The agents are the product. Lead the demo with the denial, the appeal and the payer call. Show the console second. |
 | Judges read it as basic RAG | Show the multi-step agent: typed decisions, the confidence gate, the citation gate, tool calls, a voice call and a state change. |
-| Pre-existing work | Use the fresh public repo. Do not use Tekcel or MedRCM code, data or assets. |
+| Pre-existing work | Use the fresh public repo. Do not use code, data or assets from any employer or client of the team. |
 | Data rights and PHI | Synthetic data only. Cite the licenses of public code lists. |
 | Outside models | Judging rewards Meta tooling. Let Meta models do the visible work. Confirm that non-Meta helper models are allowed. |
 | Voice calls to real payers | Call only the mock payer. The agent says that it is an AI. |

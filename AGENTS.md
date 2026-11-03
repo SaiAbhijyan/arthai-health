@@ -52,7 +52,7 @@ Tools & review
 - Keep this file short: prune rules models no longer need; contradictions go to DECISIONS.md, not silent merges.
 
 ## Workflow
-Follow `docs/hackathon-workflow.md`: phase -> skill/command/MCP, daily loop, tmux windows. LLM calls go through OmniRoute (`scripts/omniroute.sh`, 127.0.0.1:20128, API-key providers only).
+Follow `docs/hackathon-workflow.md`: phase -> skill/command/MCP, daily loop, tmux windows. Product LLM calls go through one OpenAI-compatible client directly to Baseten or the Meta Model API (ADR 0004, D-011). OmniRoute (`scripts/omniroute.sh`, 127.0.0.1:20128, API-key providers only) is for developer tools only, never in the product path (D-012, D-022).
 
 ## Architecture map
 services/ eligibility, intake, coding, claims, clearinghouse_gw, payer_mock, remits, denials, voice, ar, billing, ledger, review, audit, gateway
