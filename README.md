@@ -244,7 +244,7 @@ Main files only:
 ├── DECISIONS.md         # decision log, D-001 to D-022
 ├── Makefile             # dev, lint, typecheck, test
 ├── README.md            # this file
-├── SETUP.md             # older setup notes
+├── SETUP.md             # short setup notes (same make targets as the quickstart)
 ├── THIRD_PARTY_NOTICES.md
 ├── pyproject.toml       # ruff, mypy and pytest settings
 ├── requirements.txt     # runtime pins (cognee)

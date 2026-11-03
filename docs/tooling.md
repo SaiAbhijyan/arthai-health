@@ -74,6 +74,7 @@ scripts/omniroute.sh add-keys  # providers: meta-llama, fireworks, baseten
 OmniRoute does not read provider env vars itself. `add-keys` passes them with `providers add <id> --credential-env <VAR>`. The key is stored encrypted in the local data dir.
 `/v1/*` needs an OmniRoute client key: make one with `omniroute keys` (see `--help`) and set `OMNIROUTE_API_KEY`. Base URL for clients: `http://127.0.0.1:20128/v1`.
 Use only API-key providers (Meta, Baseten, Fireworks, Modal). Do not connect consumer subscriptions.
+Scope (D-012, D-022): developer tools only, for example pi. Product LLM calls do not go through OmniRoute. They use the one client in ADR 0004.
 
 ### Headroom (headroomlabs-ai/headroom) — installed 2026-10-28, box tool, tracking off
 - Version: `headroom-ai[proxy]==0.42.0`. License: Apache-2.0. SkillSpector re-scan 2026-10-28: `/workspace/curious/skillspector-headroom-2026-10-28.md`.

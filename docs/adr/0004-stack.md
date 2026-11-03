@@ -106,7 +106,7 @@ This section tells how the triage step gives scores to the CCI gate, and what th
 
 1. **Labels.** The triage step scores a closed list of denial categories. The list comes from the scenario table (`docs/data-plan.md` section 6.1). Free-text labels are not allowed.
 2. **Scores with `TRIAGE_BACKEND=laya`.** LAYA gives a probability for each category in one forward pass. Calibrate the temperature on the calibration split first. Do not use raw LAYA confidence (`docs/laya-plan.md`).
-3. **Scores with `TRIAGE_BACKEND=llm` (the default).** The LLM returns one score from 0 to 1 for each category in the closed list, as typed JSON (a Pydantic model). If the JSON is not valid, or a category is missing, the gate does not run and the claim goes to a human.
+3. **Scores with `TRIAGE_BACKEND=llm` (the default).** The LLM returns one score from 0 to 1 for each category in the closed list, as typed JSON (a Pydantic model). If the JSON is not valid, or a category is missing, the gate does not run and the claim goes to a human. Pin the model version and use temperature 0. Calibrate again when the model version or the prompt changes.
 4. **Gate.** `cci_gate` uses the cci-sdk `stats` module (split conformal prediction) on the calibration split. It sets a threshold for the target coverage 1 - alpha. Each backend has its own calibration. Do not use a threshold from one backend with the other backend.
 5. **Why LLM scores are allowed.** The coverage guarantee of split conformal prediction does not need calibrated scores. It needs calibration data that is exchangeable with new data. Poor scores make the sets larger, so more claims go to a human. They do not break the guarantee.
 6. **Result rules (D-020).**

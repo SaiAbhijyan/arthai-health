@@ -21,7 +21,7 @@ flowchart LR
 
 1. **Ingest.** The remits module parses the synthetic 835. Each denied line starts a denial workflow.
 2. **Analysis.** The triage agent returns a typed decision: denial category, appeal yes or no, and priority. Codes come only from the catalog.
-3. **Gate.** The confidence gate (`cci_gate`, based on `cci-sdk` conformal sets) checks the size of the prediction set. A tight set continues. A wide set goes to the human queue.
+3. **Gate.** The confidence gate (`cci_gate`, based on `cci-sdk` conformal sets) checks the size of the prediction set. A set with exactly one label continues. A wide set, an empty set or a gate error sends the claim to the human queue (D-020).
 4. **Appeal.** The appeal agent retrieves payer policy chunks and writes the letter. The citation gate checks that each statement maps to a retrieved chunk ID.
 5. **Approval.** A human approves before the appeal goes out. In the hackathon, every external action needs approval.
 6. **Voice follow-up.** The voice agent calls the mock payer. It says that it is an AI and announces the recording. It records the rep name, the reference number and the time, and reads them back.

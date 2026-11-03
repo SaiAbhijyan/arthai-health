@@ -1,6 +1,6 @@
 # Original research pages (Oct 26, 2026 snapshots)
 
-These files are verbatim snapshots of the four research pages written on Oct 26, 2026, when the project was still called **Revora**. They keep the old Revora name and the original wording. They are kept so nothing from the early research is lost.
+These files are verbatim snapshots (except the items in "Removed for the public repo" below) of the four research pages written on Oct 26, 2026, when the project was still called **Revora**. They keep the old Revora name and the original wording. They are kept so nothing from the early research is lost.
 
 They are **not maintained**. The maintained, condensed versions are:
 
