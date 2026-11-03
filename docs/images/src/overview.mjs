@@ -27,14 +27,14 @@ const body = [frame({
   W, H, drawH: DRAW,
   fig: "Fig 1",
   title: "Arthai Health: planned flow",
-  hint: "Synthetic data only. Every station is planned. None is built yet.",
+  hint: "Synthetic data only. Design from PR #9 / #14 research, not yet decided. None is built.",
   readout: "9 stations · all planned",
   cols: 1,
   legend: [
     "1  Claim builder and scrubber: builds the 837 claim file and runs the NCCI and MUE edits.",
     "2  Payer and clearinghouse mock: our own fake payer. It sends 835 and 277 files.",
     "3  Remit posting: reads the 835 remittance and finds each denied line.",
-    "4  Triage + CCI gate: a scorer (LLM by default, LAYA optional) and a conformal gate pick the path.",
+    "4  Triage + CCI gate: the triage step (LLM by default, LAYA optional) and the CCI gate pick the path.",
     "5  Review console + audit: the human queue, the approvals and the audit trail.",
     "6  Appeal writer: an LLM drafts the letter (Muse planned, D-011 proposed). Each statement cites a source.",
     "7  Voice agent: a browser call to the mock payer rep.",
@@ -206,7 +206,7 @@ for (const key of ["ar", "voice", "appeal", "review"]) {
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 1. The planned Arthai Health flow as nine stations on one bench, every one labeled planned: claim builder, payer mock, remit posting, triage and CCI gate, review console, appeal writer, voice agent, AR follow-up and eval. A green track takes sure claims from the gate to the appeal writer, a red track takes unsure claims to the human queue, and an amber track takes the claim from the console to the writer after a human decides. Black tracks carry the claim from 1 to 4, from the writer to the voice agent after approval, and the call outcome back to the console; a dashed track is the call to the mock payer, and a blue dotted track carries reviewer edits to eval and back to the gate.",
+  label: "Fig 1. The planned Arthai Health flow as nine stations on one bench. Every station is labeled planned. The stations are claim builder, payer mock, remit posting, triage step and CCI gate, review console, appeal writer, voice agent, AR follow-up and eval. Black tracks carry the claim from station 1 to station 4. A green track takes sure claims from the gate to the appeal writer. A red track takes unsure claims to the human queue. An amber track takes a claim from the console to the writer after a human decides. A black track goes from the writer to the voice agent after tier 2 approval. A black track takes the call outcome back to the console. A dashed track is the call to the mock payer. A blue dotted track takes reviewer edits to eval and back to the gate.",
   body,
 });
 console.log("wrote", OUT);

@@ -19,7 +19,7 @@ const body = [frame({
   W, H, drawH: DRAW,
   fig: "Fig 3",
   title: "Appeal writer (planned)",
-  hint: "Fictional payer policy. Synthetic claim. Planned design, not built.",
+  hint: "Fictional payer policy. Design from PR #9 / #14 research, not yet decided. Not built.",
   readout: "no citation, no letter · no approval, no send",
   legend: [
     "1  Inputs: the synthetic denial record, the facts from the record, and retrieved chunks",
@@ -44,17 +44,17 @@ body.push(s.link(FACTS, FACTS.x + FACTS.w - 14, MUSE, MUSE.x + 16, 156));
 const fr = MUSE.y + MUSE.d + 6;
 body.push(s.track([[364, fr], [364, 166], [444, 166], [444, fr]], z, "hi"));
 body.push(s.track([[466, fr], [466, 184], [330, 184], [330, fr]], z, "red", { width: 2.6 }));
-body.push(s.track([[500, CITE.y + CITE.d + 6], [500, APPROVE.y - 6]], z, "green", { width: 2.6 }));
+body.push(s.track([[556, CITE.y + CITE.d + 6], [556, 200], [596, 200], [596, 300], [APPROVE.x + APPROVE.w + 6, 300]], z, "green", { width: 2.6 }));
 body.push(s.track([[APPROVE.x + APPROVE.w + 6, 308], [SEND.x - 6, 308]], z, "green", { width: 2.6 }));
 
 // 1 facts: three cards side by side
-body.push(s.plinth(FACTS, HP, { num: "1", name: "FACTS IN", sub: "RECORD + POLICY", size: 11 }));
+body.push(s.plinth(FACTS, HP, { num: "1", name: "FACTS IN", sub: "RECORD + POLICY", size: 13 }));
 body.push(s.cards(FACTS.x + 10, FACTS.y + 14, HP, { n: 2, w: 60, d: 36, id: "SYN-D-000042", rules: 3 }));
 body.push(s.cards(FACTS.x + 80, FACTS.y + 14, HP, { n: 3, w: 60, d: 36, id: "ZZP01 POLICY", rules: 3 }));
 body.push(s.cards(FACTS.x + 10, FACTS.y + 58, HP, { n: 1, w: 130, d: 30, id: "CHUNK IDS: P-4.2  P-7.1", rules: 1 }));
 
 // 2 the writer: body, platen, sheet, keys
-body.push(s.plinth(MUSE, HP, { num: "2", name: "LLM WRITER", sub: "MUSE PLANNED", size: 11 }));
+body.push(s.plinth(MUSE, HP, { num: "2", name: "LLM WRITER", sub: "MUSE PLANNED", size: 13 }));
 {
   const b = { x: MUSE.x + 14, y: MUSE.y + 34, w: 142, d: 62, r: 6 };
   body.push(s.slab(b, HP, 18, { tone: "mid" }, 6, 1));
@@ -72,7 +72,7 @@ body.push(s.plinth(MUSE, HP, { num: "2", name: "LLM WRITER", sub: "MUSE PLANNED"
 }
 
 // 3 citation gate: two rollers and a check window
-body.push(s.plinth(CITE, HP, { num: "3", name: "CITATION GATE", sub: "EVERY LINE HAS A SOURCE", size: 11 }));
+body.push(s.plinth(CITE, HP, { num: "3", name: "CITATION GATE", sub: "EVERY LINE HAS A SOURCE", size: 13 }));
 {
   const frameL = { x: CITE.x + 14, y: CITE.y + 20, w: 8, d: 70, r: 1 };
   const frameR = { x: CITE.x + 126, y: CITE.y + 20, w: 8, d: 70, r: 1 };
@@ -86,7 +86,7 @@ body.push(s.plinth(CITE, HP, { num: "3", name: "CITATION GATE", sub: "EVERY LINE
 }
 
 // 4 approval stamp and console button
-body.push(s.plinth(APPROVE, HP, { num: "4", name: "HUMAN APPROVAL", sub: "TIER 2, IN CONSOLE", size: 11 }));
+body.push(s.plinth(APPROVE, HP, { num: "4", name: "HUMAN APPROVAL", sub: "TIER 2, IN CONSOLE", size: 13 }));
 {
   const x = APPROVE.x + 40, y = APPROVE.y + 36;
   body.push(s.cyl(x, y, 14, HP, 5, { tone: "mid" }, 40, 0.6));
@@ -95,7 +95,7 @@ body.push(s.plinth(APPROVE, HP, { num: "4", name: "HUMAN APPROVAL", sub: "TIER 2
   body.push(s.cards(APPROVE.x + 76, APPROVE.y + 22, HP, { n: 2, w: 60, d: 34, id: "APPROVED BY", rules: 2 }));
 }
 // 5 out tray
-body.push(s.plinth(SEND, HP, { num: "5", name: "SEND", sub: "ONLY AFTER APPROVAL", size: 11 }));
+body.push(s.plinth(SEND, HP, { num: "5", name: "SEND", sub: "ONLY AFTER APPROVAL", size: 13 }));
 {
   const t = s.tray({ x: SEND.x + 20, y: SEND.y + 12, w: 96, d: 56, r: 1 }, HP, 7);
   body.push(t.back, s.cards(SEND.x + 28, SEND.y + 20, HP + 1.2, { n: 3, w: 78, d: 40, id: "APPEAL L1", rules: 3 }), t.front);
@@ -104,7 +104,7 @@ body.push(s.plinth(SEND, HP, { num: "5", name: "SEND", sub: "ONLY AFTER APPROVAL
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 3. Planned appeal writer. Facts and a fictional payer policy go to an LLM writer (Muse planned), and a citation gate checks that each statement cites a chunk ID, with a red track back to the writer for a statement with no source. Green tracks take the draft to human approval (tier 2) and then to the send tray.",
+  label: "Fig 3. Planned appeal writer. Facts and a fictional payer policy go to an LLM writer. The planned model is Muse. A citation gate checks that each statement cites a chunk ID. A red track takes a draft with an uncited statement back to the writer. Green tracks take the draft to tier 2 human approval and then to the send tray.",
   body,
 });
 console.log("wrote", OUT);

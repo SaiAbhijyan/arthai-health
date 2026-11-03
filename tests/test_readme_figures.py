@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import html
 import re
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -72,3 +73,17 @@ def test_readme_relative_links_and_anchors_resolve() -> None:
             assert target[1:] in anchors, target
             continue
         assert (ROOT / target.split("#")[0]).exists(), target
+
+
+def test_svgs_are_well_formed_xml() -> None:
+    for name in FIGURES:
+        # Our own committed files, not untrusted input.
+        ET.fromstring(_read(f"docs/images/{name}"))  # noqa: S314
+
+
+def test_quickstart_make_targets_exist() -> None:
+    makefile = _read("Makefile")
+    defined = set(re.findall(r"^([a-z][\w-]*):", makefile, flags=re.MULTILINE))
+    used = set(re.findall(r"^\s*make ([a-z][\w-]*)", _read("README.md"), flags=re.MULTILINE))
+    assert used, "no make commands found"
+    assert used <= defined, used - defined

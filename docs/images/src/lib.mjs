@@ -79,7 +79,7 @@ export function makeScene(P) {
     out.push(L(k.planOutline(k.insetPlan(plan, 3), h, P, 3), { tone: "faint" }));
     out.push(screws(plan, 4, h, 0.45));
     const y = plan.y + plan.d;
-    const lines = [num ? `${num} ${name}` : name, sub, tag].filter(Boolean);
+    const lines = [num ? `${num} ${name}` : name, tag].filter(Boolean); // sub lines are in the legend
     const gap = size * 1.3;
     lines.forEach((line, i) => {
       const s = i === 0 ? size : size * 0.86;

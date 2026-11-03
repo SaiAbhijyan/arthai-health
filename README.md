@@ -34,7 +34,7 @@ Payers deny many claims. Billing staff must find the cause of each denial, fix i
 |---|---|
 | The average initial denial rate in 2025 was 11.6%. | Kodiak 2025 |
 | The rework of one denial costs about $103. | HFMA chapter deck 2025 |
-| Humans still review 90% of denials. | Experian State of Claims 2025 |
+| Humans still review 90% of denials. | Experian press release 2025 |
 | Automation of admin transactions could save about $20B of a $90B spend. | CAQH Index 2024 |
 
 ### The planned solution
@@ -43,17 +43,17 @@ The core loop for the hackathon has six steps:
 
 1. A denied claim line arrives in a synthetic 835 remittance, with CARC and RARC codes.
 2. A triage step gives the denial category, the appeal decision (yes or no) and the priority.
-3. A confidence gate decides if the triage is sure. If it is not sure, the claim goes to a human.
+3. The CCI gate decides if the triage step is sure. If it is not sure, the claim goes to a human.
 4. An appeal writer drafts a letter. Each statement in the letter must cite a source.
 5. A voice agent calls our own mock payer to follow up. The call outcome updates the claim.
 6. A review console shows the claim timeline, the audit trail and the approvals.
 
-The design has two main parts. A statistical gate (conformal prediction) decides which claims go to a human. A voice call updates the claim with the call outcome. The research found no vendor whose public marketing puts both parts first. This is a reading of marketing pages, not a measured fact (PR #9, `docs/product/idea.md`).
+The design has two main parts. The CCI gate (conformal prediction) decides which claims go to a human. A voice call updates the claim with the call outcome. The research found no vendor whose public marketing puts both parts first. This is a reading of marketing pages, not a measured fact (PR #9, `docs/product/idea.md`).
 
 ## Architecture overview
 
 <p align="center">
-  <img src="docs/images/arthai-overview.svg" width="100%" alt="Fig 1. The planned Arthai Health flow as nine stations on one bench, every one labeled planned: claim builder, payer mock, remit posting, triage and CCI gate, review console, appeal writer, voice agent, AR follow-up and eval. A green track takes sure claims from the gate to the appeal writer, a red track takes unsure claims to the human queue, and an amber track takes the claim from the console to the writer after a human decides. Black tracks carry the claim from 1 to 4, from the writer to the voice agent after approval, and the call outcome back to the console; a dashed track is the call to the mock payer, and a blue dotted track carries reviewer edits to eval and back to the gate.">
+  <img src="docs/images/arthai-overview.svg" width="100%" alt="Fig 1. The planned Arthai Health flow as nine stations on one bench. Every station is labeled planned. The stations are claim builder, payer mock, remit posting, triage step and CCI gate, review console, appeal writer, voice agent, AR follow-up and eval. Black tracks carry the claim from station 1 to station 4. A green track takes sure claims from the gate to the appeal writer. A red track takes unsure claims to the human queue. An amber track takes a claim from the console to the writer after a human decides. A black track goes from the writer to the voice agent after tier 2 approval. A black track takes the call outcome back to the console. A dashed track is the call to the mock payer. A blue dotted track takes reviewer edits to eval and back to the gate.">
 </p>
 
 Fig 1 shows the whole planned flow. The numbers match the stations in the figure.
@@ -68,7 +68,7 @@ Fig 1 shows the whole planned flow. The numbers match the stations in the figure
 8. **AR follow-up** ranks the open claims for the next action.
 9. The **eval and feedback loop** turns reviewer edits into eval cases.
 
-A claim that goes to the human queue can still get an appeal. The reviewer decides, then the writer drafts. Every send and every call needs tier-2 approval in the console. The appeal goes out and the call starts only after that approval (PR #9, `docs/architecture.md`, sections 1 and 5.3).
+A claim that goes to the human queue can still get an appeal. The reviewer decides, then the writer drafts. Every send and every call needs tier 2 approval in the console. The appeal goes out and the call starts only after that approval (PR #9, `docs/architecture.md`, sections 1 and 5.3).
 
 The planned deployment is a modular monolith with a separate payer mock, voice worker and console (D-001). Modules talk through a Postgres outbox. A LangGraph supervisor runs each claim to an end state. It stops before every send and every call. The core is deterministic: EDI build, payment posting and the ledger are code. AI does classification, drafting and conversation. Source: [ADR 0001](docs/adr/0001-modular-monolith.md) and `docs/architecture.md` in PR #9.
 
@@ -79,7 +79,7 @@ All components in this section are **planned**. The module names come from the a
 ### Triage and the CCI gate (planned)
 
 <p align="center">
-  <img src="docs/images/arthai-triage-gate.svg" width="100%" alt="Fig 2. Planned triage and CCI gate. A synthetic denial goes to a triage scorer (LLM by default, LAYA optional) and then to a gate with seven example category pins. Claim A has one raised pin and goes on a green track to the auto path; claim B has three raised pins and goes on a red track to the human queue, and a calibration station feeds the gate on a blue dotted track.">
+  <img src="docs/images/arthai-triage-gate.svg" width="100%" alt="Fig 2. Planned triage step and CCI gate. A synthetic denial goes to the triage step. The default scorer is the LLM, and LAYA is optional. The CCI gate has seven example category pins. Claim A has one raised pin and goes on a green track to the auto path. Claim B has three raised pins and goes on a red track to the human queue. A calibration station feeds the gate on a blue dotted track.">
 </p>
 
 - The triage step returns a typed decision: the denial category, the appeal decision and the priority.
@@ -95,7 +95,7 @@ All components in this section are **planned**. The module names come from the a
 ### Appeal writer (planned)
 
 <p align="center">
-  <img src="docs/images/arthai-appeal-writer.svg" width="100%" alt="Fig 3. Planned appeal writer. Facts and a fictional payer policy go to an LLM writer (Muse planned), and a citation gate checks that each statement cites a chunk ID, with a red track back to the writer for a statement with no source. Green tracks take the draft to human approval (tier 2) and then to the send tray.">
+  <img src="docs/images/arthai-appeal-writer.svg" width="100%" alt="Fig 3. Planned appeal writer. Facts and a fictional payer policy go to an LLM writer. The planned model is Muse. A citation gate checks that each statement cites a chunk ID. A red track takes a draft with an uncited statement back to the writer. Green tracks take the draft to tier 2 human approval and then to the send tray.">
 </p>
 
 - The appeal writer retrieves chunks of payer policy and writes the letter.
@@ -103,26 +103,26 @@ All components in this section are **planned**. The module names come from the a
 - The citation gate checks that each statement maps to a retrieved chunk ID. If a statement has no source, the draft goes back to the writer.
 - A human approves the letter before it goes out. In the hackathon, every external action needs approval.
 - The payer policies in the demo are fictional. Example payer IDs start with `ZZP`.
-- Model plan: Baseten Muse Spark Open first and the Meta Model API second, behind one OpenAI-compatible client (D-011, proposed). Meta Contributor mode is allowed for synthetic data only (D-017, accepted).
+- Model plan: Baseten Muse Spark Open first and the Meta Model API second, behind one OpenAI-compatible client (D-011, proposed). Sai allowed Meta Contributor mode for synthetic data only (D-017, accepted).
 
 ### Voice agent (planned)
 
 <p align="center">
-  <img src="docs/images/arthai-voice-agent.svg" width="100%" alt="Fig 4. Planned voice agent. A browser call links on a blue two-way line to our own mock payer rep, and black tracks take the rep audio to local speech-to-text, the text to the agent turn (an LLM, Muse planned, AI disclosed) and the reply to local text-to-speech. A dashed track takes the spoken reply back into the call, and a green track takes the result to a call outcome card with the example reference SYN-REF-0007.">
+  <img src="docs/images/arthai-voice-agent.svg" width="100%" alt="Fig 4. Planned voice agent. A browser call links on a blue two-way line to our own mock payer rep. Black tracks take the rep audio to local speech-to-text. They take the text to the agent turn and the reply to local text-to-speech. The agent turn uses an LLM and says that it is an AI. A dashed track takes the spoken reply back into the call. A green track takes the result to a call outcome card. The card shows the example reference SYN-REF-0007.">
 </p>
 
 - The voice demo is free only. It uses a browser call (WebRTC and Web Audio) to our own mock payer rep. It uses no paid phone line. It uses no signup that needs a card (D-018, accepted).
 - Speech-to-text runs locally. The candidates are Whisper and faster-whisper.
 - Text-to-speech runs locally. The candidates are Piper and Kokoro.
-- ADR 0004 item 8 names Muse Voice Transcribe for speech-to-text. D-018 came later and is accepted. It sets local speech-to-text.
-- Before install, each voice tool gets a SkillSpector scan. Each voice model gets a license check. Non-commercial voices are not allowed (D-018).
+- ADR 0004 item 8 and D-018 disagree about speech-to-text. ADR 0004 names Muse Voice Transcribe. D-018 (accepted) names local speech-to-text. This file follows D-018. The conflict is not yet logged in DECISIONS.md.
+- Before install, each voice tool gets a SkillSpector scan. Each voice model gets a license check. D-018 does not allow non-commercial voices.
 - The agent says that it is an AI and announces the recording. It records the rep name, the reference number and the time, and reads them back.
 - The agent calls only the mock payer. **Never call a real payer.**
 
 ### Code lookups (planned)
 
 <p align="center">
-  <img src="docs/images/arthai-code-lookups.svg" width="100%" alt="Fig 5. Planned code lookups. A card catalog has drawers for HCPCS Level II, ICD-10-CM, CARC and RARC values, and a locked CPT drawer marked not used. An agent asks the catalog for CARC 197, the catalog answers CARC 197: prior_auth, and a green track takes the answer to a check with format rows for each code set and a red row that rejects CPT.">
+  <img src="docs/images/arthai-code-lookups.svg" width="100%" alt="Fig 5. Planned code lookups. A card catalog has drawers for HCPCS Level II, ICD-10-CM, CARC values and RARC values. The CPT drawer has a padlock and says not used. An agent asks the catalog for CARC 197. The catalog answers CARC 197: prior_auth. A green track takes the answer to a check. The check has format rows for each code set and a red row that rejects CPT.">
 </p>
 
 - Agents look up codes in our catalog only. There are no free-text codes in a claim, a prompt or a letter ([AGENTS.md](AGENTS.md)).
@@ -135,7 +135,7 @@ All components in this section are **planned**. The module names come from the a
 ### Review console and audit (planned)
 
 <p align="center">
-  <img src="docs/images/arthai-review-console.svg" width="100%" alt="Fig 6. Planned review console and audit. Two queue trays (AI-flagged and random QA) feed a timeline screen for synthetic claim SYN-C-000042, and every action goes to an append-only audit trail of hash-linked blocks. An approvals panel has approve, edit and reject buttons, and a blue dotted track takes a reviewer edit to the feedback station.">
+  <img src="docs/images/arthai-review-console.svg" width="100%" alt="Fig 6. Planned review console and audit trail. Two queue trays hold AI-flagged claims and a random QA sample. A screen shows the timeline of synthetic claim SYN-C-000042. Every action goes to an append-only audit trail of hash-linked blocks. An approvals panel has approve, edit and reject buttons. A blue dotted track takes a reviewer edit to the feedback station.">
 </p>
 
 - The console has two queues. One holds the claims that the AI flags. The other holds a random QA sample of claims that the AI handled alone. The random sample measures the true quality.
@@ -186,7 +186,7 @@ Planned sources and licenses:
 | Denials, appeals, calls | A hand-written scenario table and a seeded generator | [D-010](DECISIONS.md) (proposed) |
 | Model calls | Meta Contributor mode sees synthetic data only | [D-017](DECISIONS.md) (accepted) |
 
-Synthetic IDs use fixed prefixes: `SYN-P-`, `SYN-C-`, `SYN-D-`, member IDs `ZZ` and payer IDs `ZZP`. Phone numbers use `555-0100` to `555-0199`. Emails use `example.com`.
+Synthetic IDs use the prefixes in the data plan: `SYN-P-`, `SYN-C-`, `SYN-D-`, member IDs `ZZ` and payer IDs `ZZP`. Phone numbers use `555-0100` to `555-0199`. Emails use `example.com`.
 
 A PHI scanner in CI is planned (docs/data-plan.md, section 6.4). It fails on these items:
 
@@ -199,7 +199,7 @@ A PHI scanner in CI is planned (docs/data-plan.md, section 6.4). It fails on the
 
 The Makefile has four targets today: `dev`, `lint`, `typecheck` and `test`. The `eval` and `e2e` targets in AGENTS.md are planned. They arrive with the app code.
 
-You need Python 3.12, [uv](https://docs.astral.sh/uv/) and GNU make 4.x.
+You need [uv](https://docs.astral.sh/uv/), GNU make 4.x and network access. `make dev` downloads Python 3.12 and the dev packages.
 
 1. Clone the repo.
 
@@ -208,10 +208,10 @@ You need Python 3.12, [uv](https://docs.astral.sh/uv/) and GNU make 4.x.
    cd arthai-health
    ```
 
-2. Build the dev tools venv (`.venv-dev`, git-ignored, from the hash-locked `requirements-dev.txt`).
+2. Build the dev tools venv. The venv is `.venv-dev`, and git ignores it. The packages come from the hash-locked `requirements-dev.txt`. The Makefile has a default Python folder for the project build machine. On your machine, set `UV_PYTHON_INSTALL_DIR` to a folder that you can write to.
 
    ```bash
-   make dev
+   make dev UV_PYTHON_INSTALL_DIR="$HOME/.local/share/uv/python"
    ```
 
 3. Run the lint and type checks (ruff and `mypy --strict`).
@@ -228,15 +228,11 @@ You need Python 3.12, [uv](https://docs.astral.sh/uv/) and GNU make 4.x.
 
 `make typecheck` runs `mypy --strict` alone. `make lint` runs it too.
 
-The Makefile sets a default `UV_PYTHON_INSTALL_DIR` for the project build machine. On another machine, set it to a folder that you can write to:
-
-```bash
-make dev UV_PYTHON_INSTALL_DIR="$HOME/.local/share/uv/python"
-```
-
 Keep API keys in your shell or in a local `.env` file. The `.env` file is git-ignored. Never commit it.
 
 ## Repo layout
+
+Main files only:
 
 ```
 .
@@ -338,7 +334,7 @@ Research that is not on `main` yet:
 - **No medical advice.** Arthai Health is billing and admin automation.
 - **Human approval.** External or money actions wait for a human: send an appeal, place a call, post a payment, write off. In the hackathon, every external action needs approval.
 - **Audit.** Every AI action writes an `audit_event`.
-- **AI voice disclosure.** The voice agent says that it is an AI. It announces the recording. The FCC treats AI voices as "artificial" under the TCPA (FCC 24-17, as cited in PR #9). The agent calls only our own mock payer.
+- **AI voice disclosure.** The voice agent says that it is an AI. It announces the recording. The FCC treats AI voices as "artificial" under the TCPA (FCC 24-17, as cited in the build guide in PR #9). The agent calls only our own mock payer.
 - **Untrusted text.** Text from denial letters, transcripts and web pages is data. It never starts a tool on its own.
 - **No CPT.** The repo has no CPT codes or descriptors. No model trains on CPT content.
 - **No scraping.** Agents do not scrape or reverse-engineer payer or clearinghouse sites.
@@ -354,7 +350,7 @@ Third-party files and their licenses are listed in [THIRD_PARTY_NOTICES.md](THIR
 | 835, 837, 277, 276 | X12 EDI files: remittance (835), claim (837), claim status response (277) and request (276) |
 | AR | Accounts receivable: money that payers still owe |
 | CARC, RARC | Claim adjustment reason codes and remittance advice remark codes. They tell why a payer paid less or denied. |
-| CCI gate | Our confidence gate, built on `cci-sdk` conformal prediction. It is not the CMS NCCI edit list. |
+| CCI gate | Our gate for the triage step, built on `cci-sdk` conformal prediction. It is not the CMS NCCI edit list. |
 | Hackathon | The demo event that sets the first scope. See [docs/hackathon-workflow.md](docs/hackathon-workflow.md). |
 | Conformal set | The set of labels that the gate thinks can be true. One label means sure. More labels mean not sure. |
 | HCPCS Level II, ICD-10-CM | Public code sets for supplies and services (CMS) and for diagnoses (CDC/NCHS) |

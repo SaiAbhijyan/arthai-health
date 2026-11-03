@@ -3,7 +3,7 @@ import { k, makeScene, frame, writeFigure } from "./lib.mjs";
 import { fileURLToPath } from "node:url";
 const OUT = fileURLToPath(new URL("../arthai-triage-gate.svg", import.meta.url));
 const W = 1200, H = 936, DRAW = 600;
-const BENCH = { x: 0, y: 0, w: 780, d: 342, r: 10 };
+const BENCH = { x: 0, y: 0, w: 780, d: 356, r: 10 };
 const P = k.fitProjection(k.boxCorners(BENCH, -15, 80), W, DRAW - 40, { pad: 30, azimuth: 62 });
 P.origin[1] += 10;
 const s = makeScene(P);
@@ -20,11 +20,11 @@ const body = [frame({
   W, H, drawH: DRAW,
   fig: "Fig 2",
   title: "Triage + CCI gate (planned)",
-  hint: "Synthetic denials only. Planned design, not built.",
+  hint: "Synthetic denials only. Design from PR #9 / #14 research, not yet decided. Not built.",
   readout: "set = 1 label: auto path · set > 1: human",
   legend: [
     "1  A synthetic denied line arrives from remit posting (example: SYN-D-000042, adjustment CO-197).",
-    "2  The triage scorer gives three results: the category, the appeal decision (yes or no) and the priority.",
+    "2  The triage step gives three results: the category, the appeal decision (yes or no) and the priority.",
     "   The default scorer is the LLM. LAYA is optional (TRIAGE_BACKEND=laya|llm, ADR 0004).",
     "   The research plans the gate on LAYA scores. The docs do not yet say how the LLM gives scores to the gate.",
     "3  The CCI gate turns the scores into a conformal prediction set. Each pin is one example",
@@ -44,11 +44,11 @@ const z = 0.4;
 body.push(s.link(IN, IN.x + IN.w - 14, LAYA, LAYA.x + 18, 144));
 body.push(s.link(LAYA, LAYA.x + LAYA.w - 16, GATE, GATE.x + 22, 196));
 body.push(s.track([[GATE.x + GATE.w + 6, 82], [AUTO.x - 6, 82]], z, "green", { width: 2.6 }));
-body.push(s.track([[GATE.x + GATE.w + 6, 150], [630, 150], [630, 278], [HUMAN.x - 6, 278]], z, "red", { width: 2.6, chevMin: 30 }));
+body.push(s.track([[GATE.x + GATE.w + 6, 150], [630, 150], [630, 336], [HUMAN.x + 30, 336], [HUMAN.x + 30, HUMAN.y + HUMAN.d + 6]], z, "red", { width: 2.6, chevMin: 30 }));
 body.push(s.track([[CAL.x + CAL.w + 6, 272], [440, 272], [440, GATE.y + GATE.d + 6]], z, "blue", { dotted: true, width: 2.4 }));
 
 // 1 intake tray with denial cards
-body.push(s.plinth(IN, HP, { num: "1", name: "DENIAL IN", sub: "SYNTHETIC 835 LINE", size: 11 }));
+body.push(s.plinth(IN, HP, { num: "1", name: "DENIAL IN", sub: "SYNTHETIC 835 LINE", size: 13 }));
 {
   const t = s.tray({ x: IN.x + 12, y: IN.y + 10, w: 90, d: 62, r: 1 }, HP, 6);
   body.push(t.back, s.cards(IN.x + 18, IN.y + 18, HP + 1.2, { n: 4, w: 72, d: 46, id: "SYN-D-000042", rules: 0 }), t.front);
@@ -56,7 +56,7 @@ body.push(s.plinth(IN, HP, { num: "1", name: "DENIAL IN", sub: "SYNTHETIC 835 LI
   body.push(s.L(k.lineOnTop([IN.x + 24, IN.y + 38], [IN.x + 74, IN.y + 38], HP + 6.6, P) + k.lineOnTop([IN.x + 24, IN.y + 42], [IN.x + 64, IN.y + 42], HP + 6.6, P), { tone: "lo", free: true }));
 }
 // 2 triage scorer with three dials
-body.push(s.plinth(LAYA, HP, { num: "2", name: "TRIAGE SCORER", sub: "LAYA OR LLM", size: 11 }));
+body.push(s.plinth(LAYA, HP, { num: "2", name: "TRIAGE STEP", sub: "LAYA OR LLM", size: 13 }));
 {
   const box = { x: LAYA.x + 10, y: LAYA.y + 12, w: 150, d: 60, r: 3 };
   body.push(s.slab(box, HP, 12, { tone: "mid" }, 4, 0.8));
@@ -69,14 +69,14 @@ body.push(s.plinth(LAYA, HP, { num: "2", name: "TRIAGE SCORER", sub: "LAYA OR LL
   body.push(s.led(box.x + box.w - 8, box.y + box.d - 8, HP + 12, "green"));
 }
 // 6 calibration weights
-body.push(s.plinth(CAL, HP, { num: "6", name: "CALIBRATION", sub: "TARGET 1 - ALPHA", size: 11 }));
+body.push(s.plinth(CAL, HP, { num: "6", name: "CALIBRATION", sub: "TARGET 1 - ALPHA", size: 13 }));
 for (let i = 0; i < 5; i++) {
   const cx = CAL.x + 30 + i * 26, cy = CAL.y + 32;
   body.push(s.cyl(cx, cy, 9 - i, HP, 6 + i * 3, { tone: i === 4 ? "hi" : "mid" }, 32, 0.4));
   body.push(s.L(k.ring(cx, cy, 3, HP + 6 + i * 3, P, 16), { tone: "lo" }));
 }
 // 3 the CCI gate: two comb rows of seven pins
-body.push(s.plinth(GATE, HP, { num: "3", name: "CCI GATE", sub: "CONFORMAL SET", size: 11 }));
+body.push(s.plinth(GATE, HP, { num: "3", name: "CCI GATE", sub: "CONFORMAL SET", size: 13 }));
 const rows = [
   { y: GATE.y + 22, raised: [0], tone: "green", name: "A: SET = 1" },
   { y: GATE.y + 82, raised: [0, 1, 4], tone: "red", name: "B: SET = 3" },
@@ -95,7 +95,7 @@ for (const r of rows) {
 }
 // 4 auto path tray, 5 human queue tray
 for (const [p, num, name, sub, tone] of [[AUTO, "4", "AUTO PATH", "TO APPEAL", "green"], [HUMAN, "5", "HUMAN", "QUEUE", "red"]]) {
-  body.push(s.plinth(p, HP, { num, name, sub, size: 11 }));
+  body.push(s.plinth(p, HP, { num, name, sub, size: 13 }));
   const t = s.tray({ x: p.x + 12, y: p.y + 10, w: 58, d: 44, r: 1 }, HP, 6);
   body.push(t.back, s.cards(p.x + 18, p.y + 18, HP + 1.2, { n: tone === "red" ? 3 : 1, w: 44, d: 30, id: tone === "red" ? "CLAIM B" : "CLAIM A", rules: 2 }), t.front);
   body.push(s.led(p.x + p.w - 10, p.y + 8, HP, tone));
@@ -103,7 +103,7 @@ for (const [p, num, name, sub, tone] of [[AUTO, "4", "AUTO PATH", "TO APPEAL", "
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 2. Planned triage and CCI gate. A synthetic denial goes to a triage scorer (LLM by default, LAYA optional) and then to a gate with seven example category pins. Claim A has one raised pin and goes on a green track to the auto path; claim B has three raised pins and goes on a red track to the human queue, and a calibration station feeds the gate on a blue dotted track.",
+  label: "Fig 2. Planned triage step and CCI gate. A synthetic denial goes to the triage step. The default scorer is the LLM, and LAYA is optional. The CCI gate has seven example category pins. Claim A has one raised pin and goes on a green track to the auto path. Claim B has three raised pins and goes on a red track to the human queue. A calibration station feeds the gate on a blue dotted track.",
   body,
 });
 console.log("wrote", OUT);

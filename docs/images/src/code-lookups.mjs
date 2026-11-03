@@ -18,7 +18,7 @@ const body = [frame({
   W, H, drawH: DRAW,
   fig: "Fig 5",
   title: "Code lookups (planned)",
-  hint: "Code values only. No CPT. Planned design, not built.",
+  hint: "Code values only. No CPT. Design from data-plan and D-009. Not built.",
   readout: "agents pick codes from the catalog only",
   legend: [
     "1  The catalog holds small public subsets: HCPCS Level II (CMS) and ICD-10-CM (CDC/NCHS),",
@@ -42,7 +42,7 @@ body.push(s.link(CAB, CAB.x + CAB.w - 40, RESULT, RESULT.x + 16, 188));
 body.push(s.track([[RESULT.x + RESULT.w - 30, RESULT.y + RESULT.d + 6], [RESULT.x + RESULT.w - 30, 324], [VERIFY.x + VERIFY.w + 6, 324]], z, "green", { width: 2.4 }));
 
 // 1 the card catalog cabinet: five drawers in a row, one locked
-body.push(s.plinth(CAB, HP, { num: "1", name: "CODE CATALOG", sub: "PUBLIC SUBSETS", size: 11 }));
+body.push(s.plinth(CAB, HP, { num: "1", name: "CODE CATALOG", sub: "PUBLIC SUBSETS", size: 13 }));
 const drawers = [
   ["HCPCS II", "CMS", false],
   ["ICD-10-CM", "CDC/NCHS", false],
@@ -62,14 +62,14 @@ for (let i = 0; i < 3; i++) body.push(s.knob(shell.x + 180 + i * 26, shell.y + 4
 drawers.forEach(([name, sub, locked], i) => {
   const x = shell.x + 5 + i * DW;
   const fy = shell.y + shell.d;
-  const pulled = i === 2 ? 14 : 0;
+  const pulled = 0;
   const front = { x: x + 2, y: fy - 2 + pulled, w: DW - 4, d: 4, r: 1 };
   if (pulled) {
     const box = { x: x + 4, y: fy - 40 + pulled, w: DW - 8, d: 38, r: 1 };
     body.push(s.slab(box, base + 8, 30, { tone: "mid" }, 2, 0.4));
     for (let c = 0; c < 4; c++) body.push(s.slab({ x: box.x + 4, y: box.y + 4 + c * 7, w: box.w - 8, d: 1.4, r: 0.3 }, base + 38, 8 - c, { tone: c === 3 ? "hi" : "mid", lit: c === 3 }, 2, 0));
   }
-  body.push(s.slab(front, base + 6, DH - 4, { tone: locked ? "mid" : "hi" }, 2, 0.5));
+  body.push(s.slab(front, base + 6, DH - 4, { tone: locked ? "mid" : "hi", lit: i === 2 }, 2, 0.5));
   const ffy = front.y + front.d;
   body.push(s.front(x + 5, ffy, base + DH - 13, name, 8.4, "hi"));
   body.push(s.front(x + 5, ffy, base + DH - 21, sub, 5.4, "mid"));
@@ -79,16 +79,19 @@ drawers.forEach(([name, sub, locked], i) => {
   if (locked) {
     body.push(s.slab({ x: x + 8, y: ffy, w: DW - 18, d: 2, r: 0.4 }, base + 14, 4, { tone: "mid" }, 2, 0));
     body.push(s.L(k.segment([x + 8, ffy + 2.1, base + 16], [x + DW - 10, ffy + 2.1, base + 16], P), { tone: "red" }).replace("<path", '<path style="stroke-width:2.4px"'));
-    body.push(s.cyl(x + DW / 2, ffy + 2, 2.6, base + 28, 6, { tone: "hi" }, 14));
+    // padlock: a body on the drawer front and a U-shaped shackle above it
+    const lx = x + DW / 2 - 6;
+    body.push(s.slab({ x: lx, y: ffy, w: 12, d: 3, r: 1 }, base + 22, 10, { tone: "hi" }, 2, 0.4));
+    body.push(s.L(k.segment([lx + 2.5, ffy + 1.5, base + 32], [lx + 2.5, ffy + 1.5, base + 37], P) + k.segment([lx + 2.5, ffy + 1.5, base + 37], [lx + 9.5, ffy + 1.5, base + 37], P) + k.segment([lx + 9.5, ffy + 1.5, base + 37], [lx + 9.5, ffy + 1.5, base + 32], P), { tone: "hi" }).replace("<path", '<path style="stroke-width:2px"'));
   }
 });
 
 // 3 query terminal, 4 result card, 5 verifier
-body.push(s.plinth(QUERY, HP, { num: "2", name: "AGENT ASKS", sub: "LOOKUP BY VALUE", size: 11 }));
+body.push(s.plinth(QUERY, HP, { num: "2", name: "AGENT ASKS", sub: "LOOKUP BY VALUE", size: 13 }));
 body.push(s.cards(QUERY.x + 14, QUERY.y + 18, HP, { n: 2, w: 120, d: 60, id: "ASK: CARC 197", rules: 2, idSize: 7.4 }));
-body.push(s.plinth(RESULT, HP, { num: "3", name: "CATALOG ANSWERS", sub: "VALUE + OUR LABEL", size: 11 }));
+body.push(s.plinth(RESULT, HP, { num: "3", name: "CATALOG ANSWERS", sub: "VALUE + OUR LABEL", size: 13 }));
 body.push(s.cards(RESULT.x + 14, RESULT.y + 18, HP, { n: 3, w: 120, d: 60, id: "CARC 197: prior_auth", rules: 2, lit: true, idSize: 7.4 }));
-body.push(s.plinth(VERIFY, HP, { num: "4", name: "CATALOG CHECK", sub: "IN CATALOG? FORMAT OK?", size: 11 }));
+body.push(s.plinth(VERIFY, HP, { num: "4", name: "CATALOG CHECK", sub: "IN CATALOG? FORMAT OK?", size: 13 }));
 [
   ["HCPCS II: LETTER + 4 DIGITS", "green"],
   ["ICD-10-CM: LETTER, DIGIT, UP TO 5 MORE", "green"],
@@ -106,7 +109,7 @@ body.push(s.cards(VERIFY.x + 22, VERIFY.y + 20, HP, { n: 2, w: 100, d: 40, id: "
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 5. Planned code lookups. A card catalog has drawers for HCPCS Level II, ICD-10-CM, CARC and RARC values, and a locked CPT drawer marked not used. An agent asks the catalog for CARC 197, the catalog answers CARC 197: prior_auth, and a green track takes the answer to a check with format rows for each code set and a red row that rejects CPT.",
+  label: "Fig 5. Planned code lookups. A card catalog has drawers for HCPCS Level II, ICD-10-CM, CARC values and RARC values. The CPT drawer has a padlock and says not used. An agent asks the catalog for CARC 197. The catalog answers CARC 197: prior_auth. A green track takes the answer to a check. The check has format rows for each code set and a red row that rejects CPT.",
   body,
 });
 console.log("wrote", OUT);
