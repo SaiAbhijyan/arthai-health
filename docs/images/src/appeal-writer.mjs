@@ -12,8 +12,8 @@ const HP = 44;
 const FACTS = { x: 24, y: 30, w: 150, d: 110, r: 4 };
 const MUSE = { x: 214, y: 30, w: 170, d: 110, r: 4 };
 const CITE = { x: 424, y: 30, w: 150, d: 110, r: 4 };
-const APPROVE = { x: 424, y: 266, w: 150, d: 84, r: 4 };
-const SEND = { x: 620, y: 266, w: 150, d: 84, r: 4 };
+const APPROVE = { x: 630, y: 266, w: 150, d: 84, r: 4 };
+const SEND = { x: 390, y: 266, w: 150, d: 84, r: 4 };
 
 const body = [frame({
   W, H, drawH: DRAW,
@@ -44,8 +44,9 @@ body.push(s.link(FACTS, FACTS.x + FACTS.w - 14, MUSE, MUSE.x + 16, 156));
 const fr = MUSE.y + MUSE.d + 6;
 body.push(s.track([[364, fr], [364, 166], [444, 166], [444, fr]], z, "hi"));
 body.push(s.track([[466, fr], [466, 184], [330, 184], [330, fr]], z, "red", { width: 2.6 }));
-body.push(s.track([[556, CITE.y + CITE.d + 6], [556, 200], [596, 200], [596, 300], [APPROVE.x + APPROVE.w + 6, 300]], z, "green", { width: 2.6 }));
-body.push(s.link(APPROVE, APPROVE.x + 110, SEND, SEND.x + 40, 374, "green", { width: 2.6 }));
+// 3 -> 4: down the open aisle between the send tray and the approval station, then into the left side of the approval station.
+body.push(s.track([[560, CITE.y + CITE.d + 6], [560, 308], [APPROVE.x - 6, 308]], z, "green", { width: 2.6 }));
+body.push(s.link(APPROVE, APPROVE.x + 40, SEND, SEND.x + 110, 374, "green", { width: 2.6 }));
 
 // 1 facts: three cards side by side
 body.push(s.plinth(FACTS, HP, { num: "1", name: "FACTS IN", sub: "RECORD + POLICY", size: 13 }));
