@@ -45,7 +45,7 @@ The core loop for the hackathon has six steps:
 2. A triage step gives the denial category, the appeal decision (yes or no) and the priority.
 3. The CCI gate decides if the triage step is sure. If it is not sure, the claim goes to a human.
 4. An appeal writer drafts a letter. Each statement in the letter must cite a source.
-5. A voice agent calls our own mock payer to follow up. The call outcome updates the claim.
+5. A voice agent calls our own payer mock to follow up. The call outcome updates the claim.
 6. A review console shows the claim timeline, the audit trail and the approvals.
 
 The design has two main parts. The CCI gate (conformal prediction) decides which claims go to a human. A voice call updates the claim with the call outcome. The research found no vendor whose public marketing puts both parts first. This is a reading of marketing pages, not a measured fact (PR #9, `docs/product/idea.md`).
@@ -59,12 +59,12 @@ The design has two main parts. The CCI gate (conformal prediction) decides which
 Fig 1 shows the whole planned flow. The numbers match the stations in the figure.
 
 1. The **claim builder and scrubber** builds the claim (837) and checks it against the CMS NCCI and MUE edits.
-2. The **payer and clearinghouse mock** is our own fake payer. It decides on synthetic claims and sends back 835 and 277 files.
+2. The **payer and clearinghouse mock** (the payer mock) is our own fake payer. It decides on synthetic claims and sends back 835 and 277 files.
 3. **Remit posting** reads the 835 and finds each denied line.
 4. The **triage step and the CCI gate** score the denial. The gate sends the claim on the auto path or to a human.
 5. The **review console** holds the human queue, the approvals and the audit trail.
 6. The **appeal writer** drafts the letter with an LLM. The planned model is Muse, a Meta model (D-011, proposed).
-7. After its own tier 2 approval (PR #9, `docs/architecture.md`, section 5.3), the **voice agent** calls the mock payer rep in the browser.
+7. After its own tier 2 approval (PR #9, `docs/architecture.md`, section 5.3), the **voice agent** calls the payer mock rep in the browser.
 8. **AR follow-up** ranks the open claims for the next action.
 9. The **eval and feedback loop** turns reviewer edits into eval cases.
 
@@ -85,7 +85,7 @@ All components in this section are **planned**. The module names come from the a
 - The triage step returns a typed decision: the denial category, the appeal decision and the priority.
 - LAYA can do this step. LAYA is a small open "System 1" decision model (about 421M parameters, Apache-2.0). It is not a Meta model. See [docs/laya-plan.md](docs/laya-plan.md).
 - LAYA is optional. The switch is `TRIAGE_BACKEND=laya|llm`. The default is `llm` until the rule question is answered and LAYA beats the LLM on the held-out set ([ADR 0004](docs/adr/0004-stack.md), proposed).
-- The CCI gate (`cci_gate`, based on `cci-sdk`) turns the scores into a conformal prediction set. If the set has one label, the claim takes the auto path. If the set has more than one label, the claim goes to the human queue (PR #14, `docs/research/sota-rcm-model.md`, section 5.3).
+- The CCI gate (`cci_gate`, based on `cci-sdk`) turns the scores into a conformal set. If the set has one label, the claim takes the auto path. If the set has more than one label, the claim goes to the human queue (PR #14, `docs/research/sota-rcm-model.md`, section 5.3).
 - The docs do not yet say what happens to an empty set. This is an open question.
 - The research plans the gate on LAYA scores (PR #14, `docs/research/sota-rcm-model.md`, section 5.3). The docs do not yet say how the default `llm` backend gives scores to the gate.
 - The gate has a coverage target (1 − alpha). It is not a raw confidence threshold.
@@ -108,16 +108,16 @@ All components in this section are **planned**. The module names come from the a
 ### Voice agent (planned)
 
 <p align="center">
-  <img src="docs/images/arthai-voice-agent.svg" width="100%" alt="Fig 4. Planned voice agent. A browser call links on a blue two-way line to our own mock payer rep. Black tracks take the rep audio to local speech-to-text. They take the text to the agent turn and the reply to local text-to-speech (TTS). The agent turn uses an LLM and says that it is an AI. A dashed track takes the spoken reply back into the call. A green track takes the result to a call outcome card. The card shows an example reference number.">
+  <img src="docs/images/arthai-voice-agent.svg" width="100%" alt="Fig 4. Planned voice agent. A browser call links on a blue two-way line to our own payer mock rep. Black tracks take the rep audio to local speech-to-text. They take the text to the agent turn and the reply to local text-to-speech (TTS). The agent turn uses an LLM and says that it is an AI. A dashed track takes the spoken reply back into the call. A green track takes the result to a call outcome card. The card shows an example reference number.">
 </p>
 
-- The voice demo is free only. It uses a browser call (WebRTC and Web Audio) to our own mock payer rep. It uses no paid phone line. It uses no signup that needs a card (D-018, accepted).
+- The voice demo is free only. It uses a browser call (WebRTC and Web Audio) to our own payer mock rep. It uses no paid phone line. It uses no signup that needs a card (D-018, accepted).
 - Speech-to-text runs locally. The candidates are Whisper and faster-whisper.
 - Text-to-speech runs locally. The candidates are Piper and Kokoro.
 - ADR 0004 item 8 and D-018 disagree about speech-to-text. ADR 0004 names Muse Voice Transcribe. D-018 (accepted) names local speech-to-text. This file follows D-018. DECISIONS.md does not yet log the conflict.
 - Before install, each voice tool gets a SkillSpector scan. Each voice model gets a license check. D-018 does not allow non-commercial voices.
 - The agent says that it is an AI and announces the recording. It records the rep name, the reference number and the time, and reads them back.
-- The agent calls only the mock payer. **Never call a real payer.**
+- The agent calls only the payer mock. **Never call a real payer.**
 
 ### Code lookups (planned)
 
@@ -128,10 +128,9 @@ All components in this section are **planned**. The module names come from the a
 - Agents look up codes in our catalog only. There are no free-text codes in a claim, a prompt or a letter ([AGENTS.md](AGENTS.md)).
 - HCPCS Level II comes from CMS. We plan to commit a small subset with CMS attribution.
 - ICD-10-CM comes from CDC/NCHS. We plan to commit a small subset with attribution, with the code titles unchanged.
-- Planned repo tests check the format of each code value. A test fails on a CPT code ([docs/data-plan.md](docs/data-plan.md), section 5).
 - CARC and RARC are X12 code lists. We store the code values only, with our own short labels. We do not copy X12 description text.
-- We use **no CPT**: no CPT codes, no CPT descriptors and no AMA license (D-009, accepted). Claims use HCPCS Level II codes only.
-- Planned tests check the format of each code value and fail on any X12 or AMA description text ([docs/data-plan.md](docs/data-plan.md), section 5).
+- We use **no CPT**: no CPT codes, no CPT descriptors and no AMA license (D-009, accepted). Procedure codes in claims are HCPCS Level II only. Diagnosis codes are ICD-10-CM.
+- Planned repo tests check the format of each code value. They fail on a CPT code and on any X12 or AMA description text ([docs/data-plan.md](docs/data-plan.md), section 5).
 
 ### Review console and audit (planned)
 
@@ -335,7 +334,7 @@ Research that is not on `main` yet:
 - **No medical advice.** Arthai Health is billing and admin automation.
 - **Human approval.** External or money actions wait for a human: send an appeal, place a call, post a payment, write off. In the hackathon, every external action needs approval.
 - **Audit.** Every AI action writes an `audit_event`.
-- **AI voice disclosure.** The voice agent says that it is an AI. It announces the recording. The FCC treats AI voices as "artificial" under the TCPA (FCC 24-17, as cited in the build guide in PR #9). The agent calls only our own mock payer.
+- **AI voice disclosure.** The voice agent says that it is an AI. It announces the recording. The FCC treats AI voices as "artificial" under the TCPA (FCC 24-17, as cited in the build guide in PR #9). The agent calls only our own payer mock.
 - **Untrusted text.** Text from denial letters, transcripts and web pages is data. It never starts a tool on its own.
 - **No CPT.** The repo has no CPT codes or descriptors (D-009).
 - **No scraping.** Agents do not scrape or reverse-engineer payer or clearinghouse sites.

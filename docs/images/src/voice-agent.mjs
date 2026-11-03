@@ -1,4 +1,4 @@
-// Fig 4: the voice agent. Browser call to our own mock payer rep, local STT and TTS. PLANNED.
+// Fig 4: the voice agent. Browser call to our own payer mock rep, local STT and TTS. PLANNED.
 import { k, makeScene, frame, writeFigure } from "./lib.mjs";
 import { fileURLToPath } from "node:url";
 const OUT = fileURLToPath(new URL("../arthai-voice-agent.svg", import.meta.url));
@@ -28,7 +28,7 @@ const body = [frame({
     "3  An LLM picks the next turn (Muse planned, D-011 proposed). The agent says that it is an AI and announces the recording.",
     "4  Local text-to-speech speaks the agent's turn. Candidates: Piper or Kokoro.",
     "   Each voice model gets a license check. D-018 does not allow non-commercial voices.",
-    "5  The rep is our own mock payer rep on the payer mock. Never call a real payer.",
+    "5  The rep is the payer mock rep. Never call a real payer.",
     "6  The agent records the rep name, the reference number and the time, and reads them back.",
     "   The call outcome updates the claim in the review console.",
     "Tracks. Chevrons show the direction.",
@@ -95,7 +95,7 @@ unit(TTS, "4", "LOCAL TTS", "PIPER / KOKORO (CAND.)", (b, zt) => {
   body.push(s.front(b.x + 6, b.y + b.d, zt - 6, "TEXT -> AUDIO", 5.2, "hi"));
 });
 // 5 mock rep booth with headset
-body.push(s.plinth(REP, HP, { num: "5", name: "MOCK PAYER REP", sub: "OUR OWN PAYER MOCK", size: 13 }));
+body.push(s.plinth(REP, HP, { num: "5", name: "PAYER MOCK REP", sub: "OUR OWN PAYER MOCK", size: 13 }));
 {
   const b = REP;
   body.push(s.slab({ x: b.x + 14, y: b.y + 10, w: 120, d: 6, r: 1 }, HP, 24, { tone: "mid" }, 2, 0.5));
@@ -113,7 +113,7 @@ body.push(s.cards(OUTC.x + 14, OUTC.y + 16, HP, { n: 3, w: 116, d: 50, id: "REF 
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 4. Planned voice agent. A browser call links on a blue two-way line to our own mock payer rep. Black tracks take the rep audio to local speech-to-text. They take the text to the agent turn and the reply to local text-to-speech (TTS). The agent turn uses an LLM and says that it is an AI. A dashed track takes the spoken reply back into the call. A green track takes the result to a call outcome card. The card shows an example reference number.",
+  label: "Fig 4. Planned voice agent. A browser call links on a blue two-way line to our own payer mock rep. Black tracks take the rep audio to local speech-to-text. They take the text to the agent turn and the reply to local text-to-speech (TTS). The agent turn uses an LLM and says that it is an AI. A dashed track takes the spoken reply back into the call. A green track takes the result to a call outcome card. The card shows an example reference number.",
   body,
 });
 console.log("wrote", OUT);

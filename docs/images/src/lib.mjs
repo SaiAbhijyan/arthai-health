@@ -87,7 +87,7 @@ export function makeScene(P) {
     const lines = [num ? `${num} ${name}` : name, tag].filter(Boolean); // sub lines are in the legend
     const gap = size * 1.3;
     lines.forEach((line, i) => {
-      const s = i === 0 ? size : size * 0.86;
+      const s = size; // the name and the PLANNED tag use the same size
       const t = "hi";
       const base = h - 3 - size - i * gap;
       if (base < 1) console.warn(`plinth "${name}": line ${i + 1} is below the plinth (baseline ${base.toFixed(1)})`);
@@ -186,8 +186,8 @@ export function frame({ W, H, drawH, fig, title, hint, readout, legend = [], col
   out.push(t(36, 46, fig, 13, "muted"));
   out.push(t(36 + fig.length * 8 + 16, 46, "PLANNED · NOT BUILT", 13, "strong", "start", 700));
   out.push(t(W - 36, 46, title, 15, "strong", "end", 600));
-  out.push(t(36, drawH - 18, hint, 12, "text"));
-  out.push(t(W - 36, drawH - 18, readout, 12, "strong", "end"));
+  out.push(t(36, drawH - 18, hint, 14, "text"));
+  out.push(t(W - 36, drawH - 18, readout, 14, "strong", "end"));
   const LH = 23;
   const colW = (W - 72) / cols;
   const rows = Math.ceil(legend.length / cols);

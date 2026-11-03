@@ -27,7 +27,7 @@ const body = [frame({
     "2  The triage step gives three results: the category, the appeal decision (yes or no) and the priority.",
     "   The default scorer is the LLM. LAYA is optional (TRIAGE_BACKEND=laya|llm, ADR 0004).",
     "   The research plans the gate on LAYA scores. The docs do not yet say how the LLM gives scores to the gate.",
-    "3  The CCI gate turns the scores into a conformal prediction set. Each pin is one example",
+    "3  The CCI gate turns the scores into a conformal set. Each pin is one example",
     "   category. The category list is not final (docs/data-plan.md section 6.1). A raised pin is in the set.",
     "4  First claim: the set has 1 label, so the claim takes the auto path to the appeal writer (PR #14 section 5.3).",
     "5  Second claim: the set has more than 1 label (here 3), so the claim goes to the human queue.",
