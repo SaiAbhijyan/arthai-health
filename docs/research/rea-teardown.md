@@ -1,6 +1,7 @@
 # REA teardown: how the leading RCM companies build the features that Arthai builds
 
 Status: research, 2026-10-28. Not a decision. Decisions go in `DECISIONS.md` and ADRs.
+Update 2026-11-03: the STT conflict in sections 6.3, 12.1 and 12.2 (item 2) and question 3 in section 13 is closed. ADR 0004 item 8 now follows D-018: local Whisper or faster-whisper (PR #16). The Piper GPL-3.0 gap (question 4) is still open.
 Writing style: ASD-STE100 (short sentences, active voice, one idea per sentence).
 
 ## 0. Read this first
