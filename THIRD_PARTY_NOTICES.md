@@ -71,11 +71,16 @@ Installed on the build box or in user config, **not vendored into this repo**:
 - claude-red (SnailSploit/Claude-Red, MIT) — global user skills only; offensive, never committed to a repo.
 - apple-design-skill (dickwu, **no license**) — user config + git-ignored local only; never committed.
 
-## everything-claude-code / ECC (affaan-m/ECC), added 2026-10-28 (D-019)
+## everything-claude-code / ECC (affaan-m/ECC), added 2026-10-28 (D-023)
 
 - Source: https://github.com/affaan-m/ECC, commit 25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b (version 2.2.3).
 - License: MIT, Copyright (c) 2026 Affaan Mustafa.
 - Paths: `.claude/agents` (71 ECC files), `.claude/skills` (311 ECC folders), `.claude/commands` (97 ECC files), `.claude/rules/ecc`, `.claude/scripts`, `.claude/hooks`, `.claude/.agents`, `.claude/ecc`, `.claude/mcp-configs`, and the ECC files `.claude/AGENTS.md`, `.claude/README.md`, `.claude/plugin.json`, `.claude/marketplace.json`, `.claude/PLUGIN_SCHEMA_NOTES.md`, `.claude/the-security-guide.md`. The same set is under `.cursor/`, without hooks.
-- Modified: the hook commands in `.claude/settings.json` use `CLAUDE_PROJECT_DIR`. Some hooks are disabled (see D-019). `.cursor/mcp.json` keeps our servers only.
+- Modified: the hook commands in `.claude/settings.json` use `CLAUDE_PROJECT_DIR`. Some hooks are disabled (see D-023). `.cursor/mcp.json` keeps our servers only.
 - SkillSpector scan: 100/100 CRITICAL, 247 HIGH flags. Sai accepted the risk.
 
+## Embedded in generated files
+
+| Path | Source | License |
+|---|---|---|
+| docs/images/*.svg (CSS from `kit/iso-kit.mjs`, commit 1482e84; license copy in docs/images/NOTICE-anatomy-MIT.txt) | https://github.com/wheresryan22/anatomy (Copyright (c) 2026 Ryan) | MIT |

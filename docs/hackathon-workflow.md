@@ -19,7 +19,7 @@ Rule: one agent per service at a time. Do not let two agents edit the same files
 |---|---|---|
 | 1. Idea / spec | `spec-driven-development`, `karpathy-guidelines` (think first, simple), Grok for research | `docs/spec.md`, acceptance tests list |
 | 2. Architecture | `documentation-and-adrs`, `/decision`, graphify / anatomy (map the code, read only) | ADR in `docs/adr/`, `DECISIONS.md` entry |
-| 3. Build | `test-driven-development`, context7 MCP (read the docs before integration code), OmniRoute for Meta / Fireworks / Baseten calls, `add-x12-segment` | Small commits, tests green |
+| 3. Build | `test-driven-development`, context7 MCP (read the docs before integration code), the one LLM client for Baseten and Meta Model API calls (ADR 0004; OmniRoute is for developer tools only, D-022), `add-x12-segment` | Small commits, tests green |
 | 4. Prompts | `/prompt-audit` on every agent, voice, and tool prompt | Prompt passes the checklist |
 | 5. Test / fix | `debugging-and-error-recovery`, playwright MCP (click through the UI), `/review` | Bug fixed with a test that shows it |
 | 6. UI / design | impeccable (layout, visual), `apple-motion` (animation only) | Clean demo screens |
@@ -30,7 +30,7 @@ Rule: one agent per service at a time. Do not let two agents edit the same files
 Long sessions: headroom (telemetry off) or `caveman` (opt-in) to cut tokens. New skill needed: `find-skills`, then SkillSpector, then install at project level.
 
 ## Daily loop (to Nov 4)
-1. **Morning (15 min):** `git pull`. `scripts/omniroute.sh status`. Read `DECISIONS.md`. Pick 1-3 tasks for today.
+1. **Morning (15 min):** `git pull`. `scripts/omniroute.sh status` (developer tools only). Read `DECISIONS.md`. Pick 1-3 tasks for today.
 2. **Build blocks:** for each task: spec line, then test, then code, then `/review`. Commit small. Push.
 3. **Midday:** playwright MCP smoke test of the main flow (denial in, appeal out, voice call).
 4. **Evening:** `/security-review` on the diff. `/prompt-audit` on changed prompts. Update `DECISIONS.md`.
@@ -38,7 +38,7 @@ Long sessions: headroom (telemetry off) or `caveman` (opt-in) to cut tokens. New
 
 ## Countdown
 - **Oct 27-29:** core flow (denial -> fix -> appeal) works with mocks.
-- **Oct 30-Nov 1:** voice agent, real model calls through OmniRoute, UI polish.
+- **Oct 30-Nov 1:** voice agent, real model calls through the LLM client (ADR 0004), UI polish.
 - **Nov 2-3:** freeze features. Tests, security, demo video.
 - **Nov 4:** final review, submit by 6 PM ET (3 h buffer before 9 PM ET).
 

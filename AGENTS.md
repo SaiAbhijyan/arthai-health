@@ -52,8 +52,16 @@ Tools & review
 - Keep this file short: prune rules models no longer need; contradictions go to DECISIONS.md, not silent merges.
 
 ## Workflow
-Follow `docs/hackathon-workflow.md`: phase -> skill/command/MCP, daily loop, tmux windows. LLM calls go through OmniRoute (`scripts/omniroute.sh`, 127.0.0.1:20128, API-key providers only).
+Follow `docs/hackathon-workflow.md`: phase -> skill/command/MCP, daily loop, tmux windows. Product LLM calls go through one OpenAI-compatible client directly to Baseten or the Meta Model API (ADR 0004, D-011). OmniRoute (`scripts/omniroute.sh`, 127.0.0.1:20128, API-key providers only) is for developer tools only, never in the product path (D-012, D-022).
 
 ## Architecture map
 services/ eligibility, intake, coding, claims, clearinghouse_gw, payer_mock, remits, denials, voice, ar, billing, ledger, review, audit, gateway
 packages/ rcm_models (Pydantic), x12 (837/835 parse+build), policy_rag, cci_gate
+
+## Product and RCM docs
+- `docs/product/idea.md`: problem, users, solution, hackathon scope, long-term vision, demo story.
+- `docs/product/hackathon.md`: hackathon rules, judging, prizes, fit check, submission checklist.
+- `docs/rcm/primer.md`: RCM steps, X12 transactions, denial codes (values only), appeal process.
+- `docs/rcm/research.md`: market numbers, competitors, papers, open-source repos, with links.
+- `docs/architecture.md`: denial -> analysis -> appeal -> voice call flow, components, trust layer.
+- `docs/research/originals/`: full Oct 26 research pages, word for word (old Revora name, not maintained). Background only; the docs above win. See its README.
