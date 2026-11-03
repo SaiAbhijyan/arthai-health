@@ -1,7 +1,7 @@
 # 4. Model, triage, memory and compute stack for the hackathon build
 Date: 2026-10-28 (revised the same day after Mini Chief's review). Revised 2026-11-03: item 8 follows D-018 (voice), item 4 follows D-022 (OmniRoute), and a new section "LAYA and CCI scoring" (D-020).
 ## Status
-Proposed, except Contributor mode, which is Accepted (D-017, Sai 2026-10-28: yes, synthetic data only). The rest waits for Sai's approval and for the answers to the rule questions in `docs/data-plan.md` section 7.
+Proposed, except Contributor mode, which is Accepted (D-017, Sai 2026-10-28: yes, synthetic data only). These parts are also Accepted: item 8 voice (D-018), item 4 OmniRoute scope (D-022, Sai 2026-11-03) and the section "LAYA and CCI scoring" result rules (D-020, Sai 2026-11-03). The rest waits for Sai's approval and for the answers to the rule questions in `docs/data-plan.md` section 7.
 Memory is already decided: `DECISIONS.md` D-004 (Accepted, cognee 1.6.5). This ADR does not re-open D-004.
 
 Note on the number: the brief asked for `docs/adr/0001-stack.md`. ADR 0001 already exists (`0001-modular-monolith.md`), so this ADR uses the next free number, 0004.
@@ -101,7 +101,7 @@ Option C (proposed):
 8. **Voice (follows D-018, Accepted):** the demo call is a browser call (WebRTC and Web Audio) to our own payer mock rep. There is no paid phone line. Speech-to-text runs locally with Whisper or faster-whisper. Text-to-speech runs locally with Piper or Kokoro. The demo does not use Muse Voice Transcribe. ADR 0005 (not written yet) picks the packages and voices after a license check and a SkillSpector scan, and records the CPU latency. The voice agent calls only our payer mock. It never calls a real payer.
 9. **Fireworks:** not in the plan until the credit is approved.
 
-## LAYA and CCI scoring (proposed, D-020)
+## LAYA and CCI scoring (D-020, Accepted)
 This section tells how the triage step gives scores to the CCI gate, and what the gate does with each result.
 
 1. **Labels.** The triage step scores a closed list of denial categories. The list comes from the scenario table (`docs/data-plan.md` section 6.1). Free-text labels are not allowed.
@@ -128,4 +128,4 @@ This section tells how the triage step gives scores to the CCI gate, and what th
   4. Fix the cognee gaps in finding 4 (relative paths, CPT text in the smoke script).
   5. When Sai approves, accept D-011 to D-013 and D-016 (they are still Proposed, so their status line can change). D-017 (Contributor mode) is already Accepted.
 
-Links: `DECISIONS.md` D-004 (cognee, Accepted), D-011 to D-013, D-016 (Modal), D-017 (Contributor mode, Accepted), D-018 (voice, Accepted), D-020 (CCI gate results), D-022 (OmniRoute); `docs/research/sota-rcm-model.md` section 5.3; `docs/data-plan.md`; `docs/tooling.md`; `docs/laya-plan.md`.
+Links: `DECISIONS.md` D-004 (cognee, Accepted), D-011 to D-013, D-016 (Modal), D-017 (Contributor mode, Accepted), D-018 (voice, Accepted), D-020 (CCI gate results, Accepted), D-022 (OmniRoute, Accepted); `docs/research/sota-rcm-model.md` section 5.3; `docs/data-plan.md`; `docs/tooling.md`; `docs/laya-plan.md`.

@@ -86,7 +86,7 @@ All components in this section are **planned**. The module names come from the a
 - LAYA can do this step. LAYA is a small open "System 1" decision model (about 421M parameters, Apache-2.0). It is not a Meta model. See [docs/laya-plan.md](docs/laya-plan.md).
 - LAYA is optional. The switch is `TRIAGE_BACKEND=laya|llm`. The default is `llm` until the rule question is answered and LAYA beats the LLM on the held-out set ([ADR 0004](docs/adr/0004-stack.md), proposed).
 - The CCI gate (`cci_gate`, based on `cci-sdk`) turns the scores into a conformal set. If the set has one label, the claim takes the auto path. If the set has more than one label, the claim goes to the human queue (`docs/research/sota-rcm-model.md`, section 5.3).
-- If the set is empty (no label), the claim goes to the human queue. If the gate fails or gets scores that are not valid, the claim also goes to the human queue. Only a set with exactly one label takes the auto path ([D-020](DECISIONS.md), proposed).
+- If the set is empty (no label), the claim goes to the human queue. If the gate fails or gets scores that are not valid, the claim also goes to the human queue. Only a set with exactly one label takes the auto path ([D-020](DECISIONS.md), accepted).
 - The research plans the gate on LAYA scores (`docs/research/sota-rcm-model.md`, section 5.3). With the default `llm` backend, the LLM gives one score for each category in a closed list. The gate calibrates these scores in the same way ([ADR 0004](docs/adr/0004-stack.md), "LAYA and CCI scoring", proposed).
 - The gate has a coverage target (1 − alpha). It is not a raw confidence threshold.
 - **Limit:** the conformal guarantee is an average over cases like the calibration set. It is not a promise about one claim (`docs/research/sota-rcm-model.md`, section 5.3).
@@ -117,7 +117,7 @@ All components in this section are **planned**. The module names come from the a
 - ADR 0004 item 8 now follows D-018: speech-to-text runs locally. The demo does not use Muse Voice Transcribe.
 - Before install, each voice tool gets a SkillSpector scan. Each voice model gets a license check. D-018 does not allow non-commercial voices.
 - The agent says that it is an AI and announces the recording. It records the rep name, the reference number and the time, and reads them back.
-- The payer mock gives each call a synthetic reference number in the format `SYN-REF-` and six digits, for example `SYN-REF-000007` ([D-021](DECISIONS.md), proposed).
+- The payer mock gives each call a synthetic reference number in the format `SYN-REF-` and six digits, for example `SYN-REF-000007` ([D-021](DECISIONS.md), accepted).
 - The agent calls only the payer mock. **Never call a real payer.**
 
 ### Code lookups (planned)
@@ -162,7 +162,7 @@ These products appear in Fig 1. They have no figure of their own. Code lookups (
 
 - **Memory:** cognee 1.6.5 is pinned in `requirements.txt`, with telemetry off (D-004, accepted). A switch, `MEMORY_BACKEND=cognee|none`, controls product use. With `none`, the demo still runs if cognee fails (D-013, proposed).
 - **Compute:** Modal for the LAYA fine-tune and batch jobs, inside the free credits (D-016, proposed).
-- **Developer tools:** OmniRoute is for developer tools only. It is not in the product path. Product LLM calls go through one OpenAI-compatible client directly to the Meta-model providers (D-012 and D-022, proposed).
+- **Developer tools:** OmniRoute is for developer tools only. It is not in the product path. Product LLM calls go through one OpenAI-compatible client directly to the Meta-model providers (D-012 proposed, D-022 accepted).
 
 ## Data policy
 
@@ -298,16 +298,16 @@ Read [DECISIONS.md](DECISIONS.md) for every decision. For data and licensing, [d
 | D-017 | Meta Contributor mode, synthetic data only | Accepted |
 | D-018 | Voice: free only, browser call to our own mock insurer | Accepted |
 | D-019 | README figures: anatomy kit core only, pinned | Proposed |
-| D-020 | CCI gate: an empty set or a gate error goes to a human | Proposed |
-| D-021 | Format of synthetic call reference numbers (`SYN-REF-`) | Proposed |
-| D-022 | Product LLM calls do not go through OmniRoute; AGENTS.md follows D-012 | Proposed |
+| D-020 | CCI gate: an empty set or a gate error goes to a human | Accepted |
+| D-021 | Format of synthetic call reference numbers (`SYN-REF-`) | Accepted |
+| D-022 | Product LLM calls do not go through OmniRoute; AGENTS.md follows D-012 | Accepted |
 
 ADRs:
 
 - [ADR 0001: modular monolith](docs/adr/0001-modular-monolith.md)
 - [ADR 0002: adopt the Golden Play Guide](docs/adr/0002-adopt-golden-play-guide.md)
 - [ADR 0003: third-party agent tooling](docs/adr/0003-third-party-agent-tooling.md)
-- [ADR 0004: model, triage, memory and compute stack](docs/adr/0004-stack.md) (proposed, except D-017)
+- [ADR 0004: model, triage, memory and compute stack](docs/adr/0004-stack.md) (proposed, except D-017, D-018, D-020 and D-022)
 
 Research docs (research, not decisions):
 
