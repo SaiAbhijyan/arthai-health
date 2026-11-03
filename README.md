@@ -265,7 +265,7 @@ Main files only:
 │   └── tooling.md       # third-party skills and tools, with scan notes
 ├── factory/             # software factory: issue -> spec -> build -> gate -> review -> PR
 ├── scripts/             # dev-tool wrappers (headroom, omniroute, pi) and the cognee smoke test
-├── tests/               # pytest: factory merge guard and README figure checks
+├── tests/               # pytest: factory merge guard, README figure and repo name checks
 ├── .claude/             # Claude Code agents, commands and vendored skills
 ├── .cursor/rules/       # Cursor rules that mirror the agent rules
 └── .grok/rules/         # Grok reviewer rules
@@ -322,7 +322,7 @@ Research docs (research, not decisions):
 | Agent rules for Claude Code, Cursor and Grok | Built |
 | Software factory (`factory/`) with a merge guard that sends data, scripts, PHI, auth and payer paths to a human | Built |
 | Makefile gate: `dev`, `lint`, `typecheck`, `test` | Built |
-| Tests: pytest files for the factory merge guard and the README figures | Built |
+| Tests: pytest files for the factory merge guard, the README figures, the make targets in README and SETUP, the call reference format and a repo-wide check for forbidden names | Built |
 | cognee 1.6.5, pinned in `requirements.txt`, telemetry off | Pinned (D-004). No product code uses it yet. The LLM path is not tested yet. |
 | Synthetic data generators ([docs/data-plan.md](docs/data-plan.md), section 9; issues [#2](https://github.com/SaiAbhijyan/arthai-health/issues/2) to [#8](https://github.com/SaiAbhijyan/arthai-health/issues/8)) | Planned |
 | Claim builder and scrubber | Planned |
