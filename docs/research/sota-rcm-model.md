@@ -9,7 +9,7 @@
 | Writing standard | ASD-STE100 Simplified Technical English rules (short sentences, active voice, one idea for each sentence) |
 | Data rule | Synthetic data only for the hackathon. No real PHI. See `docs/data-plan.md`. |
 | Code rule | No code or material from the author's former or current employers. All approaches in this document come from public sources. |
-| Internal sources | `docs/research/originals/build-guide.md` is on the PR #9 branch (not merged yet). `docs/research/rea-teardown.md` is in PR #13. The other `docs/` files are on `main`. |
+| Internal sources | `docs/research/originals/build-guide.md` is on `main` (PR #9, merged). `docs/research/rea-teardown.md` is in PR #13 (not merged). The other `docs/` files are on `main`. |
 
 ## How to read this document
 
@@ -280,7 +280,7 @@ The build guide (`docs/research/originals/build-guide.md`) already has this plan
 
 - LAYA makes typed decisions: category, appeal yes or no, priority. It answers all questions in one forward pass with a confidence for each answer (`docs/laya-plan.md`).
 - The cci-sdk gate turns LAYA scores into conformal sets. The cci-sdk `stats` module does conformal prediction, Venn-Abers calibration, and e-values with NumPy only. It makes no network calls ([cci-sdk README](https://github.com/rahvis/cci-sdk)).
-- If the set has one label, the claim takes the automatic path. If the set has more than one label, the claim goes to a human.
+- If the set has one label, the claim takes the automatic path. If the set has more than one label, the claim goes to a human. If the set is empty, the claim also goes to a human (D-020, added 2026-11-03).
 - Muse (Meta) writes the letter and explains the decision. Muse does not make the decision.
 - The build guide states the rule: "Codes should come from a constrained catalog plus a verifier, which is Laya plus CCI's job."
 

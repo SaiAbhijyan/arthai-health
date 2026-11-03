@@ -2,7 +2,7 @@
 import { k, makeScene, frame, writeFigure } from "./lib.mjs";
 import { fileURLToPath } from "node:url";
 const OUT = fileURLToPath(new URL("../arthai-triage-gate.svg", import.meta.url));
-const W = 1200, H = 936, DRAW = 600;
+const W = 1200, H = 982, DRAW = 600;
 const BENCH = { x: 0, y: 0, w: 780, d: 356, r: 10 };
 const P = k.fitProjection(k.boxCorners(BENCH, -15, 80), W, DRAW - 40, { pad: 30, azimuth: 62 });
 P.origin[1] += 10;
@@ -20,17 +20,18 @@ const body = [frame({
   W, H, drawH: DRAW,
   fig: "Fig 2",
   title: "Triage + CCI gate (planned)",
-  hint: "Synthetic denials only. Design from PR #9 / #14 research, not yet decided. Not built.",
-  readout: "1 label: auto path · more labels: human",
+  hint: "Synthetic denials only. Design from the research docs, not yet decided. Not built.",
+  readout: "1 label: auto path · 0 or 2+ labels: human",
   legend: [
     "1  A synthetic denied line arrives from remit posting (example: SYN-D-000042, adjustment CO-197).",
     "2  The triage step gives three results: the category, the appeal decision (yes or no) and the priority.",
     "   The default scorer is the LLM. LAYA is optional (TRIAGE_BACKEND=laya|llm, ADR 0004).",
-    "   The research plans the gate on LAYA scores. The docs do not yet say how the LLM gives scores to the gate.",
+    "   The research plans the gate on LAYA scores. With the LLM, the gate uses LLM label scores (ADR 0004).",
     "3  The CCI gate turns the scores into a conformal set. Each pin is one example",
     "   category. The category list is not final (docs/data-plan.md section 6.1). A raised pin is in the set.",
-    "4  First claim: the set has 1 label, so the claim takes the auto path to the appeal writer (PR #14 section 5.3).",
+    "4  First claim: the set has 1 label, so the claim takes the auto path to the appeal writer (sota-rcm-model.md 5.3).",
     "5  Second claim: the set has more than 1 label (here 3), so the claim goes to the human queue.",
+    "   An empty set (0 labels) also goes to the human queue. A gate error does too (D-020).",
     "6  A synthetic calibration slice sets the gate for a target coverage of 1 - alpha.",
     "   The guarantee is an average over cases, not a promise about one claim.",
     "Tracks. Chevrons show the direction.",
@@ -44,7 +45,8 @@ const z = 0.4;
 body.push(s.link(IN, IN.x + IN.w - 14, LAYA, LAYA.x + 18, 144));
 body.push(s.link(LAYA, LAYA.x + LAYA.w - 16, GATE, GATE.x + 22, 196));
 body.push(s.track([[GATE.x + GATE.w + 6, 82], [AUTO.x - 6, 82]], z, "green", { width: 2.6 }));
-body.push(s.track([[GATE.x + GATE.w + 6, 150], [630, 150], [630, 336], [HUMAN.x + 30, 336], [HUMAN.x + 30, HUMAN.y + HUMAN.d + 6]], z, "red", { width: 2.6, chevMin: 30 }));
+// Red runs down the open aisle in front of the gate, then into the left side of the human queue, so no plinth hides it.
+body.push(s.track([[GATE.x + GATE.w - 20, GATE.y + GATE.d + 6], [GATE.x + GATE.w - 20, 278], [HUMAN.x - 6, 278]], z, "red", { width: 2.6 }));
 body.push(s.track([[CAL.x + CAL.w + 6, 272], [440, 272], [440, GATE.y + GATE.d + 6]], z, "blue", { dotted: true, width: 2.4 }));
 
 // 1 intake tray with denial cards
@@ -103,7 +105,7 @@ for (const [p, num, name, sub, tone] of [[AUTO, "4", "AUTO PATH", "TO APPEAL", "
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 2. Planned triage step and CCI gate. A synthetic denial goes to the triage step. The default scorer is the LLM, and LAYA is optional. The CCI gate has seven example category pins. The first claim has one raised pin, so its set has one label. It goes on a green track to the auto path. The second claim has three raised pins, so its set has more than one label. It goes on a red track to the human queue. A calibration station feeds the gate on a blue dotted track.",
+  label: "Fig 2. Planned triage step and CCI gate. A synthetic denial goes to the triage step. The default scorer is the LLM, and LAYA is optional. The CCI gate has seven example category pins. The first claim has one raised pin, so its set has one label. It goes on a green track to the auto path. The second claim has three raised pins, so its set has more than one label. It goes on a red track to the human queue. An empty set also goes to the human queue. A calibration station feeds the gate on a blue dotted track.",
   body,
 });
 console.log("wrote", OUT);

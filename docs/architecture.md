@@ -21,7 +21,7 @@ flowchart LR
 
 1. **Ingest.** The remits module parses the synthetic 835. Each denied line starts a denial workflow.
 2. **Analysis.** The triage agent returns a typed decision: denial category, appeal yes or no, and priority. Codes come only from the catalog.
-3. **Gate.** The confidence gate (`cci_gate`, based on `cci-sdk` conformal sets) checks the size of the prediction set. A tight set continues. A wide set goes to the human queue.
+3. **Gate.** The confidence gate (`cci_gate`, based on `cci-sdk` conformal sets) checks the size of the prediction set. A set with exactly one label continues. A wide set, an empty set or a gate error sends the claim to the human queue (D-020).
 4. **Appeal.** The appeal agent retrieves payer policy chunks and writes the letter. The citation gate checks that each statement maps to a retrieved chunk ID.
 5. **Approval.** A human approves before the appeal goes out. In the hackathon, every external action needs approval.
 6. **Voice follow-up.** The voice agent calls the mock payer. It says that it is an AI and announces the recording. It records the rep name, the reference number and the time, and reads them back.
@@ -140,5 +140,5 @@ Source: [P2] 3.5, 4.7, 4.9.
 
 - [P2] "Revora Build Guide", Grok Bot Page, 2026-10-26 (private): https://cursor.com/canvas/store-2f9b6419-214d-4ae3-ba39-6b55775ac5bc/0d09f3df-55fe-44ed-b292-b147cf442cb6
 - `DECISIONS.md` on main (D-001, D-004).
-- PR #1 (not merged): https://github.com/SaiAbhijyan/arthai-health/pull/1 (`docs/adr/0004-stack.md`, `docs/data-plan.md`, D-005 to D-013, and the Contributor-mode entry).
+- PR #1 (merged): https://github.com/SaiAbhijyan/arthai-health/pull/1 (`docs/adr/0004-stack.md`, `docs/data-plan.md`, D-005 to D-013, and the Contributor-mode entry).
 - `AGENTS.md` (architecture map, audit and approval rules).

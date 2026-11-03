@@ -50,11 +50,62 @@ def test_readme_alt_text_matches_svg_label() -> None:
         assert html.unescape(label.group(1)) == html.unescape(alt.group(1)), name
 
 
+# Folders that are not part of the repo content (tool caches and local venvs).
+SKIP_DIRS = {
+    ".git",
+    ".venv",
+    ".venv-dev",
+    ".mypy_cache",
+    ".ruff_cache",
+    "node_modules",
+    "__pycache__",
+}
+TEXT_SUFFIXES = {
+    ".md",
+    ".mdc",
+    ".mjs",
+    ".svg",
+    ".py",
+    ".sh",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".toml",
+    ".txt",
+}
+
+
+def _repo_text_files() -> list[Path]:
+    files = []
+    for path in ROOT.rglob("*"):
+        rel = path.relative_to(ROOT)
+        if any(part in SKIP_DIRS for part in rel.parts) or not path.is_file():
+            continue
+        if path.suffix in TEXT_SUFFIXES or path.name in {"Makefile", ".env.example"}:
+            files.append(path)
+    return files
+
+
 def test_no_forbidden_names() -> None:
-    paths = ["README.md", *(f"docs/images/{n}" for n in FIGURES)]
-    paths += [str(p.relative_to(ROOT)) for p in (ROOT / "docs/images/src").glob("*.mjs")]
+    files = _repo_text_files()
+    assert len(files) > 50, "the file walk found too few files"
+    for path in files:
+        assert not FORBIDDEN.search(path.read_text(encoding="utf-8")), path.relative_to(ROOT)
+
+
+def test_call_reference_examples_use_the_d021_format() -> None:
+    paths = [
+        "README.md",
+        "DECISIONS.md",
+        "docs/data-plan.md",
+        *(f"docs/images/{n}" for n in FIGURES),
+    ]
+    found = 0
     for rel in paths:
-        assert not FORBIDDEN.search(_read(rel)), rel
+        for token in re.findall(r"SYN-REF-[0-9A-Za-z]+", _read(rel)):
+            found += 1
+            assert re.fullmatch(r"SYN-REF-[0-9]{6}", token), (rel, token)
+    assert found, "no SYN-REF example found"
 
 
 def _anchor(heading: str) -> str:
@@ -84,6 +135,7 @@ def test_svgs_are_well_formed_xml() -> None:
 def test_quickstart_make_targets_exist() -> None:
     makefile = _read("Makefile")
     defined = set(re.findall(r"^([a-z][\w-]*):", makefile, flags=re.MULTILINE))
-    used = set(re.findall(r"^\s*make ([a-z][\w-]*)", _read("README.md"), flags=re.MULTILINE))
-    assert used, "no make commands found"
-    assert used <= defined, used - defined
+    for rel in ("README.md", "SETUP.md"):
+        used = set(re.findall(r"^\s*make ([a-z][\w-]*)", _read(rel), flags=re.MULTILINE))
+        assert used, f"no make commands found in {rel}"
+        assert used <= defined, (rel, used - defined)

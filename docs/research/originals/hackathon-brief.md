@@ -153,7 +153,7 @@ Status as of Oct 26, 12:20pm ET: only the Meta form is submitted. Analysis: if b
 | Read as 'AI medical advice' | Healthcare is close to a banned category | Frame it as billing and admin automation for billing staff. No diagnosis or treatment output, and no patient-facing clinical answers. Put that line in the README and in the video's first 10 seconds |
 | Read as 'dashboard as the main feature' | The review console looks like a dashboard | Agents are the product: the demo leads with an autonomous denial, appeal and live payer call. The console appears second, as the oversight layer. Never open the video on a chart |
 | Read as 'basic RAG' | The appeal writer uses policy retrieval | Show the multi-step agent: typed decisions, the confidence gate, a citation-verification gate, tool calls, a voice call and a state change. Retrieval is one tool among many |
-| Pre-existing work | Only Oct 26 to Nov 4 work counts, and showing other work means DQ | A fresh public repo created after kickoff. No Tekcel or MedRCM code, data or assets. Commit history shows the build days |
+| Pre-existing work | Only Oct 26 to Nov 4 work counts, and showing other work means DQ | A fresh public repo created after kickoff. No [removed: employer names] code, data or assets. Commit history shows the build days |
 | Data rights / PHI | No data without rights | Synthetic data only (Synthea, generated 837/835). Public CMS/X12 code lists are fine; cite the licenses |
 | Outside models (Laya, cci-sdk) | Judging rewards use of Meta tooling; outside pieces need license rights | Laya is Apache-2.0 and cci-sdk is open source, but consider swapping Laya for Muse Glimmer. Keep cci-sdk as a statistics library, not a model. Muse does all the visible work |
 | Streamlit | Banned | React/TS console as planned |
@@ -208,7 +208,7 @@ X drafts (text only, Sai's voice; nothing posted):
 
 *Status as of Oct 26: nothing below is done yet*
 
-- [ ] Public GitHub repo, created after Oct 26 12pm, with no pre-existing or Tekcel/MedRCM code
+- [ ] Public GitHub repo, created after Oct 26 12pm, with no pre-existing or [removed: employer names] code
 - [ ] README: billing/admin framing, synthetic-data statement, Meta models used, open-weights setup, licenses for third-party pieces
 - [ ] 3-minute demo video showing only event work, agents first
 - [ ] X post with the demo published, link included in the submission

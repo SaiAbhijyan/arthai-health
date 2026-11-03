@@ -1,6 +1,6 @@
 # Plan: README with isometric figures
 
-Status: in review (PR on branch `docs/readme-anatomy`). Sai set the scope on 2026-11-02, relayed by Mini Chief. The figures were built under that scope. D-019 stays Proposed until Sai approves the PR.
+Status: merged to `main` in PR #15 (2026-11-02, with Sai's okay, relayed by Mini Chief). Follow-up fixes are in branch `fix/open-issues`. Sai set the scope on 2026-11-02, relayed by Mini Chief. The figures were built under that scope. D-019 stays Proposed until Sai approves it.
 
 ## Goal
 

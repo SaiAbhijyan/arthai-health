@@ -20,7 +20,7 @@ const body = [frame({
   W, H, drawH: DRAW,
   fig: "Fig 4",
   title: "Voice agent (planned)",
-  hint: "No phone line. No real payer. Design from D-018 and PR #9. Not built.",
+  hint: "No phone line. No real payer. Design from D-018 and the research docs. Not built.",
   readout: "calls go only to our own mock",
   legend: [
     "1  The call runs in the browser (WebRTC and Web Audio). There is no paid phone line.",
@@ -109,7 +109,7 @@ body.push(s.plinth(REP, HP, { num: "5", name: "PAYER MOCK REP", sub: "OUR OWN PA
 }
 // 6 outcome card
 body.push(s.plinth(OUTC, HP, { num: "6", name: "CALL OUTCOME", sub: "READ BACK, LOGGED", size: 13 }));
-body.push(s.cards(OUTC.x + 14, OUTC.y + 16, HP, { n: 3, w: 116, d: 50, id: "REF SYN-REF-0007", rules: 3, lit: true, idSize: 9 }));
+body.push(s.cards(OUTC.x + 14, OUTC.y + 16, HP, { n: 3, w: 116, d: 50, id: "REF SYN-REF-000007", rules: 3, lit: true, idSize: 9 }));
 
 writeFigure(OUT, {
   W, H,
