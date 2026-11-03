@@ -2,7 +2,7 @@
 import { k, makeScene, frame, writeFigure } from "./lib.mjs";
 import { fileURLToPath } from "node:url";
 const OUT = fileURLToPath(new URL("../arthai-voice-agent.svg", import.meta.url));
-const W = 1200, H = 912, DRAW = 600;
+const W = 1200, H = 936, DRAW = 600;
 const BENCH = { x: 0, y: 0, w: 800, d: 386, r: 10 };
 const P = k.fitProjection(k.boxCorners(BENCH, -15, 90), W, DRAW - 40, { pad: 30, azimuth: 62 });
 P.origin[1] += 14;
@@ -34,7 +34,8 @@ const body = [frame({
     "Tracks. Chevrons show the direction.",
     "   blue (no chevrons): the two-way call line between 1 and 5. The voice of the rep comes in on this line.",
     "   black: the audio of the rep goes from 1 to 2, the text to 3 and the reply to 4.",
-    "   dashed: the spoken reply goes from 4 back into the call. green: the call result goes to 6.",
+    "   dashed: the spoken reply goes from 4 back into the call.",
+    "   green: the result of the call with the rep in 5 goes to the outcome card in 6.",
   ],
   cols: 1,
 })];

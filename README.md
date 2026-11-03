@@ -316,7 +316,7 @@ Research that is not on `main` yet:
 | Makefile gate: `dev`, `lint`, `typecheck`, `test` | Built |
 | Tests: pytest files for the factory merge guard and the README figures | Built |
 | cognee 1.6.5, pinned in `requirements.txt`, telemetry off | Pinned (D-004). No product code uses it yet. The LLM path is not tested yet. |
-| Synthetic data generators ([docs/data-plan.md](docs/data-plan.md), section 9 milestone table; open GitHub issues [#2](https://github.com/SaiAbhijyan/arthai-health/issues/2) to [#8](https://github.com/SaiAbhijyan/arthai-health/issues/8). We read their titles with `gh` on 2026-11-02: "Phase 2 (a)" to "Phase 2 (g)".) | Planned |
+| Synthetic data generators ([docs/data-plan.md](docs/data-plan.md), section 9; issues [#2](https://github.com/SaiAbhijyan/arthai-health/issues/2) to [#8](https://github.com/SaiAbhijyan/arthai-health/issues/8)) | Planned |
 | Claim builder and scrubber | Planned |
 | Payer and clearinghouse mock | Planned |
 | Remit posting | Planned |

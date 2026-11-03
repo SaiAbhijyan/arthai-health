@@ -73,7 +73,7 @@ body.push(s.track([[640, out(ST.review)], [640, 352], [520, 352], [520, out(ST.a
 // 6 -> 7: after tier-2 approval in the console, the appeal is sent and the call starts
 body.push(s.link(ST.appeal, 440, ST.voice, 330, 352));
 // 2 -> 8: 276/277 claim status to AR follow-up (grey)
-body.push(s.track([[240, fy(ST.mock)], [240, 200], [100, 200], [100, ST.ar.y - 6]], z, "mid", { width: 2.4 }));
+body.push(s.track([[236, fy(ST.mock)], [236, 150], [100, 150], [100, ST.ar.y - 6]], z, "mid", { width: 2.4 }));
 // voice -> payer mock (the call goes only to our own mock)
 body.push(s.track([[290, ST.voice.y - 6], [290, fy(ST.mock)]], z, "hi", { dashed: true }));
 // review -> eval -> gate (feedback loop) on the right side
