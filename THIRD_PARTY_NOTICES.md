@@ -70,3 +70,9 @@ Installed on the build box or in user config, **not vendored into this repo**:
 - Strix / strix-agent (usestrix/strix, MIT) — box venv `/workspace/tools/strix-env`, global wrapper, telemetry off.
 - claude-red (SnailSploit/Claude-Red, MIT) — global user skills only; offensive, never committed to a repo.
 - apple-design-skill (dickwu, **no license**) — user config + git-ignored local only; never committed.
+
+## Embedded in generated files
+
+| Path | Source | License |
+|---|---|---|
+| docs/images/*.svg (CSS from `kit/iso-kit.mjs`, commit 1482e84; license copy in docs/images/NOTICE-anatomy-MIT.txt) | https://github.com/wheresryan22/anatomy (Copyright (c) 2026 Ryan) | MIT |
