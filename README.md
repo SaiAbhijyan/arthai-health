@@ -241,7 +241,7 @@ Main files only:
 ├── AGENTS.md            # rules for all coding agents (CLAUDE.md points here)
 ├── CLAUDE.md            # Claude Code specifics
 ├── CONTRIBUTING.md
-├── DECISIONS.md         # decision log, D-001 to D-022
+├── DECISIONS.md         # decision log, D-001 to D-023
 ├── Makefile             # dev, lint, typecheck, test
 ├── README.md            # this file
 ├── SETUP.md             # short setup notes (same make targets as the quickstart)
@@ -301,6 +301,7 @@ Read [DECISIONS.md](DECISIONS.md) for every decision. For data and licensing, [d
 | D-020 | CCI gate: an empty set or a gate error goes to a human | Accepted |
 | D-021 | Format of synthetic call reference numbers (`SYN-REF-`) | Accepted |
 | D-022 | Product LLM calls do not go through OmniRoute; AGENTS.md follows D-012 | Accepted |
+| D-023 | Full ECC (everything-claude-code) install at project level, some hooks off | Accepted |
 
 ADRs:
 
