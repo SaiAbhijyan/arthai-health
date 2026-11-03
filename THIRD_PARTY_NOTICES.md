@@ -30,6 +30,7 @@ Vendored agent skills (copied; SKILL.md only unless noted):
 |---|---|---|
 | .claude/skills/graphify | https://github.com/Graphify-Labs/graphify | Apache-2.0 |
 | .claude/skills/anatomy | https://github.com/wheresryan22/anatomy (Copyright (c) 2026 Ryan) | MIT |
+| docs/images/*.svg (embedded CSS from `kit/iso-kit.mjs`, commit 1482e84; license copy in docs/images/LICENSE-anatomy.txt) | https://github.com/wheresryan22/anatomy (Copyright (c) 2026 Ryan) | MIT |
 
 Installed globally per Sai, NOT committed to this repo (user-level `~/.claude/skills` and `~/.cursor/skills-cursor`):
 

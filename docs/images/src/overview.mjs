@@ -1,8 +1,9 @@
 // Fig 1: the whole planned flow on one bench. Every station is PLANNED.
 import { k, makeScene, frame, writeFigure } from "./lib.mjs";
-const OUT = new URL("../arthai-overview.svg", import.meta.url).pathname;
-const W = 1200, H = 810, DRAW = 610;
-const BENCH = { x: 0, y: 0, w: 860, d: 370, r: 10 };
+import { fileURLToPath } from "node:url";
+const OUT = fileURLToPath(new URL("../arthai-overview.svg", import.meta.url));
+const W = 1200, H = 860, DRAW = 620;
+const BENCH = { x: 0, y: 0, w: 860, d: 400, r: 10 };
 const P = k.fitProjection([...k.boxCorners(BENCH, -15, 70)], W, DRAW - 40, { pad: 30, azimuth: 62 });
 P.origin[1] += 10;
 const s = makeScene(P);
@@ -26,18 +27,24 @@ const body = [frame({
   fig: "Fig 1",
   title: "Arthai Health: planned flow",
   hint: "Synthetic data only. Every station is planned. None is built yet.",
-  readout: "9 products · 1 bench",
+  readout: "9 products · all planned",
   legend: [
     "1  Claim builder and scrubber: builds the 837, runs NCCI and MUE edits",
-    "2  Payer and clearinghouse mock: our own fake insurer, 835 and 277 out",
+    "2  Payer and clearinghouse mock: our own fake payer, 835 and 277 out",
     "3  Remit posting: reads the 835, finds each denied line",
-    "4  Triage + CCI gate: LAYA scores, conformal set decides the path",
+    "4  Triage + CCI gate: scorer (LLM or LAYA), conformal set picks the path",
     "5  Review console + audit: human queue, approvals, audit trail",
     "6  Appeal writer: Muse drafts, each statement cites a source",
-    "7  Voice agent: browser call to the mock insurer rep",
+    "7  Voice agent: browser call to the mock payer rep",
     "8  AR follow-up: ranks open claims for the next action",
     "9  Eval and feedback loop: reviewer edits become eval cases",
-    "Tracks: green = gate is sure. red = not sure, to a human. blue = feedback.",
+    "Tracks. Chevrons show the direction.",
+    "  green: the gate is sure. 4 to 6.",
+    "  red: the gate is not sure. 4 to the human queue in 5.",
+    "  black: hand-off. 5 to 6 after a human decision.",
+    "  black: 6 to 5 for tier-2 approval. 5 to 7 after approval.",
+    "  dashed: the call goes only to our mock payer in 2.",
+    "  blue dotted: reviewer edits go to 9, then recalibrate 4.",
   ],
 })];
 
@@ -52,11 +59,16 @@ body.push(s.track([[ST.remit.x + ST.remit.w + 6, row], [ST.gate.x - 6, row]], z,
 // gate -> appeal (sure) and gate -> review (not sure), through the open aisle
 body.push(s.track([[630, fy(ST.gate)], [630, 160], [470, 160], [470, ST.appeal.y - 2]], z, "green", { width: 2.4 }));
 body.push(s.track([[690, fy(ST.gate)], [690, ST.review.y - 2]], z, "red", { width: 2.4 }));
-// review -> appeal (after a human decides), appeal -> voice, voice -> ar, along the front aisle
-const front = ST.ar.y + ST.ar.d + 14;
-body.push(s.track([[640, ST.review.y + ST.review.d + 6], [640, front], [520, front], [520, ST.appeal.y + ST.appeal.d + 6]], z, "hi"));
-body.push(s.track([[440, ST.appeal.y + ST.appeal.d + 6], [440, front], [330, front], [330, ST.voice.y + ST.voice.d + 6]], z, "hi"));
-body.push(s.track([[250, ST.voice.y + ST.voice.d + 6], [250, front], [140, front], [140, ST.ar.y + ST.ar.d + 6]], z, "hi"));
+// Front aisles (bench y 342..400). Verticals never cross another track's horizontal span.
+const out = (p) => p.y + p.d + 6;
+// 5 -> 6: a human decides, then the writer drafts
+body.push(s.track([[640, out(ST.review)], [640, 350], [520, 350], [520, out(ST.appeal)]], z, "hi"));
+// 6 -> 5: the draft goes back for tier-2 approval
+body.push(s.track([[480, out(ST.appeal)], [480, 362], [700, 362], [700, out(ST.review)]], z, "hi", { chevMin: 60 }));
+// 5 -> 7: after approval the appeal is sent and the call is requested
+body.push(s.track([[735, out(ST.review)], [735, 374], [290, 374], [290, out(ST.voice)]], z, "hi", { chevMin: 120 }));
+// 7 -> 8: the call outcome updates the open claim
+body.push(s.track([[250, out(ST.voice)], [250, 350], [140, 350], [140, out(ST.ar)]], z, "hi"));
 // voice -> payer mock (the call goes only to our own mock)
 body.push(s.track([[290, ST.voice.y - 6], [290, fy(ST.mock)]], z, "hi", { dashed: true }));
 // review -> eval -> gate (feedback loop) on the right side
@@ -167,7 +179,7 @@ const labels = {
   build: ["1", "CLAIM BUILDER", "AND SCRUBBER"],
   mock: ["2", "PAYER MOCK", "AND CLEARINGHOUSE"],
   remit: ["3", "REMIT POSTING", "835 IN"],
-  gate: ["4", "TRIAGE + CCI GATE", "LAYA SCORES"],
+  gate: ["4", "TRIAGE + CCI GATE", "LLM OR LAYA"],
   ar: ["8", "AR FOLLOW-UP", "RANKS OPEN CLAIMS"],
   voice: ["7", "VOICE AGENT", "BROWSER CALL"],
   appeal: ["6", "APPEAL WRITER", "MUSE DRAFTS"],
@@ -178,22 +190,22 @@ const labels = {
 for (const key of ["build", "mock", "remit", "gate"]) {
   const p = ST[key];
   const [num, name, sub] = labels[key];
-  body.push(s.plinth({ ...p }, H0, { num, name, size: 9 }));
+  body.push(s.plinth({ ...p }, H0, { num, name, size: 10.5 }));
   body.push(machines[key](p));
 }
-body.push(s.plinth(EVAL, 26, { num: "9", name: "EVAL", size: 8, tag: "PLANNED" }));
+body.push(s.plinth(EVAL, 26, { num: "9", name: "EVAL", size: 9, tag: "PLANNED" }));
 body.push(s.knob(EVAL.x + 52, EVAL.y + 16, 26, 4, 4));
 body.push(s.led(EVAL.x + 36, EVAL.y + 16, 26, "blue"));
 for (const key of ["ar", "voice", "appeal", "review"]) {
   const p = ST[key];
   const [num, name, sub] = labels[key];
-  body.push(s.plinth({ ...p }, H0, { num, name, size: 9 }));
+  body.push(s.plinth({ ...p }, H0, { num, name, size: 10.5 }));
   body.push(machines[key](p));
 }
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 1. Arthai Health planned flow, drawn as nine stations on one bench. 1 claim builder and scrubber, 2 payer and clearinghouse mock, 3 remit posting, 4 triage with the CCI confidence gate, 5 review console and audit, 6 appeal writer, 7 voice agent, 8 AR follow-up, 9 eval and feedback loop. Green track: the gate is sure and the claim goes to the appeal writer. Red track: the gate is not sure and a human reviews the claim. Blue dotted track: reviewer edits feed the eval loop and recalibrate the gate. Every station is planned; none is built.",
+  label: "Fig 1. Arthai Health planned flow, drawn as nine stations on one bench. 1 claim builder and scrubber, 2 payer and clearinghouse mock, 3 remit posting, 4 triage (LLM by default, LAYA optional) with the CCI confidence gate, 5 review console and audit, 6 appeal writer, 7 voice agent, 8 AR follow-up, 9 eval and feedback loop. Chevrons on each track show the direction. Black tracks carry work from 1 to 2 to 3 to 4. Green track: the gate is sure, 4 to 6. Red track: the gate is not sure, 4 to the human queue in 5. Black tracks in front: 5 to 6 after a human decision, 6 to 5 for tier-2 approval, 5 to 7 after approval, and 7 to 8 with the call outcome. Dashed track: the call goes only to the mock payer in 2. Blue dotted track: reviewer edits go from 5 to 9, then recalibrate 4. Every station is planned. None is built.",
   body,
 });
 console.log("wrote", OUT);

@@ -1,10 +1,25 @@
 // Shared parts for the Arthai Health README figures.
-// Uses only the anatomy kit core (kit/iso-kit.mjs, MIT, wheresryan22/anatomy @ 1482e84).
-// Set ANATOMY_KIT to the kit file. Default: the box copy in /workspace/tools/anatomy.
-import { writeFileSync } from "node:fs";
+// Uses only the anatomy kit core: kit/iso-kit.mjs (MIT, Copyright (c) 2026 Ryan),
+// wheresryan22/anatomy at commit 1482e8469b0a9e0d8cc18ea2740a01423d29ae80.
+// Set ANATOMY_KIT to the path of that kit/iso-kit.mjs file. The build checks its sha256 before import.
+import { readFileSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { pathToFileURL } from "node:url";
 
-const KIT = process.env.ANATOMY_KIT ?? "/workspace/tools/anatomy/kit/iso-kit.mjs";
-export const k = await import(KIT);
+export const KIT_COMMIT = "1482e8469b0a9e0d8cc18ea2740a01423d29ae80";
+export const KIT_SHA256 = "6d3ecc725d30c3b0346da309cf61dfa5a65017c23620bbd4093009d4fb104018";
+
+const KIT = process.env.ANATOMY_KIT;
+if (!KIT) {
+  console.error("Set ANATOMY_KIT to the path of kit/iso-kit.mjs from wheresryan22/anatomy at " + KIT_COMMIT + ".");
+  process.exit(2);
+}
+const got = createHash("sha256").update(readFileSync(KIT)).digest("hex");
+if (got !== KIT_SHA256) {
+  console.error(`ANATOMY_KIT sha256 is ${got}. Expected ${KIT_SHA256} (commit ${KIT_COMMIT}). Stop.`);
+  process.exit(3);
+}
+export const k = await import(pathToFileURL(KIT).href);
 
 export function makeScene(P) {
   const at = (p) => k.iso(p, P);
@@ -17,9 +32,23 @@ export function makeScene(P) {
   // Text on the front face (y = plan.y + plan.d), reading along +x. zTop is the baseline height.
   const front = (x, y, z, text, size = 6, tone = "hi") => k.faceTextSvg(k.sideMatrix([x, y], z, P, "left"), text, { size, tone });
   const top = (x, y, z, text, size = 5, tone = "hi") => k.faceTextSvg(k.topMatrix([x, y], z, P, "x"), text, { size, tone });
-  const track = (pts, z, tone = "mid", opts = {}) =>
-    L(k.onTop(pts, z, P), { tone, ...opts }).replace("<path", `<path style="stroke-width:${opts.width ?? 2}px"`) +
-    D([at([...pts[0], z]), at([...pts.at(-1), z])], { size: 2.2, tone });
+  // A painted track on a top face. Chevrons painted on long segments show the direction of flow.
+  function track(pts, z, tone = "mid", opts = {}) {
+    const w = opts.width ?? 2;
+    let out = L(k.onTop(pts, z, P), { tone, ...opts }).replace("<path", `<path style="stroke-width:${w}px"`);
+    if (opts.chev !== false) {
+      for (let i = 1; i < pts.length; i++) {
+        const [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
+        const len = Math.hypot(x1 - x0, y1 - y0);
+        if (len < (opts.chevMin ?? 24)) continue;
+        const ux = (x1 - x0) / len, uy = (y1 - y0) / len, c = 4.5;
+        const mx = (x0 + x1) / 2 + ux * c / 2, my = (y0 + y1) / 2 + uy * c / 2;
+        const a = [mx - ux * c - uy * c, my - uy * c + ux * c], b = [mx - ux * c + uy * c, my - uy * c - ux * c];
+        out += L(k.lineOnTop(a, [mx, my], z, P) + k.lineOnTop([mx, my], b, z, P), { tone, free: true }).replace("<path", `<path style="stroke-width:${w}px"`);
+      }
+    }
+    return out + D([at([...pts[0], z]), at([...pts.at(-1), z])], { size: 2.2, tone });
+  }
 
   // A bench: plate, feet, groove, corner screws and a ruler strip on the front edge.
   function bench(plan, h = 10) {
@@ -48,11 +77,14 @@ export function makeScene(P) {
     out.push(screws(plan, 4, h, 0.45));
     const y = plan.y + plan.d;
     const lines = [num ? `${num}  ${name}` : name, sub, tag].filter(Boolean);
-    const gap = size * 1.25;
+    const gap = size * 1.3;
     lines.forEach((line, i) => {
-      const s = i === 0 ? size : size * 0.78;
-      const t = i === 0 ? "hi" : "mid";
-      out.push(front(plan.x + 7, y, h - 3 - size - i * gap, line, s, t));
+      const s = i === 0 ? size : size * 0.86;
+      const t = i === 0 || line === tag ? "hi" : "mid";
+      const base = h - 3 - size - i * gap;
+      if (base < 1) console.warn(`plinth "${name}": line ${i + 1} is below the plinth (baseline ${base.toFixed(1)})`);
+      if (line.length * s * 0.62 > plan.w - 12) console.warn(`plinth "${name}": "${line}" is wider than the plinth`);
+      out.push(front(plan.x + 7, y, base, line, s, t));
     });
     return out.join("");
   }
@@ -140,6 +172,8 @@ export function frame({ W, H, drawH, fig, title, hint, readout, legend = [], col
   out.push(t(W - 36, drawH - 18, readout, 12, "strong", "end"));
   const colW = (W - 72) / cols;
   const rows = Math.ceil(legend.length / cols);
+  const need = drawH + 30 + (rows - 1) * 21 + 24;
+  if (need > H) console.warn(`${fig}: legend needs H >= ${need}, H is ${H}`);
   legend.forEach((item, i) => {
     const c = Math.floor(i / rows), r = i % rows;
     const indent = /^\s+/.test(item) ? 26 : 0;
@@ -148,7 +182,9 @@ export function frame({ W, H, drawH, fig, title, hint, readout, legend = [], col
   return out.join("");
 }
 
+const NOTICE = "<!-- Built with the anatomy kit (kit/iso-kit.mjs), Copyright (c) 2026 Ryan, MIT License. Commit " + KIT_COMMIT + ". The embedded CSS comes from that kit. See docs/images/LICENSE-anatomy.txt. All data in this figure is synthetic. -->";
+
 export function writeFigure(path, { W, H, label, body }) {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="iso iso-svg" data-theme="light" role="img" aria-label="${label.replace(/"/g, "&quot;")}"><title>${label.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</title><style>${k.ISO_CSS}</style>${body.join("")}</svg>\n`;
+  const svg = NOTICE + "\n" + `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="iso iso-svg" data-theme="light" role="img" aria-label="${label.replace(/"/g, "&quot;")}"><title>${label.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</title><style>${k.ISO_CSS}</style>${body.join("")}</svg>\n`;
   writeFileSync(path, svg);
 }

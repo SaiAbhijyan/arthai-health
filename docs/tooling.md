@@ -149,6 +149,13 @@ Scan flags are hooks/CLI code that edits agent config dirs (expected for an inst
 MIT, ~21k stars. Builds interactive isometric SVG/WebGL explainer figures (not a repo map). Good for demo/pitch visuals.
 ~10-40 MB kit; scanner could not fully inspect it. Project install: `npx skills add wheresryan22/anatomy -a claude-code`.
 
+Re-scan for the README figures (2026-11-02), commit `1482e8469b0a9e0d8cc18ea2740a01423d29ae80`:
+
+- SkillSpector v2.12.0 (`--no-llm`) gave the same 48 findings as the 2026-10-26 scan. Most HIGH findings are parser limits on large files. Four are a false positive on CSS string joins.
+- A manual review found that `kit/iso-kit.mjs` imports only Node built-ins and has no network calls. `scripts/capture.mjs` drives a local headless Chrome over 127.0.0.1 with a temp profile.
+- Use for the figures: `kit/iso-kit.mjs` and `scripts/capture.mjs` only, run locally. Do not run or import `scripts/publish.mjs` (it can push and use `gh`) or `scripts/session.mjs` (it reads local agent session logs). Sai approved this scope.
+- `docs/images/src/lib.mjs` checks the sha256 of `kit/iso-kit.mjs` (`6d3ecc72…4fb104018`) before import.
+
 ### claude-code-setup (anthropics/claude-plugins-official) — use
 Official Anthropic plugin (automation recommender). Flags are its own docs listing `.env` files to protect.
 `claude plugin install claude-code-setup@claude-plugins-official --scope project` when you want setup recommendations.

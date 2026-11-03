@@ -1,12 +1,13 @@
-// Fig 4: the voice agent. Browser call to our own mock insurer rep, local STT and TTS. PLANNED.
+// Fig 4: the voice agent. Browser call to our own mock payer rep, local STT and TTS. PLANNED.
 import { k, makeScene, frame, writeFigure } from "./lib.mjs";
-const OUT = new URL("../arthai-voice-agent.svg", import.meta.url).pathname;
-const W = 1200, H = 860, DRAW = 600;
+import { fileURLToPath } from "node:url";
+const OUT = fileURLToPath(new URL("../arthai-voice-agent.svg", import.meta.url));
+const W = 1200, H = 876, DRAW = 600;
 const BENCH = { x: 0, y: 0, w: 800, d: 350, r: 10 };
 const P = k.fitProjection(k.boxCorners(BENCH, -15, 90), W, DRAW - 40, { pad: 30, azimuth: 62 });
 P.origin[1] += 14;
 const s = makeScene(P);
-const HP = 38;
+const HP = 44;
 
 const BROWSER = { x: 24, y: 30, w: 160, d: 110, r: 4 };
 const STT = { x: 224, y: 30, w: 150, d: 110, r: 4 };
@@ -19,7 +20,7 @@ const body = [frame({
   W, H, drawH: DRAW,
   fig: "Fig 4",
   title: "Voice agent (planned)",
-  hint: "Free tools only. No phone line. No real insurer. Planned design, not built.",
+  hint: "Free tools only. No phone line. No real payer. Planned design, not built.",
   readout: "calls go only to our own mock",
   legend: [
     "1  The call runs in the browser (WebRTC and Web Audio). There is no paid phone line.",
@@ -27,10 +28,12 @@ const body = [frame({
     "3  The agent picks the next turn with Muse. It says that it is an AI and announces the recording.",
     "4  Local text-to-speech speaks the agent's turn. Candidates: Piper or Kokoro.",
     "   Each voice model gets a license check. Non-commercial voices are not allowed (D-018).",
-    "5  The rep is our own mock insurer rep on the payer mock. Never call a real insurer.",
+    "5  The rep is our own mock payer rep on the payer mock. Never call a real payer.",
     "6  The agent records the rep name, the reference number and the time, and reads them back.",
     "   The call outcome updates the claim in the review console.",
-    "Tracks: blue = the call line to the mock rep. dashed = the agent's audio back into the call.",
+    "Tracks. Chevrons show the direction. black: audio and text between stations.",
+    "   dashed: the agent's audio back into the call. blue: the call line to the mock rep.",
+    "   green: the outcome of the call goes to the claim record.",
   ],
   cols: 1,
 })];
@@ -44,7 +47,7 @@ body.push(s.track([[104, 200], [104, 292], [REP.x - 6, 292]], z, "blue", { width
 body.push(s.track([[REP.x + REP.w + 6, 292], [OUTC.x - 6, 292]], z, "green", { width: 2.4 }));
 
 // 1 browser on a laptop with a headset mic
-body.push(s.plinth(BROWSER, HP, { num: "1", name: "BROWSER CALL", sub: "WEBRTC, WEB AUDIO", size: 8 }));
+body.push(s.plinth(BROWSER, HP, { num: "1", name: "BROWSER CALL", sub: "WEBRTC, WEB AUDIO", size: 9.5 }));
 {
   const b = BROWSER;
   body.push(s.slab({ x: b.x + 14, y: b.y + 50, w: 100, d: 50, r: 3 }, HP, 4, { tone: "mid" }, 3, 0.6));
@@ -64,7 +67,7 @@ body.push(s.plinth(BROWSER, HP, { num: "1", name: "BROWSER CALL", sub: "WEBRTC, 
 }
 // 2 STT box, 3 agent box, 4 TTS box
 function unit(p, num, name, sub, extra) {
-  body.push(s.plinth(p, HP, { num, name, sub, size: 8 }));
+  body.push(s.plinth(p, HP, { num, name, sub, size: 9.5 }));
   const b = { x: p.x + 14, y: p.y + 16, w: p.w - 28, d: 70, r: 4 };
   body.push(s.slab(b, HP, 26, { tone: "mid" }, 4, 0.9));
   body.push(s.L(k.planOutline(k.insetPlan(b, 4), HP + 26, P, 3), { tone: "faint" }));
@@ -90,12 +93,12 @@ unit(TTS, "4", "LOCAL TTS", "PIPER / KOKORO (CAND.)", (b, zt) => {
   body.push(s.front(b.x + 6, b.y + b.d, zt - 6, "TEXT -> AUDIO", 5.2, "hi"));
 });
 // 5 mock rep booth with headset
-body.push(s.plinth(REP, HP, { num: "5", name: "MOCK INSURER REP", sub: "OUR OWN PAYER MOCK", size: 8 }));
+body.push(s.plinth(REP, HP, { num: "5", name: "MOCK PAYER REP", sub: "OUR OWN PAYER MOCK", size: 9.5 }));
 {
   const b = REP;
   body.push(s.slab({ x: b.x + 14, y: b.y + 10, w: 120, d: 6, r: 1 }, HP, 24, { tone: "mid" }, 2, 0.5));
   body.push(s.front(b.x + 20, b.y + 16, HP + 14, "MOCK · NOT A REAL", 5, "hi"));
-  body.push(s.front(b.x + 20, b.y + 16, HP + 6, "INSURER", 5, "hi"));
+  body.push(s.front(b.x + 20, b.y + 16, HP + 6, "PAYER", 5, "hi"));
   body.push(s.cyl(b.x + 156, b.y + 40, 10, HP, 3, { tone: "mid" }, 32));
   body.push(s.cyl(b.x + 156, b.y + 40, 2, HP + 3, 22, { tone: "mid" }, 12));
   body.push(s.slab({ x: b.x + 144, y: b.y + 36, w: 24, d: 8, r: 3.6 }, HP + 25, 6, { tone: "hi" }, 5, 0));
@@ -104,12 +107,12 @@ body.push(s.plinth(REP, HP, { num: "5", name: "MOCK INSURER REP", sub: "OUR OWN 
   body.push(s.cards(b.x + 30, b.y + 40, HP, { n: 2, w: 80, d: 30, id: "IVR SCRIPT", rules: 2 }));
 }
 // 6 outcome card
-body.push(s.plinth(OUTC, HP, { num: "6", name: "CALL OUTCOME", sub: "READ BACK, LOGGED", size: 8 }));
+body.push(s.plinth(OUTC, HP, { num: "6", name: "CALL OUTCOME", sub: "READ BACK, LOGGED", size: 9.5 }));
 body.push(s.cards(OUTC.x + 14, OUTC.y + 16, HP, { n: 3, w: 116, d: 50, id: "REF SYN-REF-0007", rules: 3, lit: true }));
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 4. Planned voice agent. A browser call, using WebRTC and Web Audio, connects to local speech-to-text (candidate Whisper or faster-whisper), an agent turn picked by Muse that discloses it is an AI, and local text-to-speech (candidate Piper or Kokoro). The audio goes to our own mock insurer rep on the payer mock, never to a real insurer, and there is no phone line. The call outcome card holds the synthetic reference SYN-REF-0007, read back and logged. Planned, not built.",
+  label: "Fig 4. Planned voice agent. 1 a browser call, using WebRTC and Web Audio. 2 local speech-to-text, candidate Whisper or faster-whisper. 3 the agent turn: Muse picks the next line, and the agent says that it is an AI. 4 local text-to-speech, candidate Piper or Kokoro. Black tracks link 1 to 2 to 3 to 4. A dashed track takes the audio of the agent back into the call. A blue track is the call line to 5, our own mock payer rep, never a real payer. There is no phone line. A green track takes the result to 6, the call outcome card with the synthetic reference SYN-REF-0007, read back and logged. Planned, not built.",
   body,
 });
 console.log("wrote", OUT);

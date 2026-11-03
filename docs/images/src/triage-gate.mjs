@@ -1,12 +1,13 @@
 // Fig 2: triage scores and the CCI conformal gate. PLANNED, not built.
 import { k, makeScene, frame, writeFigure } from "./lib.mjs";
-const OUT = new URL("../arthai-triage-gate.svg", import.meta.url).pathname;
-const W = 1200, H = 860, DRAW = 600;
+import { fileURLToPath } from "node:url";
+const OUT = fileURLToPath(new URL("../arthai-triage-gate.svg", import.meta.url));
+const W = 1200, H = 896, DRAW = 600;
 const BENCH = { x: 0, y: 0, w: 780, d: 330, r: 10 };
 const P = k.fitProjection(k.boxCorners(BENCH, -15, 80), W, DRAW - 40, { pad: 30, azimuth: 62 });
 P.origin[1] += 10;
 const s = makeScene(P);
-const HP = 38; // plinth height
+const HP = 44; // plinth height
 
 const IN = { x: 24, y: 40, w: 130, d: 84, r: 4 };
 const LAYA = { x: 196, y: 40, w: 170, d: 84, r: 4 };
@@ -24,8 +25,8 @@ const body = [frame({
   legend: [
     "1  A synthetic denied line arrives from remit posting (example: SYN-D-000042, CO-197).",
     "2  The triage scorer gives category, appeal yes or no, and priority in one pass.",
-    "   LAYA is optional (TRIAGE_BACKEND=laya|llm). The default is the LLM until LAYA",
-    "   beats it on held-out data (ADR 0004, proposed).",
+    "   LAYA is optional (TRIAGE_BACKEND=laya|llm). The default is the LLM until the rule",
+    "   question is answered and LAYA beats the LLM on held-out data (ADR 0004, proposed).",
     "3  The CCI gate turns the scores into a conformal prediction set. Each pin is one",
     "   category: prior auth, coding, eligibility, timely filing, medical necessity,",
     "   duplicate, other. A raised pin is in the set.",
@@ -33,6 +34,7 @@ const body = [frame({
     "5  Claim B: the set has 3 labels, so the claim goes to the human queue.",
     "6  A synthetic calibration slice sets the gate for a target coverage of 1 - alpha.",
     "   The guarantee is an average over cases, not a promise about one claim.",
+    "Tracks. Chevrons show the direction. green: sure. red: not sure. blue dotted: calibration.",
   ],
   cols: 1,
 })];
@@ -46,7 +48,7 @@ body.push(s.track([[GATE.x + GATE.w + 6, 150], [630, 150], [630, 238], [HUMAN.x 
 body.push(s.track([[CAL.x + CAL.w + 6, 230], [440, 230], [440, GATE.y + GATE.d + 6]], z, "blue", { dotted: true, width: 2.4 }));
 
 // 1 intake tray with denial cards
-body.push(s.plinth(IN, HP, { num: "1", name: "DENIAL IN", sub: "SYNTHETIC 835 LINE", size: 8 }));
+body.push(s.plinth(IN, HP, { num: "1", name: "DENIAL IN", sub: "SYNTHETIC 835 LINE", size: 9.5 }));
 {
   const t = s.tray({ x: IN.x + 12, y: IN.y + 10, w: 90, d: 62, r: 1 }, HP, 6);
   body.push(t.back, s.cards(IN.x + 18, IN.y + 18, HP + 1.2, { n: 4, w: 72, d: 46, id: "SYN-D-000042", rules: 0 }), t.front);
@@ -54,7 +56,7 @@ body.push(s.plinth(IN, HP, { num: "1", name: "DENIAL IN", sub: "SYNTHETIC 835 LI
   body.push(s.L(k.lineOnTop([IN.x + 24, IN.y + 38], [IN.x + 74, IN.y + 38], HP + 6.6, P) + k.lineOnTop([IN.x + 24, IN.y + 42], [IN.x + 64, IN.y + 42], HP + 6.6, P), { tone: "lo", free: true }));
 }
 // 2 triage scorer with three dials
-body.push(s.plinth(LAYA, HP, { num: "2", name: "TRIAGE SCORER", sub: "LAYA OR LLM", size: 8 }));
+body.push(s.plinth(LAYA, HP, { num: "2", name: "TRIAGE SCORER", sub: "LAYA OR LLM", size: 9.5 }));
 {
   const box = { x: LAYA.x + 10, y: LAYA.y + 12, w: 150, d: 60, r: 3 };
   body.push(s.slab(box, HP, 12, { tone: "mid" }, 4, 0.8));
@@ -67,14 +69,14 @@ body.push(s.plinth(LAYA, HP, { num: "2", name: "TRIAGE SCORER", sub: "LAYA OR LL
   body.push(s.led(box.x + box.w - 8, box.y + box.d - 8, HP + 12, "green"));
 }
 // 6 calibration weights
-body.push(s.plinth(CAL, HP, { num: "6", name: "CALIBRATION", sub: "TARGET 1 - ALPHA", size: 8 }));
+body.push(s.plinth(CAL, HP, { num: "6", name: "CALIBRATION", sub: "TARGET 1 - ALPHA", size: 9.5 }));
 for (let i = 0; i < 5; i++) {
   const cx = CAL.x + 30 + i * 26, cy = CAL.y + 32;
   body.push(s.cyl(cx, cy, 9 - i, HP, 6 + i * 3, { tone: i === 4 ? "hi" : "mid" }, 32, 0.4));
   body.push(s.L(k.ring(cx, cy, 3, HP + 6 + i * 3, P, 16), { tone: "lo" }));
 }
 // 3 the CCI gate: two comb rows of seven pins
-body.push(s.plinth(GATE, HP, { num: "3", name: "CCI GATE", sub: "CONFORMAL SET", size: 8 }));
+body.push(s.plinth(GATE, HP, { num: "3", name: "CCI GATE", sub: "CONFORMAL SET", size: 9.5 }));
 const rows = [
   { y: GATE.y + 22, raised: [0], tone: "green", name: "A: SET = 1" },
   { y: GATE.y + 82, raised: [0, 1, 4], tone: "red", name: "B: SET = 3" },
@@ -93,7 +95,7 @@ for (const r of rows) {
 }
 // 4 auto path tray, 5 human queue tray
 for (const [p, num, name, sub, tone] of [[AUTO, "4", "AUTO PATH", "TO APPEAL", "green"], [HUMAN, "5", "HUMAN", "QUEUE", "red"]]) {
-  body.push(s.plinth(p, HP, { num, name, sub, size: 7.4 }));
+  body.push(s.plinth(p, HP, { num, name, sub, size: 9 }));
   const t = s.tray({ x: p.x + 12, y: p.y + 10, w: 58, d: 44, r: 1 }, HP, 6);
   body.push(t.back, s.cards(p.x + 18, p.y + 18, HP + 1.2, { n: tone === "red" ? 3 : 1, w: 44, d: 30, id: tone === "red" ? "CLAIM B" : "CLAIM A", rules: 2 }), t.front);
   body.push(s.led(p.x + p.w - 10, p.y + 8, HP, tone));
