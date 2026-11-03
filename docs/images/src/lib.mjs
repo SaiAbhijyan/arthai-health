@@ -31,8 +31,11 @@ export function makeScene(P) {
   const cyl = (cx, cy, r, z, h, style = {}, steps = 28, bevel = 0) => S(k.cylinder(cx, cy, r, z, h, P, steps, bevel), style);
   const screws = (plan, inset, z, size = 0.5) => D(k.corners(plan, inset).map(([x, y]) => at([x, y, z])), { size, tone: "mid" });
   // Text on the front face (y = plan.y + plan.d), reading along +x. zTop is the baseline height.
-  const front = (x, y, z, text, size = 6, tone = "hi") => k.faceTextSvg(k.sideMatrix([x, y], z, P, "left"), text, { size, tone });
-  const top = (x, y, z, text, size = 5, tone = "hi") => k.faceTextSvg(k.topMatrix([x, y], z, P, "x"), text, { size, tone });
+  // Part text smaller than MIN_TEXT is too small to read at the 830 px GitHub width.
+  // It is not drawn. The legend carries those facts.
+  const MIN_TEXT = 8;
+  const front = (x, y, z, text, size = 6, tone = "hi") => (size < MIN_TEXT ? "" : k.faceTextSvg(k.sideMatrix([x, y], z, P, "left"), text, { size, tone }));
+  const top = (x, y, z, text, size = 5, tone = "hi") => (size < MIN_TEXT ? "" : k.faceTextSvg(k.topMatrix([x, y], z, P, "x"), text, { size, tone }));
   // A painted track on a top face. Chevrons painted on long segments show the direction of flow.
   function track(pts, z, tone = "mid", opts = {}) {
     const w = opts.width ?? 2;

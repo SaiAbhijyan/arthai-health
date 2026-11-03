@@ -83,7 +83,7 @@ unit(AGENT, "3", "AGENT TURN", "LLM PICKS NEXT LINE", (b, zt) => {
   body.push(s.gauge(b.x + 30, b.y + 34, zt, 18, 0.55));
   body.push(s.knob(b.x + 82, b.y + 22, zt, 5, 5));
   body.push(s.led(b.x + 82, b.y + 50, zt, "green"));
-  body.push(s.front(b.x + 6, b.y + b.d, zt - 6, "AI DISCLOSED", 7.6, "hi"));
+  body.push(s.front(b.x + 6, b.y + b.d, zt - 6, "AI DISCLOSED", 9, "hi"));
 });
 unit(TTS, "4", "LOCAL TTS", "PIPER / KOKORO (CAND.)", (b, zt) => {
   body.push(s.cyl(b.x + 40, b.y + 36, 24, zt, 6, { tone: "hi" }, 56, 0.6));

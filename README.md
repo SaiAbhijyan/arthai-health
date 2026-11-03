@@ -53,7 +53,7 @@ The design has two main parts. The CCI gate (conformal prediction) decides which
 ## Architecture overview
 
 <p align="center">
-  <img src="docs/images/arthai-overview.svg" width="100%" alt="Fig 1. The planned Arthai Health flow. All nine steps are planned and none is built. A claim goes from the claim builder to the payer mock, remit posting and the triage step with the CCI gate. If the gate is sure, the claim goes to the appeal writer. If not, it goes to a human in the review console. After human approval, the voice agent calls only the payer mock. AR follow-up reads claim status from the payer mock. Reviewer edits go to eval and then back to the gate.">
+  <img src="docs/images/arthai-overview.svg" width="100%" alt="Fig 1. The planned Arthai Health flow. All nine steps are planned and none is built. A claim goes from the claim builder to the payer mock, remit posting and the triage step with the CCI gate. If the gate is sure, the claim goes to the appeal writer. If not, it goes to a human in the review console. After tier 2 human approval of the appeal, the voice agent calls only the payer mock. AR follow-up reads claim status from the payer mock. Reviewer edits go to eval and then back to the gate.">
 </p>
 
 Fig 1 shows the whole planned flow. The numbers match the stations in the figure.
@@ -64,11 +64,11 @@ Fig 1 shows the whole planned flow. The numbers match the stations in the figure
 4. The **triage step and the CCI gate** score the denial. The gate sends the claim on the auto path or to a human.
 5. The **review console** holds the human queue, the approvals and the audit trail.
 6. The **appeal writer** drafts the letter with an LLM. The planned model is Muse, a Meta model (D-011, proposed).
-7. The **voice agent** calls the mock payer rep in the browser.
+7. After tier 2 approval of the appeal, the **voice agent** calls the mock payer rep in the browser.
 8. **AR follow-up** ranks the open claims for the next action.
 9. The **eval and feedback loop** turns reviewer edits into eval cases.
 
-A claim that goes to the human queue can still get an appeal. The reviewer decides, then the writer drafts. In the hackathon, every send and every call needs tier 2 approval in the console. The appeal goes out and the call starts only after that approval (PR #9, `docs/architecture.md`, sections 1 and 5.3).
+A claim that goes to the human queue can still get an appeal. The claim goes from the human queue to the appeal writer. In the hackathon, every send and every call needs tier 2 approval in the console. The appeal goes out and the call starts only after that approval (PR #9, `docs/architecture.md`, sections 1 and 5.3).
 
 The planned deployment is a modular monolith with a separate payer mock, voice worker and console (D-001). Modules talk through a Postgres outbox. A LangGraph supervisor runs each claim to an end state. It stops before every send and every call. The core is deterministic: EDI build, payment posting and the ledger are code. AI does classification, drafting and conversation. Source: [ADR 0001](docs/adr/0001-modular-monolith.md) and `docs/architecture.md` in PR #9.
 
@@ -79,13 +79,13 @@ All components in this section are **planned**. The module names come from the a
 ### Triage and the CCI gate (planned)
 
 <p align="center">
-  <img src="docs/images/arthai-triage-gate.svg" width="100%" alt="Fig 2. Planned triage step and CCI gate. A synthetic denial goes to the triage step. The default scorer is the LLM, and LAYA is optional. The CCI gate has seven example category pins. Claim A has one raised pin and goes on a green track to the auto path. Claim B has three raised pins and goes on a red track to the human queue. A calibration station feeds the gate on a blue dotted track.">
+  <img src="docs/images/arthai-triage-gate.svg" width="100%" alt="Fig 2. Planned triage step and CCI gate. A synthetic denial goes to the triage step. The default scorer is the LLM, and LAYA is optional. The CCI gate has seven example category pins. Claim A has a tight set, for example one raised pin. It goes on a green track to the auto path. Claim B has a wide set, for example three raised pins. It goes on a red track to the human queue. A calibration station feeds the gate on a blue dotted track.">
 </p>
 
 - The triage step returns a typed decision: the denial category, the appeal decision and the priority.
 - LAYA can do this step. LAYA is a small open "System 1" decision model (about 421M parameters, Apache-2.0). It is not a Meta model. See [docs/laya-plan.md](docs/laya-plan.md).
 - LAYA is optional. The switch is `TRIAGE_BACKEND=laya|llm`. The default is `llm` until the rule question is answered and LAYA beats the LLM on the held-out set ([ADR 0004](docs/adr/0004-stack.md), proposed).
-- The CCI gate (`cci_gate`, based on `cci-sdk`) turns the scores into a conformal prediction set. If the set has one label, the claim takes the auto path. If the set has more than one label, the claim goes to the human queue.
+- The CCI gate (`cci_gate`, based on `cci-sdk`) turns the scores into a conformal prediction set. A tight set takes the auto path, for example a set with one label. A wide set goes to the human queue (PR #9, `docs/architecture.md`).
 - The docs do not yet say what happens to an empty set. This is an open question.
 - The research plans the gate on LAYA scores (PR #14, section 5.3). The docs do not yet say how the default `llm` backend gives scores to the gate.
 - The gate has a coverage target (1 − alpha). It is not a raw confidence threshold.
@@ -122,12 +122,13 @@ All components in this section are **planned**. The module names come from the a
 ### Code lookups (planned)
 
 <p align="center">
-  <img src="docs/images/arthai-code-lookups.svg" width="100%" alt="Fig 5. Planned code lookups. A card catalog has drawers for HCPCS Level II, ICD-10-CM, CARC values and RARC values. The CPT drawer has a padlock and says not used. An agent asks the catalog for CARC 197. The catalog answers CARC 197: prior_auth. A green track takes the answer to a check. The check has format rows for each code set and a red row that rejects CPT.">
+  <img src="docs/images/arthai-code-lookups.svg" width="100%" alt="Fig 5. Planned code lookups. A card catalog has drawers for HCPCS Level II, ICD-10-CM, CARC values and RARC values. The CPT drawer has a padlock and says not used. An agent asks the catalog for CARC 197. The catalog answers CARC 197: prior_auth. Planned repo tests check the format of each code value. A test fails on a CPT code.">
 </p>
 
 - Agents look up codes in our catalog only. There are no free-text codes in a claim, a prompt or a letter ([AGENTS.md](AGENTS.md)).
 - HCPCS Level II comes from CMS. We plan to commit a small subset with CMS attribution.
 - ICD-10-CM comes from CDC/NCHS. We plan to commit a small subset with attribution, with the code titles unchanged.
+- Planned repo tests check the format of each code value. A test fails on a CPT code ([docs/data-plan.md](docs/data-plan.md), section 5).
 - CARC and RARC are X12 code lists. We store the code values only, with our own short labels. We do not copy X12 description text.
 - We use **no CPT**: no CPT codes, no CPT descriptors and no AMA license (D-009, accepted). Claims use HCPCS Level II codes only.
 - Planned tests check the format of each code value and fail on any X12 or AMA description text ([docs/data-plan.md](docs/data-plan.md), section 5).
@@ -352,7 +353,7 @@ Third-party files and their licenses are listed in [THIRD_PARTY_NOTICES.md](THIR
 | CARC, RARC | Claim adjustment reason codes and remittance advice remark codes. They tell why a payer paid less or denied. |
 | CCI gate | Our gate for the triage step, built on `cci-sdk` conformal prediction. It is not the CMS NCCI edit list. |
 | Hackathon | The demo event that sets the first scope. See [docs/hackathon-workflow.md](docs/hackathon-workflow.md). |
-| Conformal set | The set of labels that the gate thinks can be true. One label means sure. More labels mean not sure. |
+| Conformal set | The set of labels that the gate thinks can be true. A tight set means sure. A wide set means not sure. The docs do not yet set the size limit. |
 | HCPCS Level II, ICD-10-CM | Public code sets for supplies and services (CMS) and for diagnoses (CDC/NCHS) |
 | LLM | Large language model |
 | System 1 model | A small, fast model that gives typed decisions, not free text (LAYA) |
