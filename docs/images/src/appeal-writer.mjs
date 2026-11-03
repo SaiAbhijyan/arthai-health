@@ -3,7 +3,7 @@ import { k, makeScene, frame, writeFigure } from "./lib.mjs";
 import { fileURLToPath } from "node:url";
 const OUT = fileURLToPath(new URL("../arthai-appeal-writer.svg", import.meta.url));
 const W = 1200, H = 912, DRAW = 600;
-const BENCH = { x: 0, y: 0, w: 800, d: 372, r: 10 };
+const BENCH = { x: 0, y: 0, w: 800, d: 392, r: 10 };
 const P = k.fitProjection(k.boxCorners(BENCH, -15, 90), W, DRAW - 40, { pad: 30, azimuth: 62 });
 P.origin[1] += 14;
 const s = makeScene(P);
@@ -45,7 +45,7 @@ const fr = MUSE.y + MUSE.d + 6;
 body.push(s.track([[364, fr], [364, 166], [444, 166], [444, fr]], z, "hi"));
 body.push(s.track([[466, fr], [466, 184], [330, 184], [330, fr]], z, "red", { width: 2.6 }));
 body.push(s.track([[556, CITE.y + CITE.d + 6], [556, 200], [596, 200], [596, 300], [APPROVE.x + APPROVE.w + 6, 300]], z, "green", { width: 2.6 }));
-body.push(s.track([[APPROVE.x + APPROVE.w + 6, 308], [SEND.x - 6, 308]], z, "green", { width: 2.6 }));
+body.push(s.link(APPROVE, APPROVE.x + 110, SEND, SEND.x + 40, 374, "green", { width: 2.6 }));
 
 // 1 facts: three cards side by side
 body.push(s.plinth(FACTS, HP, { num: "1", name: "FACTS IN", sub: "RECORD + POLICY", size: 13 }));

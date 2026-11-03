@@ -39,7 +39,7 @@ Payers deny many claims. Billing staff must find the cause of each denial, fix i
 
 ### The planned solution
 
-The core loop for the hackathon has six steps:
+The core loop for the hackathon has six steps. These step numbers are not the Fig 1 station numbers:
 
 1. A denied claim line arrives in a synthetic 835 remittance, with CARC and RARC codes.
 2. A triage step gives the denial category, the appeal decision (yes or no) and the priority.
@@ -56,7 +56,7 @@ The design has two main parts. The CCI gate (conformal prediction) decides which
   <img src="docs/images/arthai-overview.svg" width="100%" alt="Fig 1. The planned Arthai Health flow. All nine steps are planned and none is built. A claim goes from the claim builder to the payer mock, remit posting and the triage step with the CCI gate. If the gate is sure, the claim goes to the appeal writer. If not, it goes to a human in the review console. After tier 2 human approval, the voice agent calls only the payer mock. The send and the call each need their own approval. AR follow-up reads claim status from the payer mock. Reviewer edits go to eval and then back to the gate.">
 </p>
 
-Fig 1 shows the whole planned flow. The numbers match the stations in the figure.
+Fig 1 shows the whole planned flow. The numbers in this list match the stations in Fig 1.
 
 1. The **claim builder and scrubber** builds the claim (837) and checks it against the CMS NCCI and MUE edits.
 2. The **payer and clearinghouse mock** (the payer mock) is our own fake payer. It decides on synthetic claims and sends back 835 and 277 files.

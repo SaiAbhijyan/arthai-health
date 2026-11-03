@@ -19,7 +19,7 @@ const ST = {
   appeal: { x: 410, y: 262, w: 140, d: 74, r: 4 },
   review: { x: 600, y: 262, w: 150, d: 74, r: 4 },
 };
-const EVAL = { x: 776, y: 150, w: 64, d: 60, r: 3 };
+const EVAL = { x: 768, y: 150, w: 86, d: 60, r: 3 };
 const H0 = 36;
 const AMBER = "#b26a00";
 const fy = (p) => p.y + p.d + 6;   // a point on the bench just in front of a station
@@ -45,9 +45,9 @@ const body = [frame({
     "   green: the gate is sure. The claim goes from 4 to 6.",
     "   red: the gate is not sure. The claim goes from 4 to the human queue in 5.",
     "   amber: the claim goes from the human queue in 5 to the writer in 6.",
-    "   Step 6 includes the citation gate and the tier 2 approval in the console (Fig 3).",
-    "   In the hackathon, 6 to 7 starts only after that human approval.",
-    "   The call also needs its own tier 2 approval. A send does not approve a call.",
+    "   Station 6 includes the citation gate (Fig 3). The tier 2 approvals happen in the console in station 5.",
+    "   In the hackathon, 6 to 7 starts only after a human approves the send and the call in station 5.",
+    "   A send does not approve a call. Each needs its own approval.",
     "   grey: the 276/277 claim status goes from the payer mock in 2 to AR follow-up in 8.",
     "   dashed: the call goes only to our payer mock in 2.",
     "   blue dotted: reviewer edits go from 5 to 9, then recalibrate the gate in 4.",
@@ -196,7 +196,7 @@ for (const key of ["build", "mock", "remit", "gate"]) {
   body.push(s.plinth({ ...p }, H0, { num, name, size: 12 }));
   body.push(machines[key](p));
 }
-body.push(s.plinth(EVAL, 32, { num: "9", name: "EVAL", size: 10, tag: "PLANNED" }));
+body.push(s.plinth(EVAL, 32, { num: "9", name: "EVAL", size: 12, tag: "PLANNED" }));
 body.push(s.knob(EVAL.x + 52, EVAL.y + 16, 32, 4, 4));
 body.push(s.led(EVAL.x + 36, EVAL.y + 16, 32, "blue"));
 for (const key of ["ar", "voice", "appeal", "review"]) {
