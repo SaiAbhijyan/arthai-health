@@ -98,8 +98,7 @@ body.push(s.plinth(REP, HP, { num: "5", name: "MOCK PAYER REP", sub: "OUR OWN PA
 {
   const b = REP;
   body.push(s.slab({ x: b.x + 14, y: b.y + 10, w: 120, d: 6, r: 1 }, HP, 24, { tone: "mid" }, 2, 0.5));
-  body.push(s.front(b.x + 20, b.y + 16, HP + 14, "MOCK · NOT A REAL", 7.6, "hi"));
-  body.push(s.front(b.x + 20, b.y + 16, HP + 4, "PAYER", 7.6, "hi"));
+  body.push(s.front(b.x + 20, b.y + 16, HP + 9, "NOT REAL", 11, "hi"));
   body.push(s.cyl(b.x + 156, b.y + 40, 10, HP, 3, { tone: "mid" }, 32));
   body.push(s.cyl(b.x + 156, b.y + 40, 2, HP + 3, 22, { tone: "mid" }, 12));
   body.push(s.slab({ x: b.x + 144, y: b.y + 36, w: 24, d: 8, r: 3.6 }, HP + 25, 6, { tone: "hi" }, 5, 0));
@@ -113,7 +112,7 @@ body.push(s.cards(OUTC.x + 14, OUTC.y + 16, HP, { n: 3, w: 116, d: 50, id: "REF 
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 4. Planned voice agent. A browser call links on a blue two-way line to our own mock payer rep. Black tracks take the rep audio to local speech-to-text. They take the text to the agent turn and the reply to local text-to-speech. The agent turn uses an LLM and says that it is an AI. A dashed track takes the spoken reply back into the call. A green track takes the result to a call outcome card. The card shows the example reference SYN-REF-0007.",
+  label: "Fig 4. Planned voice agent. A browser call links on a blue two-way line to our own mock payer rep. Black tracks take the rep audio to local speech-to-text. They take the text to the agent turn and the reply to local text-to-speech (TTS). The agent turn uses an LLM and says that it is an AI. A dashed track takes the spoken reply back into the call. A green track takes the result to a call outcome card. The card shows the example reference SYN-REF-0007.",
   body,
 });
 console.log("wrote", OUT);

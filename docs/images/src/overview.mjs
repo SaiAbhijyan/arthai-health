@@ -2,7 +2,7 @@
 import { k, makeScene, frame, writeFigure } from "./lib.mjs";
 import { fileURLToPath } from "node:url";
 const OUT = fileURLToPath(new URL("../arthai-overview.svg", import.meta.url));
-const W = 1200, H = 1048, DRAW = 620;
+const W = 1200, H = 1096, DRAW = 620;
 const BENCH = { x: 0, y: 0, w: 860, d: 410, r: 10 };
 const P = k.fitProjection([...k.boxCorners(BENCH, -15, 70)], W, DRAW - 40, { pad: 30, azimuth: 62 });
 P.origin[1] += 10;
@@ -38,16 +38,18 @@ const body = [frame({
     "5  Review console + audit: the human queue, the approvals and the audit trail.",
     "6  Appeal writer: an LLM drafts the letter (Muse planned, D-011 proposed). Each statement cites a source.",
     "7  Voice agent: a browser call to the mock payer rep.",
-    "8  AR follow-up: a separate planned loop. It ranks the open claims for the next action.",
+    "8  AR follow-up: reads the 276/277 claim status and ranks the open claims for the next action.",
     "9  Eval and feedback loop: reviewer edits become eval cases.",
     "Tracks. Chevrons show the direction.",
-    "   black: the claim goes to the next step (1 to 2 to 3 to 4, then 6 to 7). The call outcome goes 7 to 5.",
+    "   black: the claim goes to the next step (1 to 2 to 3 to 4, then 6 to 7).",
     "   green: the gate is sure. The claim goes from 4 to 6.",
     "   red: the gate is not sure. The claim goes from 4 to the human queue in 5.",
     "   amber: the human decides, and the claim goes from 5 to 6.",
-    "   6 to 7 starts only after a human approves the send and the call in the console (tier 2).",
+    "   In the hackathon, 6 to 7 starts only after a human approves in the console (tier 2).",
+    "   grey: the 276/277 claim status goes from the payer mock in 2 to AR follow-up in 8.",
     "   dashed: the call goes only to our mock payer in 2.",
     "   blue dotted: reviewer edits go from 5 to 9, then recalibrate the gate in 4.",
+    "   Fig 4 shows how the call outcome goes back to the console.",
   ],
 })];
 
@@ -68,8 +70,8 @@ const out = (p) => p.y + p.d + 6;
 body.push(s.track([[640, out(ST.review)], [640, 352], [520, 352], [520, out(ST.appeal)]], z, "hi", { width: 2.4, color: AMBER }));
 // 6 -> 7: after tier-2 approval in the console, the appeal is sent and the call starts
 body.push(s.link(ST.appeal, 440, ST.voice, 330, 352));
-// 7 -> 5: the call outcome updates the claim in the console
-body.push(s.link(ST.voice, 300, ST.review, 720, 370, "hi", { chevMin: 120 }));
+// 2 -> 8: 276/277 claim status to AR follow-up (grey)
+body.push(s.track([[240, fy(ST.mock)], [240, 200], [100, 200], [100, ST.ar.y - 6]], z, "mid", { width: 2.4 }));
 // voice -> payer mock (the call goes only to our own mock)
 body.push(s.track([[290, ST.voice.y - 6], [290, fy(ST.mock)]], z, "hi", { dashed: true }));
 // review -> eval -> gate (feedback loop) on the right side
@@ -94,8 +96,7 @@ const machines = {
     const cab = { x: p.x + 14, y: p.y + 8, w: 70, d: 40, r: 2 };
     o.push(s.slab(cab, H0, 38, { tone: "mid" }, 3, 0.8));
     for (let r = 0; r < 3; r++) o.push(s.L(k.segment([cab.x + 8, cab.y + cab.d, H0 + 30 - r * 10], [cab.x + cab.w - 8, cab.y + cab.d, H0 + 30 - r * 10], P), { tone: "lo" }));
-    o.push(s.front(cab.x + 6, cab.y + cab.d, H0 + 33, "MOCK", 5.4, "hi"));
-    // handset cradle for the phone rep
+        // handset cradle for the phone rep
     o.push(s.slab({ x: p.x + 92, y: p.y + 20, w: 26, d: 22, r: 3 }, H0, 6, { tone: "mid" }));
     o.push(s.slab({ x: p.x + 94, y: p.y + 24, w: 22, d: 7, r: 3 }, H0 + 6, 4, { tone: "hi" }));
     o.push(s.cards(p.x + 96, p.y + 48, H0, { n: 2, w: 22, d: 14, id: "835", rules: 1 }));
@@ -137,8 +138,7 @@ const machines = {
     // laptop: base and screen
     o.push(s.slab({ x: p.x + 10, y: p.y + 24, w: 54, d: 34, r: 2 }, H0, 3, { tone: "mid" }));
     o.push(s.slab({ x: p.x + 10, y: p.y + 20, w: 54, d: 3, r: 1 }, H0, 34, { tone: "hi" }, 2, 0.4));
-    o.push(s.front(p.x + 14, p.y + 23, H0 + 24, "CALL", 5, "hi"));
-    // mic and speaker
+        // mic and speaker
     o.push(s.cyl(p.x + 84, p.y + 40, 6, H0, 3, { tone: "mid" }));
     o.push(s.cyl(p.x + 84, p.y + 40, 1.4, H0 + 3, 20, { tone: "mid" }, 12));
     o.push(s.cyl(p.x + 84, p.y + 40, 4, H0 + 23, 8, { tone: "hi", lit: true }, 20));
@@ -206,7 +206,7 @@ for (const key of ["ar", "voice", "appeal", "review"]) {
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 1. The planned Arthai Health flow as nine stations on one bench. Every station is labeled planned. The stations are claim builder, payer mock, remit posting, triage step and CCI gate, review console, appeal writer, voice agent, AR follow-up and eval. Black tracks carry the claim from station 1 to station 4. A green track takes sure claims from the gate to the appeal writer. A red track takes unsure claims to the human queue. An amber track takes a claim from the console to the writer after a human decides. A black track goes from the writer to the voice agent after tier 2 approval. A black track takes the call outcome back to the console. A dashed track is the call to the mock payer. A blue dotted track takes reviewer edits to eval and back to the gate.",
+  label: "Fig 1. The planned Arthai Health flow. All nine steps are planned and none is built. A claim goes from the claim builder to the payer mock, remit posting and the triage step with the CCI gate. If the gate is sure, the claim goes to the appeal writer. If not, it goes to a human in the review console. After human approval, the voice agent calls only the payer mock. AR follow-up reads claim status from the payer mock. Reviewer edits go to eval and then back to the gate.",
   body,
 });
 console.log("wrote", OUT);

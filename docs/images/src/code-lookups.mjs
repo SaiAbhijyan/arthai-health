@@ -72,8 +72,7 @@ drawers.forEach(([name, sub, locked], i) => {
   body.push(s.slab(front, base + 6, DH - 4, { tone: locked ? "mid" : "hi", lit: i === 2 }, 2, 0.5));
   const ffy = front.y + front.d;
   body.push(s.front(x + 5, ffy, base + DH - 13, name, 8.4, "hi"));
-  body.push(s.front(x + 5, ffy, base + DH - 21, sub, 5.4, "mid"));
-  // label holder and pull
+    // label holder and pull
   body.push(s.L(k.segment([x + 6, ffy, base + DH - 24], [x + DW - 8, ffy, base + DH - 24], P), { tone: "lo" }));
   if (!locked) body.push(s.cyl(x + DW / 2, ffy + 2, 3, base + 30, 4, { tone: "mid" }, 16));
   if (locked) {
@@ -88,9 +87,9 @@ drawers.forEach(([name, sub, locked], i) => {
 
 // 3 query terminal, 4 result card, 5 verifier
 body.push(s.plinth(QUERY, HP, { num: "2", name: "AGENT ASKS", sub: "LOOKUP BY VALUE", size: 13 }));
-body.push(s.cards(QUERY.x + 14, QUERY.y + 18, HP, { n: 2, w: 120, d: 60, id: "ASK: CARC 197", rules: 2, idSize: 7.4 }));
+body.push(s.cards(QUERY.x + 14, QUERY.y + 18, HP, { n: 2, w: 120, d: 60, id: "ASK: CARC 197", rules: 2, idSize: 9.4 }));
 body.push(s.plinth(RESULT, HP, { num: "3", name: "CATALOG ANSWERS", sub: "VALUE + OUR LABEL", size: 13 }));
-body.push(s.cards(RESULT.x + 14, RESULT.y + 18, HP, { n: 3, w: 120, d: 60, id: "CARC 197: prior_auth", rules: 2, lit: true, idSize: 7.4 }));
+body.push(s.cards(RESULT.x + 14, RESULT.y + 18, HP, { n: 3, w: 120, d: 60, id: "CARC 197: prior_auth", rules: 2, lit: true, idSize: 9 }));
 body.push(s.plinth(VERIFY, HP, { num: "4", name: "CATALOG CHECK", sub: "IN CATALOG? FORMAT OK?", size: 13 }));
 [
   ["HCPCS II: LETTER + 4 DIGITS", "green"],

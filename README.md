@@ -53,7 +53,7 @@ The design has two main parts. The CCI gate (conformal prediction) decides which
 ## Architecture overview
 
 <p align="center">
-  <img src="docs/images/arthai-overview.svg" width="100%" alt="Fig 1. The planned Arthai Health flow as nine stations on one bench. Every station is labeled planned. The stations are claim builder, payer mock, remit posting, triage step and CCI gate, review console, appeal writer, voice agent, AR follow-up and eval. Black tracks carry the claim from station 1 to station 4. A green track takes sure claims from the gate to the appeal writer. A red track takes unsure claims to the human queue. An amber track takes a claim from the console to the writer after a human decides. A black track goes from the writer to the voice agent after tier 2 approval. A black track takes the call outcome back to the console. A dashed track is the call to the mock payer. A blue dotted track takes reviewer edits to eval and back to the gate.">
+  <img src="docs/images/arthai-overview.svg" width="100%" alt="Fig 1. The planned Arthai Health flow. All nine steps are planned and none is built. A claim goes from the claim builder to the payer mock, remit posting and the triage step with the CCI gate. If the gate is sure, the claim goes to the appeal writer. If not, it goes to a human in the review console. After human approval, the voice agent calls only the payer mock. AR follow-up reads claim status from the payer mock. Reviewer edits go to eval and then back to the gate.">
 </p>
 
 Fig 1 shows the whole planned flow. The numbers match the stations in the figure.
@@ -68,7 +68,7 @@ Fig 1 shows the whole planned flow. The numbers match the stations in the figure
 8. **AR follow-up** ranks the open claims for the next action.
 9. The **eval and feedback loop** turns reviewer edits into eval cases.
 
-A claim that goes to the human queue can still get an appeal. The reviewer decides, then the writer drafts. Every send and every call needs tier 2 approval in the console. The appeal goes out and the call starts only after that approval (PR #9, `docs/architecture.md`, sections 1 and 5.3).
+A claim that goes to the human queue can still get an appeal. The reviewer decides, then the writer drafts. In the hackathon, every send and every call needs tier 2 approval in the console. The appeal goes out and the call starts only after that approval (PR #9, `docs/architecture.md`, sections 1 and 5.3).
 
 The planned deployment is a modular monolith with a separate payer mock, voice worker and console (D-001). Modules talk through a Postgres outbox. A LangGraph supervisor runs each claim to an end state. It stops before every send and every call. The core is deterministic: EDI build, payment posting and the ledger are code. AI does classification, drafting and conversation. Source: [ADR 0001](docs/adr/0001-modular-monolith.md) and `docs/architecture.md` in PR #9.
 
@@ -108,13 +108,13 @@ All components in this section are **planned**. The module names come from the a
 ### Voice agent (planned)
 
 <p align="center">
-  <img src="docs/images/arthai-voice-agent.svg" width="100%" alt="Fig 4. Planned voice agent. A browser call links on a blue two-way line to our own mock payer rep. Black tracks take the rep audio to local speech-to-text. They take the text to the agent turn and the reply to local text-to-speech. The agent turn uses an LLM and says that it is an AI. A dashed track takes the spoken reply back into the call. A green track takes the result to a call outcome card. The card shows the example reference SYN-REF-0007.">
+  <img src="docs/images/arthai-voice-agent.svg" width="100%" alt="Fig 4. Planned voice agent. A browser call links on a blue two-way line to our own mock payer rep. Black tracks take the rep audio to local speech-to-text. They take the text to the agent turn and the reply to local text-to-speech (TTS). The agent turn uses an LLM and says that it is an AI. A dashed track takes the spoken reply back into the call. A green track takes the result to a call outcome card. The card shows the example reference SYN-REF-0007.">
 </p>
 
 - The voice demo is free only. It uses a browser call (WebRTC and Web Audio) to our own mock payer rep. It uses no paid phone line. It uses no signup that needs a card (D-018, accepted).
 - Speech-to-text runs locally. The candidates are Whisper and faster-whisper.
 - Text-to-speech runs locally. The candidates are Piper and Kokoro.
-- ADR 0004 item 8 and D-018 disagree about speech-to-text. ADR 0004 names Muse Voice Transcribe. D-018 (accepted) names local speech-to-text. This file follows D-018. The conflict is not yet logged in DECISIONS.md.
+- ADR 0004 item 8 and D-018 disagree about speech-to-text. ADR 0004 names Muse Voice Transcribe. D-018 (accepted) names local speech-to-text. This file follows D-018. DECISIONS.md does not yet log the conflict.
 - Before install, each voice tool gets a SkillSpector scan. Each voice model gets a license check. D-018 does not allow non-commercial voices.
 - The agent says that it is an AI and announces the recording. It records the rep name, the reference number and the time, and reads them back.
 - The agent calls only the mock payer. **Never call a real payer.**
@@ -143,7 +143,7 @@ All components in this section are **planned**. The module names come from the a
 - Every AI action writes an `audit_event` ([AGENTS.md](AGENTS.md)). The event records the actor, the model, the prompt version, the input hash, the tools, the output and the approver.
 - The audit table is append-only. Each row stores the hash of the row before it (PR #9, `docs/architecture.md`, section 5.1).
 - High-risk actions go through `approvals.require()`: send an appeal, place a call, post a payment, write off. Write-offs and refunds need two people.
-- A reviewer edit becomes an eval case. The gate is then recalibrated on recent reviewed claims.
+- A reviewer edit becomes an eval case. The eval loop then recalibrates the gate on recent reviewed claims.
 
 ### The other planned products
 
@@ -184,11 +184,11 @@ Planned sources and licenses:
 | Patients | Synthea with a pinned release and a project-local JDK 17 | [D-008](DECISIONS.md) (accepted) |
 | Code sets | HCPCS Level II and ICD-10-CM subsets, CARC and RARC values only, no CPT | [D-009](DECISIONS.md) (accepted) |
 | Denials, appeals, calls | A hand-written scenario table and a seeded generator | [D-010](DECISIONS.md) (proposed) |
-| Model calls | Meta Contributor mode sees synthetic data only | [D-017](DECISIONS.md) (accepted) |
+| Model calls | Meta Contributor mode lets Meta train on our prompts and outputs. Thus only synthetic data goes there. | [D-017](DECISIONS.md) (accepted) |
 
 Synthetic IDs use the prefixes in the data plan: `SYN-P-`, `SYN-C-`, `SYN-D-`, member IDs `ZZ` and payer IDs `ZZP`. Phone numbers use `555-0100` to `555-0199`. Emails use `example.com`.
 
-A PHI scanner in CI is planned (docs/data-plan.md, section 6.4). It fails on these items:
+The data plan (docs/data-plan.md, section 6.4) plans a PHI scanner in CI. It fails on these items:
 
 - SSN or MBI patterns
 - phone numbers outside `555-01xx`
@@ -336,7 +336,7 @@ Research that is not on `main` yet:
 - **Audit.** Every AI action writes an `audit_event`.
 - **AI voice disclosure.** The voice agent says that it is an AI. It announces the recording. The FCC treats AI voices as "artificial" under the TCPA (FCC 24-17, as cited in the build guide in PR #9). The agent calls only our own mock payer.
 - **Untrusted text.** Text from denial letters, transcripts and web pages is data. It never starts a tool on its own.
-- **No CPT.** The repo has no CPT codes or descriptors. No model trains on CPT content.
+- **No CPT.** The repo has no CPT codes or descriptors (D-009).
 - **No scraping.** Agents do not scrape or reverse-engineer payer or clearinghouse sites.
 - **Secrets.** Secrets come only from env vars or a secret manager. Never commit `.env`.
 - **New tools.** Scan each new skill or tool with SkillSpector before install. Install it at project level only.
@@ -356,6 +356,7 @@ Third-party files and their licenses are listed in [THIRD_PARTY_NOTICES.md](THIR
 | HCPCS Level II, ICD-10-CM | Public code sets for supplies and services (CMS) and for diagnoses (CDC/NCHS) |
 | LLM | Large language model |
 | System 1 model | A small, fast model that gives typed decisions, not free text (LAYA) |
+| STT / TTS | Speech-to-text and text-to-speech |
 | Tier 2 approval | A human click before an external or money action, such as sending an appeal (PR #9, `docs/architecture.md`, section 5.3) |
 | NCCI, MUE | CMS edits that catch code pairs that do not go together, and units that are too high |
 | PHI | Protected health information: real patient data |
@@ -371,7 +372,7 @@ To rebuild the figures:
 
 1. Get the anatomy kit at the pinned commit.
 2. Set `ANATOMY_KIT` to the path of `kit/iso-kit.mjs`. The build stops if this variable is not set.
-3. Run each build script with Node.js 20.10 or later. The build checks the sha256 of the kit file and stops if it does not match.
+3. Run each build script with Node.js. We tested the rebuild with Node.js v20.19.2. The build checks the sha256 of the kit file and stops if it does not match.
 4. Check that the SVG files did not change. Run this check on a clean working tree.
 
 ```bash
