@@ -2,7 +2,7 @@
 import { k, makeScene, frame, writeFigure } from "./lib.mjs";
 import { fileURLToPath } from "node:url";
 const OUT = fileURLToPath(new URL("../arthai-overview.svg", import.meta.url));
-const W = 1200, H = 1120, DRAW = 620;
+const W = 1200, H = 1140, DRAW = 620;
 const BENCH = { x: 0, y: 0, w: 860, d: 410, r: 10 };
 const P = k.fitProjection([...k.boxCorners(BENCH, -15, 70)], W, DRAW - 40, { pad: 30, azimuth: 62 });
 P.origin[1] += 10;
@@ -47,6 +47,7 @@ const body = [frame({
     "   amber: the claim goes from the human queue in 5 to the writer in 6.",
     "   Step 6 includes the citation gate and the tier 2 approval in the console (Fig 3).",
     "   In the hackathon, 6 to 7 starts only after that human approval.",
+    "   The call also needs its own tier 2 approval. A send does not approve a call.",
     "   grey: the 276/277 claim status goes from the payer mock in 2 to AR follow-up in 8.",
     "   dashed: the call goes only to our mock payer in 2.",
     "   blue dotted: reviewer edits go from 5 to 9, then recalibrate the gate in 4.",
@@ -207,7 +208,7 @@ for (const key of ["ar", "voice", "appeal", "review"]) {
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 1. The planned Arthai Health flow. All nine steps are planned and none is built. A claim goes from the claim builder to the payer mock, remit posting and the triage step with the CCI gate. If the gate is sure, the claim goes to the appeal writer. If not, it goes to a human in the review console. After tier 2 human approval of the appeal, the voice agent calls only the payer mock. AR follow-up reads claim status from the payer mock. Reviewer edits go to eval and then back to the gate.",
+  label: "Fig 1. The planned Arthai Health flow. All nine steps are planned and none is built. A claim goes from the claim builder to the payer mock, remit posting and the triage step with the CCI gate. If the gate is sure, the claim goes to the appeal writer. If not, it goes to a human in the review console. After tier 2 human approval, the voice agent calls only the payer mock. The send and the call each need their own approval. AR follow-up reads claim status from the payer mock. Reviewer edits go to eval and then back to the gate.",
   body,
 });
 console.log("wrote", OUT);

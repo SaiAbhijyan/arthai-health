@@ -34,8 +34,9 @@ export function makeScene(P) {
   // Part text smaller than MIN_TEXT is too small to read at the 830 px GitHub width.
   // It is not drawn. The legend carries those facts.
   const MIN_TEXT = 8;
-  const front = (x, y, z, text, size = 6, tone = "hi") => (size < MIN_TEXT ? "" : k.faceTextSvg(k.sideMatrix([x, y], z, P, "left"), text, { size, tone }));
-  const top = (x, y, z, text, size = 5, tone = "hi") => (size < MIN_TEXT ? "" : k.faceTextSvg(k.topMatrix([x, y], z, P, "x"), text, { size, tone }));
+  const drop = (text) => { DROPPED.add(String(text)); return ""; };
+  const front = (x, y, z, text, size = 6, tone = "hi") => (size < MIN_TEXT ? drop(text) : k.faceTextSvg(k.sideMatrix([x, y], z, P, "left"), text, { size, tone }));
+  const top = (x, y, z, text, size = 5, tone = "hi") => (size < MIN_TEXT ? drop(text) : k.faceTextSvg(k.topMatrix([x, y], z, P, "x"), text, { size, tone }));
   // A painted track on a top face. Chevrons painted on long segments show the direction of flow.
   function track(pts, z, tone = "mid", opts = {}) {
     const w = opts.width ?? 2;
@@ -203,7 +204,16 @@ export function frame({ W, H, drawH, fig, title, hint, readout, legend = [], col
 
 const NOTICE = "<!-- Built with the anatomy kit (kit/iso-kit.mjs), Copyright (c) 2026 Ryan, MIT License. Commit " + KIT_COMMIT + ". The embedded CSS comes from that kit. See docs/images/NOTICE-anatomy-MIT.txt. All data in this figure is synthetic. -->";
 
+// Text that the scene did not draw. The alt text must not name it.
+const DROPPED = new Set();
+
 export function writeFigure(path, { W, H, label, body }) {
+  const esc = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const bad = [...DROPPED].filter((t) => t.length >= 3 && new RegExp(`\\b${esc(t)}\\b`, "i").test(label));
+  if (bad.length) {
+    console.error(`${path}: the alt text names text that is not drawn: ${bad.join(", ")}`);
+    process.exit(4);
+  }
   const svg = NOTICE + "\n" + `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="iso iso-svg" data-theme="light" role="img" aria-label="${label.replace(/"/g, "&quot;")}"><title>${label.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</title><style>${k.ISO_CSS}</style>${body.join("")}</svg>\n`;
   writeFileSync(path, svg);
 }

@@ -53,7 +53,7 @@ The design has two main parts. The CCI gate (conformal prediction) decides which
 ## Architecture overview
 
 <p align="center">
-  <img src="docs/images/arthai-overview.svg" width="100%" alt="Fig 1. The planned Arthai Health flow. All nine steps are planned and none is built. A claim goes from the claim builder to the payer mock, remit posting and the triage step with the CCI gate. If the gate is sure, the claim goes to the appeal writer. If not, it goes to a human in the review console. After tier 2 human approval of the appeal, the voice agent calls only the payer mock. AR follow-up reads claim status from the payer mock. Reviewer edits go to eval and then back to the gate.">
+  <img src="docs/images/arthai-overview.svg" width="100%" alt="Fig 1. The planned Arthai Health flow. All nine steps are planned and none is built. A claim goes from the claim builder to the payer mock, remit posting and the triage step with the CCI gate. If the gate is sure, the claim goes to the appeal writer. If not, it goes to a human in the review console. After tier 2 human approval, the voice agent calls only the payer mock. The send and the call each need their own approval. AR follow-up reads claim status from the payer mock. Reviewer edits go to eval and then back to the gate.">
 </p>
 
 Fig 1 shows the whole planned flow. The numbers match the stations in the figure.
@@ -122,7 +122,7 @@ All components in this section are **planned**. The module names come from the a
 ### Code lookups (planned)
 
 <p align="center">
-  <img src="docs/images/arthai-code-lookups.svg" width="100%" alt="Fig 5. Planned code lookups. A card catalog has drawers for HCPCS Level II, ICD-10-CM, CARC values and RARC values. The CPT drawer has a padlock and says not used. An agent asks the catalog for CARC 197. The catalog answers CARC 197: prior_auth. Planned repo tests check the format of each code value. A test fails on a CPT code.">
+  <img src="docs/images/arthai-code-lookups.svg" width="100%" alt="Fig 5. Planned code lookups. A card catalog has drawers for HCPCS Level II, ICD-10-CM, CARC values and RARC values. The CPT drawer has a padlock and a red bar. An agent asks the catalog for CARC 197. The catalog answers CARC 197: prior_auth. Planned repo tests check the format of each code value. A test fails on a CPT code.">
 </p>
 
 - Agents look up codes in our catalog only. There are no free-text codes in a claim, a prompt or a letter ([AGENTS.md](AGENTS.md)).
@@ -373,7 +373,7 @@ To rebuild the figures:
 
 1. Get the anatomy kit at the pinned commit.
 2. Set `ANATOMY_KIT` to the path of `kit/iso-kit.mjs`. The build stops if this variable is not set.
-3. Run each build script with Node.js. We tested the rebuild with Node.js v20.19.2. The build checks the sha256 of the kit file and stops if it does not match.
+3. Run each build script with Node.js. We tested the rebuild with Node.js v20.19.2. The build checks the sha256 of the kit file and stops if it does not match. It does not draw part text below size 8. It stops if the alt text names text that it did not draw.
 4. Check that the SVG files did not change. Run this check on a clean working tree.
 
 ```bash

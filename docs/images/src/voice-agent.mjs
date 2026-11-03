@@ -108,7 +108,7 @@ body.push(s.plinth(REP, HP, { num: "5", name: "MOCK PAYER REP", sub: "OUR OWN PA
 }
 // 6 outcome card
 body.push(s.plinth(OUTC, HP, { num: "6", name: "CALL OUTCOME", sub: "READ BACK, LOGGED", size: 13 }));
-body.push(s.cards(OUTC.x + 14, OUTC.y + 16, HP, { n: 3, w: 116, d: 50, id: "REF SYN-REF-0007", rules: 3, lit: true }));
+body.push(s.cards(OUTC.x + 14, OUTC.y + 16, HP, { n: 3, w: 116, d: 50, id: "REF SYN-REF-0007", rules: 3, lit: true, idSize: 9 }));
 
 writeFigure(OUT, {
   W, H,

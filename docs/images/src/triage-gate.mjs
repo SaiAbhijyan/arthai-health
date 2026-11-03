@@ -98,7 +98,7 @@ for (const r of rows) {
 for (const [p, num, name, sub, tone] of [[AUTO, "4", "AUTO PATH", "TO APPEAL", "green"], [HUMAN, "5", "HUMAN", "QUEUE", "red"]]) {
   body.push(s.plinth(p, HP, { num, name, sub, size: 13 }));
   const t = s.tray({ x: p.x + 12, y: p.y + 10, w: 58, d: 44, r: 1 }, HP, 6);
-  body.push(t.back, s.cards(p.x + 18, p.y + 18, HP + 1.2, { n: tone === "red" ? 3 : 1, w: 44, d: 30, id: tone === "red" ? "CLAIM B" : "CLAIM A", rules: 2 }), t.front);
+  body.push(t.back, s.cards(p.x + 18, p.y + 18, HP + 1.2, { n: tone === "red" ? 3 : 1, w: 44, d: 30, id: tone === "red" ? "CLAIM B" : "CLAIM A", rules: 2, idSize: 8.4 }), t.front);
   body.push(s.led(p.x + p.w - 10, p.y + 8, HP, tone));
 }
 

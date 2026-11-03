@@ -48,7 +48,7 @@ body.push(s.link(APPROVE, APPROVE.x + APPROVE.w - 14, FEED, FEED.x + 16, 344, "b
 body.push(s.plinth(QUEUES, HP, { num: "1", name: "TWO QUEUES", sub: "FLAGGED + RANDOM QA", size: 13 }));
 for (const [i, [id, n, tone]] of [["AI-FLAGGED", 3, "red"], ["RANDOM QA", 2, "blue"]].entries()) {
   const t = s.tray({ x: QUEUES.x + 10 + i * 78, y: QUEUES.y + 14, w: 72, d: 70, r: 1 }, HP, 6);
-  body.push(t.back, s.cards(QUEUES.x + 16 + i * 78, QUEUES.y + 22, HP + 1.2, { n, w: 56, d: 52, id, rules: 3, idSize: 7.4 }), t.front);
+  body.push(t.back, s.cards(QUEUES.x + 16 + i * 78, QUEUES.y + 22, HP + 1.2, { n, w: 56, d: 52, id, rules: 3, idSize: 8.4 }), t.front);
   body.push(s.led(QUEUES.x + 70 + i * 78, QUEUES.y + 92, HP, tone));
 }
 // 2 console screen with a claim timeline
@@ -69,7 +69,6 @@ for (let i = 0; i < 5; i++) {
   const b = { x: AUDIT.x + 14 + i * 42, y: AUDIT.y + 30, w: 30, d: 44, r: 2 };
   body.push(s.slab(b, HP, 14, { tone: i === 4 ? "hi" : "mid", lit: i === 4 }, 3, 0.6));
   body.push(s.front(b.x + 3, b.y + b.d, HP + 4.6, `#${41 + i}`, 7, "hi"));
-  body.push(s.top(b.x + 3, b.y + 12, HP + 14, "hash", 4.4, "mid"));
   if (i < 4) body.push(s.slab({ x: b.x + b.w, y: b.y + 18, w: 12, d: 8, r: 1 }, HP + 4, 4, { tone: "lo" }, 2, 0));
 }
 body.push(s.slab({ x: AUDIT.x + 14, y: AUDIT.y + 84, w: 200, d: 14, r: 1 }, HP, 1, { tone: "lo", crease: "none" }, 2, 0));
@@ -80,7 +79,7 @@ body.push(s.plinth(APPROVE, HP, { num: "4", name: "APPROVALS", sub: "HUMAN CLICK
   const b = { x: APPROVE.x + 16 + i * 76, y: APPROVE.y + 14, w: 64, d: 40, r: 4 };
   body.push(s.slab(b, HP, 10, { tone: "mid" }, 4, 0.6));
   body.push(s.slab(k.insetPlan(b, 6), HP + 10, i === 0 ? 3 : 6, { tone: "hi", lit: i === 0 }, 4, 0.5));
-  body.push(s.front(b.x + 6, b.y + b.d, HP + 1.6, name, 6.6, "hi"));
+  body.push(s.front(b.x + 6, b.y + b.d, HP + 1.4, name, 8.2, "hi"));
   body.push(s.led(b.x + b.w - 8, b.y + 8, HP + 10, tone));
 });
 // 5 feedback to eval
