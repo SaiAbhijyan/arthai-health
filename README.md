@@ -6,7 +6,7 @@ Arthai Health is a planned set of AI agents for healthcare billing work. The age
 
 > **Status: plan and tooling only.** The `main` branch holds design documents, agent rules, a software factory and a few tests. No product code is built yet. Every product in this file is **planned**. See [Status](#status-built-and-planned).
 >
-> Many component details come from research in [PR #9](https://github.com/SaiAbhijyan/arthai-health/pull/9) and [PR #14](https://github.com/SaiAbhijyan/arthai-health/pull/14). These PRs are not merged yet, so those details can change. If a PR document and [DECISIONS.md](DECISIONS.md) do not agree, DECISIONS.md wins.
+> Many component details come from research in [PR #9](https://github.com/SaiAbhijyan/arthai-health/pull/9) and [PR #14](https://github.com/SaiAbhijyan/arthai-health/pull/14). These PRs are not merged yet, so those details can change. If a PR document and [DECISIONS.md](DECISIONS.md) do not agree, use DECISIONS.md.
 
 Arthai Health does billing and admin automation. It does not give medical advice. All data is synthetic. The rules forbid real patient data (PHI).
 
@@ -28,7 +28,7 @@ Arthai Health does billing and admin automation. It does not give medical advice
 
 ### The problem
 
-Insurers deny many claims. Billing staff must find the cause of each denial, fix it and appeal. They also spend a long time on the phone with insurers. The research for this project, in [PR #9](https://github.com/SaiAbhijyan/arthai-health/pull/9), found these numbers in public reports:
+Payers deny many claims. Billing staff must find the cause of each denial, fix it and appeal. They also spend a long time on the phone with payers. The research for this project, in [PR #9](https://github.com/SaiAbhijyan/arthai-health/pull/9), found these numbers in public reports:
 
 | Fact | Source (as cited in PR #9) |
 |---|---|
@@ -48,7 +48,7 @@ The core loop for the hackathon has six steps:
 5. A voice agent calls our own mock payer to follow up. The call outcome updates the claim.
 6. A review console shows the claim timeline, the audit trail and the approvals.
 
-The design has two main parts. A statistical gate (conformal prediction) decides which claims go to a human. A closed voice loop updates the claim from the call outcome. The research found no vendor whose public marketing leads with both. This is a reading of marketing pages, not a measured fact (PR #9, `docs/product/idea.md`).
+The design has two main parts. A statistical gate (conformal prediction) decides which claims go to a human. A voice call updates the claim with the call outcome. The research found no vendor whose public marketing puts both parts first. This is a reading of marketing pages, not a measured fact (PR #9, `docs/product/idea.md`).
 
 ## Architecture overview
 
@@ -86,6 +86,7 @@ All components in this section are **planned**. The module names come from the a
 - LAYA can do this step. LAYA is a small open "System 1" decision model (about 421M parameters, Apache-2.0). It is not a Meta model. See [docs/laya-plan.md](docs/laya-plan.md).
 - LAYA is optional. The switch is `TRIAGE_BACKEND=laya|llm`. The default is `llm` until the rule question is answered and LAYA beats the LLM on the held-out set ([ADR 0004](docs/adr/0004-stack.md), proposed).
 - The CCI gate (`cci_gate`, based on `cci-sdk`) turns the scores into a conformal prediction set. If the set has one label, the claim takes the auto path. If the set has more than one label, the claim goes to the human queue.
+- The research plans the gate on LAYA scores (PR #14, section 5.3). How the gate gets scores from the default `llm` backend is not decided yet.
 - The gate has a coverage target (1 − alpha). It is not a raw confidence threshold.
 - **Limit:** the conformal guarantee is an average over cases like the calibration set. It is not a promise about one claim (PR #14, section 5.3).
 - **Limit:** do not trust the raw LAYA confidence before calibration. The base checkpoint warns that some calibration temperatures are invalid ([docs/laya-plan.md](docs/laya-plan.md)).
@@ -97,7 +98,7 @@ All components in this section are **planned**. The module names come from the a
 </p>
 
 - The appeal writer retrieves chunks of payer policy and writes the letter.
-- Muse, a Meta model, writes the text. Muse does not make the triage decision (PR #14, section 5.3).
+- Muse, a Meta model, writes the text. With `TRIAGE_BACKEND=laya`, LAYA makes the triage scores and Muse only writes (PR #14, section 5.3).
 - The citation gate checks that each statement maps to a retrieved chunk ID. If a statement has no source, the draft goes back to the writer.
 - A human approves the letter before it goes out. In the hackathon, every external action needs approval.
 - The payer policies in the demo are fictional. Example payer IDs start with `ZZP`.
@@ -120,7 +121,7 @@ All components in this section are **planned**. The module names come from the a
 ### Code lookups (planned)
 
 <p align="center">
-  <img src="docs/images/arthai-code-lookups.svg" width="100%" alt="Fig 5. Planned code lookups. A card catalog has drawers for HCPCS Level II, ICD-10-CM, CARC and RARC values, and a locked CPT drawer marked not used. An agent asks for CARC CO-197, the catalog answers CO-197: prior_auth, and a green track takes the answer to a check with format rows for each code set and a red row that rejects CPT.">
+  <img src="docs/images/arthai-code-lookups.svg" width="100%" alt="Fig 5. Planned code lookups. A card catalog has drawers for HCPCS Level II, ICD-10-CM, CARC and RARC values, and a locked CPT drawer marked not used. An agent asks for CARC 197, the catalog answers CARC 197: prior_auth, and a green track takes the answer to a check with format rows for each code set and a red row that rejects CPT.">
 </p>
 
 - Agents look up codes in our catalog only. There are no free-text codes in a claim, a prompt or a letter ([AGENTS.md](AGENTS.md)).
@@ -145,7 +146,7 @@ All components in this section are **planned**. The module names come from the a
 
 ### The other planned products
 
-These products appear in Fig 1. They have no figure of their own. Code lookups (Fig 5) is a shared part, not a station in Fig 1. Stations 1, 3, 4 and 6 use it.
+These products appear in Fig 1. They have no figure of their own. Code lookups (Fig 5) is a shared part, not a station in Fig 1. Agents get every code from this catalog ([AGENTS.md](AGENTS.md)).
 
 | Product | What it does (planned) | Source |
 |---|---|---|
@@ -353,16 +354,19 @@ Third-party files and their licenses are listed in [THIRD_PARTY_NOTICES.md](THIR
 | AR | Accounts receivable: money that payers still owe |
 | CARC, RARC | Claim adjustment reason codes and remittance advice remark codes. They tell why a payer paid less or denied. |
 | CCI gate | Our confidence gate, built on `cci-sdk` conformal prediction. It is not the CMS NCCI edit list. |
+| Hackathon | The demo event that sets the first scope. See [docs/hackathon-workflow.md](docs/hackathon-workflow.md). |
 | Conformal set | The set of labels that the gate thinks can be true. One label means sure. More labels mean not sure. |
 | HCPCS Level II, ICD-10-CM | Public code sets for supplies and services (CMS) and for diagnoses (CDC/NCHS) |
 | LLM | Large language model |
+| System 1 model | A small, fast model that gives typed decisions, not free text (LAYA) |
+| Tier 2 approval | A human click before an external or money action, such as sending an appeal (PR #9, `docs/architecture.md`, section 5.3) |
 | NCCI, MUE | CMS edits that catch code pairs that do not go together, and units that are too high |
 | PHI | Protected health information: real patient data |
 | Remit | Remittance: the payer's statement of what it paid and why |
 
 ## About the figures
 
-The six figures are isometric SVG drawings. They were made with the core kit (`kit/iso-kit.mjs`) of [anatomy](https://github.com/wheresryan22/anatomy) (MIT, Copyright (c) 2026 Ryan). The pinned commit is `1482e8469b0a9e0d8cc18ea2740a01423d29ae80`. The kit stays outside this repo. Each SVG embeds CSS from the kit, so a copy of the kit license is in [docs/images/LICENSE-anatomy.txt](docs/images/LICENSE-anatomy.txt). The build scripts are in [docs/images/src/](docs/images/src/).
+The six figures are isometric SVG drawings. We made them with the core kit (`kit/iso-kit.mjs`) of [anatomy](https://github.com/wheresryan22/anatomy) (MIT, Copyright (c) 2026 Ryan). The pinned commit is `1482e8469b0a9e0d8cc18ea2740a01423d29ae80`. The kit stays outside this repo. Each SVG embeds CSS from the kit, so a copy of the kit license notice is in [docs/images/NOTICE-anatomy-MIT.txt](docs/images/NOTICE-anatomy-MIT.txt). The build scripts are in [docs/images/src/](docs/images/src/).
 
 The build uses only `kit/iso-kit.mjs`. The anatomy `capture.mjs` script makes PNG previews for review. Other anatomy scripts are not used (D-019). SkillSpector scanned the kit at the pinned commit. The scan notes and the manual review are in [docs/tooling.md](docs/tooling.md).
 
@@ -379,4 +383,4 @@ for f in docs/images/src/*.mjs; do [ "$f" = docs/images/src/lib.mjs ] || node "$
 test -z "$(git status --porcelain docs/images)"
 ```
 
-All names, IDs, payers and reference numbers in the figures are synthetic.
+All names, IDs, payers and reference numbers in the figures are synthetic. The data plan does not set a format for call reference numbers yet, so `SYN-REF-0007` is only an example.

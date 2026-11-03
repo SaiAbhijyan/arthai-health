@@ -225,10 +225,10 @@ Write an entry when choosing a library, pattern, schema, protocol, model/prompt 
 ### D-019: README figures: anatomy kit core only, pinned by commit and sha256
 - Date: 2026-11-02 | Status: Proposed
 - Deciders: Sai (set the tool scope and the six figures on 2026-11-02, relayed by Mini Chief); agent-drafted
-- Context: The README needs figures that show each planned product. The anatomy kit (wheresryan22/anatomy, MIT) draws isometric SVG figures. SkillSpector gave a CRITICAL score, mostly from parser limits on large files. Some kit scripts can push to git (`scripts/publish.mjs`) or read local agent session logs (`scripts/session.mjs`).
+- Context: The README needs figures that show each planned product. The anatomy kit (wheresryan22/anatomy, MIT) draws isometric SVG figures. SkillSpector gave a CRITICAL overall score (100/100) from 42 HIGH and 6 MEDIUM findings. 38 of the HIGH findings are parser limits on large files; docs/tooling.md has the review. Some kit scripts can push to git (`scripts/publish.mjs`) or read local agent session logs (`scripts/session.mjs`).
 - Options considered:
   - A: Hand-drawn or Mermaid diagrams. Pros: no third-party code. Cons: they do not show what each product does.
   - B: The anatomy kit core only (`kit/iso-kit.mjs`), with `scripts/capture.mjs` for local PNG previews. The kit stays outside the repo. Pros: clear figures, small attack surface. Cons: third-party CSS is embedded in each SVG (MIT notice needed).
 - Decision: B. The build imports only `kit/iso-kit.mjs` at commit `1482e8469b0a9e0d8cc18ea2740a01423d29ae80` and checks its sha256 first. Never run or import `publish.mjs` or `session.mjs`.
-- Consequences: Good: figures rebuild from scripts in `docs/images/src/`. Bad: a rebuild needs the kit on disk. Follow-up: keep the MIT notice in `docs/images/LICENSE-anatomy.txt` and THIRD_PARTY_NOTICES.md.
+- Consequences: Good: figures rebuild from scripts in `docs/images/src/`. Bad: a rebuild needs the kit on disk. Follow-up: keep the MIT notice in `docs/images/NOTICE-anatomy-MIT.txt` and THIRD_PARTY_NOTICES.md.
 - Links: docs/plans/readme-anatomy.md, docs/tooling.md (anatomy), README.md (About the figures)

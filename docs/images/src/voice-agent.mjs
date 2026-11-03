@@ -48,7 +48,7 @@ body.push(s.track([[BROWSER.x + 20, BROWSER.y + BROWSER.d + 6], [BROWSER.x + 20,
 body.push(s.link(REP, REP.x + REP.w - 14, OUTC, OUTC.x + 16, 350, "green", { width: 2.4 }));
 
 // 1 browser on a laptop with a headset mic
-body.push(s.plinth(BROWSER, HP, { num: "1", name: "BROWSER CALL", sub: "WEBRTC, WEB AUDIO", size: 9.5 }));
+body.push(s.plinth(BROWSER, HP, { num: "1", name: "BROWSER CALL", sub: "WEBRTC, WEB AUDIO", size: 11 }));
 {
   const b = BROWSER;
   body.push(s.slab({ x: b.x + 14, y: b.y + 50, w: 100, d: 50, r: 3 }, HP, 4, { tone: "mid" }, 3, 0.6));
@@ -68,7 +68,7 @@ body.push(s.plinth(BROWSER, HP, { num: "1", name: "BROWSER CALL", sub: "WEBRTC, 
 }
 // 2 STT box, 3 agent box, 4 TTS box
 function unit(p, num, name, sub, extra) {
-  body.push(s.plinth(p, HP, { num, name, sub, size: 9.5 }));
+  body.push(s.plinth(p, HP, { num, name, sub, size: 11 }));
   const b = { x: p.x + 14, y: p.y + 16, w: p.w - 28, d: 70, r: 4 };
   body.push(s.slab(b, HP, 26, { tone: "mid" }, 4, 0.9));
   body.push(s.L(k.planOutline(k.insetPlan(b, 4), HP + 26, P, 3), { tone: "faint" }));
@@ -94,7 +94,7 @@ unit(TTS, "4", "LOCAL TTS", "PIPER / KOKORO (CAND.)", (b, zt) => {
   body.push(s.front(b.x + 6, b.y + b.d, zt - 6, "TEXT -> AUDIO", 5.2, "hi"));
 });
 // 5 mock rep booth with headset
-body.push(s.plinth(REP, HP, { num: "5", name: "MOCK PAYER REP", sub: "OUR OWN PAYER MOCK", size: 9.5 }));
+body.push(s.plinth(REP, HP, { num: "5", name: "MOCK PAYER REP", sub: "OUR OWN PAYER MOCK", size: 11 }));
 {
   const b = REP;
   body.push(s.slab({ x: b.x + 14, y: b.y + 10, w: 120, d: 6, r: 1 }, HP, 24, { tone: "mid" }, 2, 0.5));
@@ -108,7 +108,7 @@ body.push(s.plinth(REP, HP, { num: "5", name: "MOCK PAYER REP", sub: "OUR OWN PA
   body.push(s.cards(b.x + 30, b.y + 40, HP, { n: 2, w: 80, d: 30, id: "IVR SCRIPT", rules: 2 }));
 }
 // 6 outcome card
-body.push(s.plinth(OUTC, HP, { num: "6", name: "CALL OUTCOME", sub: "READ BACK, LOGGED", size: 9.5 }));
+body.push(s.plinth(OUTC, HP, { num: "6", name: "CALL OUTCOME", sub: "READ BACK, LOGGED", size: 11 }));
 body.push(s.cards(OUTC.x + 14, OUTC.y + 16, HP, { n: 3, w: 116, d: 50, id: "REF SYN-REF-0007", rules: 3, lit: true }));
 
 writeFigure(OUT, {

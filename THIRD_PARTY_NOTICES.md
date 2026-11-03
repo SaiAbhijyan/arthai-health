@@ -75,4 +75,4 @@ Installed on the build box or in user config, **not vendored into this repo**:
 
 | Path | Source | License |
 |---|---|---|
-| docs/images/*.svg (CSS from `kit/iso-kit.mjs`, commit 1482e84; license copy in docs/images/LICENSE-anatomy.txt) | https://github.com/wheresryan22/anatomy (Copyright (c) 2026 Ryan) | MIT |
+| docs/images/*.svg (CSS from `kit/iso-kit.mjs`, commit 1482e84; license copy in docs/images/NOTICE-anatomy-MIT.txt) | https://github.com/wheresryan22/anatomy (Copyright (c) 2026 Ryan) | MIT |

@@ -13,8 +13,8 @@ const IN = { x: 24, y: 40, w: 130, d: 84, r: 4 };
 const LAYA = { x: 196, y: 40, w: 170, d: 84, r: 4 };
 const GATE = { x: 410, y: 40, w: 180, d: 140, r: 4 };
 const CAL = { x: 24, y: 236, w: 170, d: 70, r: 4 };
-const AUTO = { x: 670, y: 40, w: 84, d: 84, r: 4 };
-const HUMAN = { x: 670, y: 236, w: 84, d: 84, r: 4 };
+const AUTO = { x: 660, y: 40, w: 104, d: 84, r: 4 };
+const HUMAN = { x: 660, y: 236, w: 104, d: 84, r: 4 };
 
 const body = [frame({
   W, H, drawH: DRAW,
@@ -23,10 +23,10 @@ const body = [frame({
   hint: "Synthetic denials only. Planned design, not built.",
   readout: "set = 1 label: auto path · set > 1: human",
   legend: [
-    "1  A synthetic denied line arrives from remit posting (example: SYN-D-000042, CO-197).",
+    "1  A synthetic denied line arrives from remit posting (example: SYN-D-000042, adjustment CO-197).",
     "2  The triage scorer gives three results: the category, the appeal decision (yes or no) and the priority.",
-    "   The default scorer is the LLM, with one typed result. LAYA is optional (TRIAGE_BACKEND=laya|llm).",
-    "   LAYA becomes the default only after the rule question is answered and LAYA beats the LLM (ADR 0004).",
+    "   The default scorer is the LLM. LAYA is optional (TRIAGE_BACKEND=laya|llm, ADR 0004).",
+    "   The research plans the gate on LAYA scores. How the gate gets scores from the LLM is not decided.",
     "3  The CCI gate turns the scores into a conformal prediction set. Each pin is one",
     "   category: prior auth, coding, eligibility, timely filing, medical necessity,",
     "   duplicate, other. A raised pin is in the set.",
@@ -49,7 +49,7 @@ body.push(s.track([[GATE.x + GATE.w + 6, 150], [630, 150], [630, 278], [HUMAN.x 
 body.push(s.track([[CAL.x + CAL.w + 6, 272], [440, 272], [440, GATE.y + GATE.d + 6]], z, "blue", { dotted: true, width: 2.4 }));
 
 // 1 intake tray with denial cards
-body.push(s.plinth(IN, HP, { num: "1", name: "DENIAL IN", sub: "SYNTHETIC 835 LINE", size: 9.5 }));
+body.push(s.plinth(IN, HP, { num: "1", name: "DENIAL IN", sub: "SYNTHETIC 835 LINE", size: 11 }));
 {
   const t = s.tray({ x: IN.x + 12, y: IN.y + 10, w: 90, d: 62, r: 1 }, HP, 6);
   body.push(t.back, s.cards(IN.x + 18, IN.y + 18, HP + 1.2, { n: 4, w: 72, d: 46, id: "SYN-D-000042", rules: 0 }), t.front);
@@ -57,7 +57,7 @@ body.push(s.plinth(IN, HP, { num: "1", name: "DENIAL IN", sub: "SYNTHETIC 835 LI
   body.push(s.L(k.lineOnTop([IN.x + 24, IN.y + 38], [IN.x + 74, IN.y + 38], HP + 6.6, P) + k.lineOnTop([IN.x + 24, IN.y + 42], [IN.x + 64, IN.y + 42], HP + 6.6, P), { tone: "lo", free: true }));
 }
 // 2 triage scorer with three dials
-body.push(s.plinth(LAYA, HP, { num: "2", name: "TRIAGE SCORER", sub: "LAYA OR LLM", size: 9.5 }));
+body.push(s.plinth(LAYA, HP, { num: "2", name: "TRIAGE SCORER", sub: "LAYA OR LLM", size: 11 }));
 {
   const box = { x: LAYA.x + 10, y: LAYA.y + 12, w: 150, d: 60, r: 3 };
   body.push(s.slab(box, HP, 12, { tone: "mid" }, 4, 0.8));
@@ -70,14 +70,14 @@ body.push(s.plinth(LAYA, HP, { num: "2", name: "TRIAGE SCORER", sub: "LAYA OR LL
   body.push(s.led(box.x + box.w - 8, box.y + box.d - 8, HP + 12, "green"));
 }
 // 6 calibration weights
-body.push(s.plinth(CAL, HP, { num: "6", name: "CALIBRATION", sub: "TARGET 1 - ALPHA", size: 9.5 }));
+body.push(s.plinth(CAL, HP, { num: "6", name: "CALIBRATION", sub: "TARGET 1 - ALPHA", size: 11 }));
 for (let i = 0; i < 5; i++) {
   const cx = CAL.x + 30 + i * 26, cy = CAL.y + 32;
   body.push(s.cyl(cx, cy, 9 - i, HP, 6 + i * 3, { tone: i === 4 ? "hi" : "mid" }, 32, 0.4));
   body.push(s.L(k.ring(cx, cy, 3, HP + 6 + i * 3, P, 16), { tone: "lo" }));
 }
 // 3 the CCI gate: two comb rows of seven pins
-body.push(s.plinth(GATE, HP, { num: "3", name: "CCI GATE", sub: "CONFORMAL SET", size: 9.5 }));
+body.push(s.plinth(GATE, HP, { num: "3", name: "CCI GATE", sub: "CONFORMAL SET", size: 11 }));
 const rows = [
   { y: GATE.y + 22, raised: [0], tone: "green", name: "A: SET = 1" },
   { y: GATE.y + 82, raised: [0, 1, 4], tone: "red", name: "B: SET = 3" },
@@ -96,7 +96,7 @@ for (const r of rows) {
 }
 // 4 auto path tray, 5 human queue tray
 for (const [p, num, name, sub, tone] of [[AUTO, "4", "AUTO PATH", "TO APPEAL", "green"], [HUMAN, "5", "HUMAN", "QUEUE", "red"]]) {
-  body.push(s.plinth(p, HP, { num, name, sub, size: 9 }));
+  body.push(s.plinth(p, HP, { num, name, sub, size: 11 }));
   const t = s.tray({ x: p.x + 12, y: p.y + 10, w: 58, d: 44, r: 1 }, HP, 6);
   body.push(t.back, s.cards(p.x + 18, p.y + 18, HP + 1.2, { n: tone === "red" ? 3 : 1, w: 44, d: 30, id: tone === "red" ? "CLAIM B" : "CLAIM A", rules: 2 }), t.front);
   body.push(s.led(p.x + p.w - 10, p.y + 8, HP, tone));

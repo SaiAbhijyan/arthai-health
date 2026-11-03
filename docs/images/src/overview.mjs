@@ -2,7 +2,7 @@
 import { k, makeScene, frame, writeFigure } from "./lib.mjs";
 import { fileURLToPath } from "node:url";
 const OUT = fileURLToPath(new URL("../arthai-overview.svg", import.meta.url));
-const W = 1200, H = 1026, DRAW = 620;
+const W = 1200, H = 1048, DRAW = 620;
 const BENCH = { x: 0, y: 0, w: 860, d: 410, r: 10 };
 const P = k.fitProjection([...k.boxCorners(BENCH, -15, 70)], W, DRAW - 40, { pad: 30, azimuth: 62 });
 P.origin[1] += 10;
@@ -13,39 +13,41 @@ const ST = {
   build: { x: 30, y: 28, w: 140, d: 74, r: 4 },
   mock: { x: 220, y: 28, w: 140, d: 74, r: 4 },
   remit: { x: 410, y: 28, w: 140, d: 74, r: 4 },
-  gate: { x: 600, y: 28, w: 150, d: 74, r: 4 },
+  gate: { x: 600, y: 28, w: 158, d: 74, r: 4 },
   ar: { x: 30, y: 262, w: 140, d: 74, r: 4 },
   voice: { x: 220, y: 262, w: 140, d: 74, r: 4 },
   appeal: { x: 410, y: 262, w: 140, d: 74, r: 4 },
   review: { x: 600, y: 262, w: 150, d: 74, r: 4 },
 };
 const EVAL = { x: 776, y: 150, w: 64, d: 60, r: 3 };
-const H0 = 30;
+const H0 = 36;
+const AMBER = "#b26a00";
 const fy = (p) => p.y + p.d + 6;   // a point on the bench just in front of a station
 const body = [frame({
   W, H, drawH: DRAW,
   fig: "Fig 1",
   title: "Arthai Health: planned flow",
   hint: "Synthetic data only. Every station is planned. None is built yet.",
-  readout: "9 products · all planned",
+  readout: "9 stations · all planned",
   cols: 1,
   legend: [
     "1  Claim builder and scrubber: builds the 837 claim file and runs the NCCI and MUE edits.",
     "2  Payer and clearinghouse mock: our own fake payer. It sends 835 and 277 files.",
     "3  Remit posting: reads the 835 remittance and finds each denied line.",
-    "4  Triage + CCI gate: the scorer (LLM by default, LAYA optional) and a conformal set pick the path.",
+    "4  Triage + CCI gate: a scorer (LLM by default, LAYA optional) and a conformal gate pick the path.",
     "5  Review console + audit: the human queue, the approvals and the audit trail.",
     "6  Appeal writer: Muse drafts the letter. Each statement cites a source.",
     "7  Voice agent: a browser call to the mock payer rep.",
     "8  AR follow-up: ranks the open claims for the next action.",
     "9  Eval and feedback loop: reviewer edits become eval cases.",
     "Tracks. Chevrons show the direction.",
-    "   green: the gate is sure, 4 to 6.",
-    "   red: the gate is not sure, 4 to the human queue in 5. After the human decides, 5 to 6.",
-    "   black: the claim moves 1 to 2 to 3 to 4. The draft goes 6 to 5 for tier-2 approval.",
-    "   black: after approval, 5 to 7 (send, then call). The call outcome goes 7 to 8.",
+    "   black: the claim goes to the next step (1 to 2 to 3 to 4, 6 to 7 and 7 to 8).",
+    "   green: the gate is sure. The claim goes from 4 to 6.",
+    "   red: the gate is not sure. The claim goes from 4 to the human queue in 5.",
+    "   amber: the human decides, and the claim goes from 5 to 6.",
+    "   6 to 7 starts only after a human approves the draft in the console (tier 2).",
     "   dashed: the call goes only to our mock payer in 2.",
-    "   blue dotted: reviewer edits go 5 to 9, then recalibrate the gate in 4.",
+    "   blue dotted: reviewer edits go from 5 to 9, then recalibrate the gate in 4.",
   ],
 })];
 
@@ -62,14 +64,12 @@ body.push(s.track([[630, fy(ST.gate)], [630, 160], [470, 160], [470, ST.appeal.y
 body.push(s.track([[690, fy(ST.gate)], [690, ST.review.y - 2]], z, "red", { width: 2.4 }));
 // Front aisles (bench y 342..400). Verticals never cross another track's horizontal span.
 const out = (p) => p.y + p.d + 6;
-// 5 -> 6: a human decides, then the writer drafts
-body.push(s.track([[640, out(ST.review)], [640, 350], [520, out(ST.appeal) + 8], [520, out(ST.appeal)]].map((p, i) => i === 2 ? [520, 350] : p), z, "red", { width: 2.4 }));
-// 6 -> 5: the draft goes back for tier-2 approval
-body.push(s.track([[480, out(ST.appeal)], [480, 366], [700, 366], [700, out(ST.review)]], z, "hi", { chevMin: 60 }));
-// 5 -> 7: after approval the appeal is sent and the call is requested
-body.push(s.track([[735, out(ST.review)], [735, 382], [290, 382], [290, out(ST.voice)]], z, "hi", { chevMin: 120 }));
+// 5 -> 6: a human decides, then the writer drafts (amber)
+body.push(s.track([[640, out(ST.review)], [640, 352], [520, 352], [520, out(ST.appeal)]], z, "hi", { width: 2.4, color: AMBER }));
+// 6 -> 7: after tier-2 approval in the console, the appeal is sent and the call starts
+body.push(s.link(ST.appeal, 440, ST.voice, 330, 352));
 // 7 -> 8: the call outcome updates the open claim
-body.push(s.track([[250, out(ST.voice)], [250, 350], [140, 350], [140, out(ST.ar)]], z, "hi"));
+body.push(s.link(ST.voice, 250, ST.ar, 140, 352));
 // voice -> payer mock (the call goes only to our own mock)
 body.push(s.track([[290, ST.voice.y - 6], [290, fy(ST.mock)]], z, "hi", { dashed: true }));
 // review -> eval -> gate (feedback loop) on the right side
@@ -80,7 +80,7 @@ body.push(s.track([[808, EVAL.y - 6], [808, row], [ST.gate.x + ST.gate.w + 6, ro
 const machines = {
   build(p) {
     const o = [];
-    o.push(s.cards(p.x + 12, p.y + 30, H0, { n: 3, w: 34, d: 24, id: "SYN-C-0001" }));
+    o.push(s.cards(p.x + 12, p.y + 30, H0, { n: 3, w: 34, d: 24, id: "SYN-C-000001", idSize: 3.4 }));
     // scrubber comb: a bridge with teeth over the card
     o.push(s.slab({ x: p.x + 60, y: p.y + 10, w: 8, d: 44, r: 1 }, H0, 20, { tone: "mid" }));
     o.push(s.slab({ x: p.x + 60, y: p.y + 10, w: 50, d: 8, r: 1 }, H0 + 20, 6, { tone: "mid" }));
@@ -177,30 +177,30 @@ const machines = {
 };
 
 const labels = {
-  build: ["1", "CLAIM BUILDER", "AND SCRUBBER"],
-  mock: ["2", "PAYER MOCK", "AND CLEARINGHOUSE"],
-  remit: ["3", "REMIT POSTING", "835 IN"],
-  gate: ["4", "TRIAGE + CCI GATE", "LLM OR LAYA"],
-  ar: ["8", "AR FOLLOW-UP", "RANKS OPEN CLAIMS"],
-  voice: ["7", "VOICE AGENT", "BROWSER CALL"],
-  appeal: ["6", "APPEAL WRITER", "MUSE DRAFTS"],
-  review: ["5", "REVIEW CONSOLE", "AND AUDIT"],
+  build: ["1", "CLAIM BUILDER"],
+  mock: ["2", "PAYER MOCK"],
+  remit: ["3", "REMIT POSTING"],
+  gate: ["4", "TRIAGE + CCI GATE"],
+  ar: ["8", "AR FOLLOW-UP"],
+  voice: ["7", "VOICE AGENT"],
+  appeal: ["6", "APPEAL WRITER"],
+  review: ["5", "REVIEW CONSOLE"],
 };
 
 // Paint back row first, then the eval station, then the front row.
 for (const key of ["build", "mock", "remit", "gate"]) {
   const p = ST[key];
-  const [num, name, sub] = labels[key];
-  body.push(s.plinth({ ...p }, H0, { num, name, size: 10.5 }));
+  const [num, name] = labels[key];
+  body.push(s.plinth({ ...p }, H0, { num, name, size: 12 }));
   body.push(machines[key](p));
 }
-body.push(s.plinth(EVAL, 26, { num: "9", name: "EVAL", size: 9, tag: "PLANNED" }));
-body.push(s.knob(EVAL.x + 52, EVAL.y + 16, 26, 4, 4));
-body.push(s.led(EVAL.x + 36, EVAL.y + 16, 26, "blue"));
+body.push(s.plinth(EVAL, 32, { num: "9", name: "EVAL", size: 10, tag: "PLANNED" }));
+body.push(s.knob(EVAL.x + 52, EVAL.y + 16, 32, 4, 4));
+body.push(s.led(EVAL.x + 36, EVAL.y + 16, 32, "blue"));
 for (const key of ["ar", "voice", "appeal", "review"]) {
   const p = ST[key];
-  const [num, name, sub] = labels[key];
-  body.push(s.plinth({ ...p }, H0, { num, name, size: 10.5 }));
+  const [num, name] = labels[key];
+  body.push(s.plinth({ ...p }, H0, { num, name, size: 12 }));
   body.push(machines[key](p));
 }
 

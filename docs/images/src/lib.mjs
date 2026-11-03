@@ -4,7 +4,6 @@
 // Set ANATOMY_KIT to the path of that kit/iso-kit.mjs file. The build checks its sha256 before import.
 import { readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { pathToFileURL } from "node:url";
 
 export const KIT_COMMIT = "1482e8469b0a9e0d8cc18ea2740a01423d29ae80";
 export const KIT_SHA256 = "6d3ecc725d30c3b0346da309cf61dfa5a65017c23620bbd4093009d4fb104018";
@@ -14,12 +13,14 @@ if (!KIT) {
   console.error("Set ANATOMY_KIT to the path of kit/iso-kit.mjs from wheresryan22/anatomy at " + KIT_COMMIT + ".");
   process.exit(2);
 }
-const got = createHash("sha256").update(readFileSync(KIT)).digest("hex");
+// Read the kit once, check the bytes, then import those same bytes. The kit has no import statements.
+const bytes = readFileSync(KIT);
+const got = createHash("sha256").update(bytes).digest("hex");
 if (got !== KIT_SHA256) {
   console.error(`ANATOMY_KIT sha256 is ${got}. Expected ${KIT_SHA256} (commit ${KIT_COMMIT}). Stop.`);
   process.exit(3);
 }
-export const k = await import(pathToFileURL(KIT).href);
+export const k = await import("data:text/javascript;base64," + bytes.toString("base64"));
 
 export function makeScene(P) {
   const at = (p) => k.iso(p, P);
@@ -47,7 +48,9 @@ export function makeScene(P) {
         out += L(k.lineOnTop(a, [mx, my], z, P) + k.lineOnTop([mx, my], b, z, P), { tone, free: true }).replace("<path", `<path style="stroke-width:${w}px"`);
       }
     }
-    return out + D([at([...pts[0], z]), at([...pts.at(-1), z])], { size: 2.2, tone });
+    out += D([at([...pts[0], z]), at([...pts.at(-1), z])], { size: 2.2, tone });
+    // opts.color: a fourth accent colour for the "hi" tone (the kit has red, green and blue only).
+    return opts.color ? `<g style="--anatomy-hi:${opts.color};--anatomy-dot:${opts.color}">${out}</g>` : out;
   }
 
   // A bench: plate, feet, groove, corner screws and a ruler strip on the front edge.
@@ -76,7 +79,7 @@ export function makeScene(P) {
     out.push(L(k.planOutline(k.insetPlan(plan, 3), h, P, 3), { tone: "faint" }));
     out.push(screws(plan, 4, h, 0.45));
     const y = plan.y + plan.d;
-    const lines = [num ? `${num}  ${name}` : name, sub, tag].filter(Boolean);
+    const lines = [num ? `${num} ${name}` : name, sub, tag].filter(Boolean);
     const gap = size * 1.3;
     lines.forEach((line, i) => {
       const s = i === 0 ? size : size * 0.86;
@@ -175,6 +178,7 @@ export function frame({ W, H, drawH, fig, title, hint, readout, legend = [], col
   const t = (x, y, s, size, fill, anchor = "start", weight = 400) =>
     `<text x="${x}" y="${y}" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="${size}" fill="var(--anatomy-${fill})" text-anchor="${anchor}" font-weight="${weight}">${esc(s)}</text>`;
   out.push(t(36, 46, fig, 13, "muted"));
+  out.push(t(36 + fig.length * 8 + 16, 46, "PLANNED · NOT BUILT", 13, "strong", "start", 700));
   out.push(t(W - 36, 46, title, 15, "strong", "end", 600));
   out.push(t(36, drawH - 18, hint, 12, "text"));
   out.push(t(W - 36, drawH - 18, readout, 12, "strong", "end"));
@@ -194,7 +198,7 @@ export function frame({ W, H, drawH, fig, title, hint, readout, legend = [], col
   return out.join("");
 }
 
-const NOTICE = "<!-- Built with the anatomy kit (kit/iso-kit.mjs), Copyright (c) 2026 Ryan, MIT License. Commit " + KIT_COMMIT + ". The embedded CSS comes from that kit. See docs/images/LICENSE-anatomy.txt. All data in this figure is synthetic. -->";
+const NOTICE = "<!-- Built with the anatomy kit (kit/iso-kit.mjs), Copyright (c) 2026 Ryan, MIT License. Commit " + KIT_COMMIT + ". The embedded CSS comes from that kit. See docs/images/NOTICE-anatomy-MIT.txt. All data in this figure is synthetic. -->";
 
 export function writeFigure(path, { W, H, label, body }) {
   const svg = NOTICE + "\n" + `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="iso iso-svg" data-theme="light" role="img" aria-label="${label.replace(/"/g, "&quot;")}"><title>${label.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</title><style>${k.ISO_CSS}</style>${body.join("")}</svg>\n`;

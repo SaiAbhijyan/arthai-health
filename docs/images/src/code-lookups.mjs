@@ -24,7 +24,7 @@ const body = [frame({
     "1  The catalog holds small public subsets: HCPCS Level II (CMS) and ICD-10-CM (CDC/NCHS),",
     "   with attribution. CARC and RARC hold code values with our own labels, not X12 text.",
     "   The CPT drawer stays locked. We use no CPT codes or descriptors, and no AMA license (D-009).",
-    "2  An agent asks for a code value. Example: CO-197, a CARC value on a synthetic denial.",
+    "2  An agent asks for a code value. Example: CARC 197 from the adjustment CO-197 (group code CO).",
     "3  The catalog returns the value and our own category label (example: prior_auth).",
     "4  A check confirms that every code is in the catalog and matches its format.",
     "   No free-text codes go into a claim, a prompt or a letter.",
@@ -40,7 +40,7 @@ body.push(s.link(QUERY, QUERY.x + QUERY.w - 14, RESULT, RESULT.x + 16, 166));
 body.push(s.track([[RESULT.x + RESULT.w - 30, RESULT.y + RESULT.d + 6], [RESULT.x + RESULT.w - 30, 304], [VERIFY.x + VERIFY.w + 6, 304]], z, "green", { width: 2.4 }));
 
 // 1 the card catalog cabinet: five drawers in a row, one locked
-body.push(s.plinth(CAB, HP, { num: "1", name: "CODE CATALOG", sub: "PUBLIC SUBSETS", size: 9.5 }));
+body.push(s.plinth(CAB, HP, { num: "1", name: "CODE CATALOG", sub: "PUBLIC SUBSETS", size: 11 }));
 const drawers = [
   ["HCPCS II", "CMS", false],
   ["ICD-10-CM", "CDC/NCHS", false],
@@ -82,11 +82,11 @@ drawers.forEach(([name, sub, locked], i) => {
 });
 
 // 3 query terminal, 4 result card, 5 verifier
-body.push(s.plinth(QUERY, HP, { num: "2", name: "AGENT ASKS", sub: "LOOKUP BY VALUE", size: 9.5 }));
-body.push(s.cards(QUERY.x + 14, QUERY.y + 18, HP, { n: 2, w: 120, d: 60, id: "ASK: CARC CO-197", rules: 2, idSize: 7.4 }));
-body.push(s.plinth(RESULT, HP, { num: "3", name: "CATALOG ANSWERS", sub: "VALUE + OUR LABEL", size: 9.5 }));
-body.push(s.cards(RESULT.x + 14, RESULT.y + 18, HP, { n: 3, w: 120, d: 60, id: "CO-197: prior_auth", rules: 2, lit: true, idSize: 7.4 }));
-body.push(s.plinth(VERIFY, HP, { num: "4", name: "CATALOG CHECK", sub: "IN CATALOG? FORMAT OK?", size: 9.5 }));
+body.push(s.plinth(QUERY, HP, { num: "2", name: "AGENT ASKS", sub: "LOOKUP BY VALUE", size: 11 }));
+body.push(s.cards(QUERY.x + 14, QUERY.y + 18, HP, { n: 2, w: 120, d: 60, id: "ASK: CARC 197", rules: 2, idSize: 7.4 }));
+body.push(s.plinth(RESULT, HP, { num: "3", name: "CATALOG ANSWERS", sub: "VALUE + OUR LABEL", size: 11 }));
+body.push(s.cards(RESULT.x + 14, RESULT.y + 18, HP, { n: 3, w: 120, d: 60, id: "CARC 197: prior_auth", rules: 2, lit: true, idSize: 7.4 }));
+body.push(s.plinth(VERIFY, HP, { num: "4", name: "CATALOG CHECK", sub: "IN CATALOG? FORMAT OK?", size: 11 }));
 [
   ["HCPCS II: LETTER + 4 DIGITS", "green"],
   ["ICD-10-CM: LETTER, DIGIT, UP TO 5 MORE", "green"],
@@ -104,7 +104,7 @@ body.push(s.cards(VERIFY.x + 22, VERIFY.y + 20, HP, { n: 2, w: 100, d: 40, id: "
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 5. Planned code lookups. A card catalog has drawers for HCPCS Level II, ICD-10-CM, CARC and RARC values, and a locked CPT drawer marked not used. An agent asks for CARC CO-197, the catalog answers CO-197: prior_auth, and a green track takes the answer to a check with format rows for each code set and a red row that rejects CPT.",
+  label: "Fig 5. Planned code lookups. A card catalog has drawers for HCPCS Level II, ICD-10-CM, CARC and RARC values, and a locked CPT drawer marked not used. An agent asks for CARC 197, the catalog answers CARC 197: prior_auth, and a green track takes the answer to a check with format rows for each code set and a red row that rejects CPT.",
   body,
 });
 console.log("wrote", OUT);

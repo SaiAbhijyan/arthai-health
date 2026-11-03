@@ -1,6 +1,6 @@
 # Plan: README with isometric figures
 
-Status: in review (PR on branch `docs/readme-anatomy`). Scope set by Sai on 2026-11-02, relayed by Mini Chief.
+Status: in review (PR on branch `docs/readme-anatomy`). Sai set the scope on 2026-11-02, relayed by Mini Chief. The figures were built under that scope. D-019 stays Proposed until Sai approves the PR.
 
 ## Goal
 
@@ -16,8 +16,8 @@ Write a README that explains Arthai Health to a new reader. Show each planned pr
 
 ## Checks
 
-1. `make lint test`. `tests/test_readme_figures.py` checks that each figure exists, has alt text and says "PLANNED".
-2. A link and path check of the README.
+1. `make lint test`. `tests/test_readme_figures.py` checks that each station in each figure says "PLANNED", that each figure has alt text, that no forbidden names appear, and that the README relative links and anchors resolve.
+2. An external link check of the README URLs (manual, before merge).
 3. A fresh-context review for accuracy, overclaims, STE, figure legibility, leaks and visual quality. Fix every HIGH and MEDIUM finding.
 4. A secret scan of the diff.
 

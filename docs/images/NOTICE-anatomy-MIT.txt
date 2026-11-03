@@ -1,3 +1,7 @@
+This notice applies only to the CSS from the anatomy kit (kit/iso-kit.mjs, commit
+1482e8469b0a9e0d8cc18ea2740a01423d29ae80) that is embedded in the SVG files in docs/images/.
+It is not the license of this repository.
+
 MIT License
 
 Copyright (c) 2026 Ryan

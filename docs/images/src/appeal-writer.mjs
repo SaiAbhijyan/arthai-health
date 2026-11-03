@@ -24,7 +24,7 @@ const body = [frame({
   legend: [
     "1  Inputs: the synthetic denial record, the facts from the record, and retrieved chunks",
     "   of a fictional payer policy (example payer ZZP01).",
-    "2  Muse (a Meta model) drafts the letter. Muse writes the text. It does not make the decision.",
+    "2  Muse (a Meta model) drafts the letter from the facts and the policy chunks.",
     "3  The citation gate checks that each statement maps to a retrieved chunk ID.",
     "   If a statement has no source, the draft goes back to the writer (red track).",
     "4  A human approves the letter in the review console (tier 2). In the hackathon,",
@@ -47,13 +47,13 @@ body.push(s.track([[500, CITE.y + CITE.d + 6], [500, APPROVE.y - 6]], z, "green"
 body.push(s.track([[APPROVE.x + APPROVE.w + 6, 308], [SEND.x - 6, 308]], z, "green", { width: 2.6 }));
 
 // 1 facts: three cards side by side
-body.push(s.plinth(FACTS, HP, { num: "1", name: "FACTS IN", sub: "RECORD + POLICY", size: 9.5 }));
+body.push(s.plinth(FACTS, HP, { num: "1", name: "FACTS IN", sub: "RECORD + POLICY", size: 11 }));
 body.push(s.cards(FACTS.x + 10, FACTS.y + 14, HP, { n: 2, w: 60, d: 36, id: "SYN-D-000042", rules: 3 }));
 body.push(s.cards(FACTS.x + 80, FACTS.y + 14, HP, { n: 3, w: 60, d: 36, id: "ZZP01 POLICY", rules: 3 }));
 body.push(s.cards(FACTS.x + 10, FACTS.y + 58, HP, { n: 1, w: 130, d: 30, id: "CHUNK IDS: P-4.2  P-7.1", rules: 1 }));
 
 // 2 the writer: body, platen, sheet, keys
-body.push(s.plinth(MUSE, HP, { num: "2", name: "MUSE WRITER", sub: "META MODEL DRAFTS", size: 9.5 }));
+body.push(s.plinth(MUSE, HP, { num: "2", name: "MUSE WRITER", sub: "META MODEL DRAFTS", size: 11 }));
 {
   const b = { x: MUSE.x + 14, y: MUSE.y + 34, w: 142, d: 62, r: 6 };
   body.push(s.slab(b, HP, 18, { tone: "mid" }, 6, 1));
@@ -71,7 +71,7 @@ body.push(s.plinth(MUSE, HP, { num: "2", name: "MUSE WRITER", sub: "META MODEL D
 }
 
 // 3 citation gate: two rollers and a check window
-body.push(s.plinth(CITE, HP, { num: "3", name: "CITATION GATE", sub: "EVERY LINE HAS A SOURCE", size: 9.5 }));
+body.push(s.plinth(CITE, HP, { num: "3", name: "CITATION GATE", sub: "EVERY LINE HAS A SOURCE", size: 11 }));
 {
   const frameL = { x: CITE.x + 14, y: CITE.y + 20, w: 8, d: 70, r: 1 };
   const frameR = { x: CITE.x + 126, y: CITE.y + 20, w: 8, d: 70, r: 1 };
@@ -85,7 +85,7 @@ body.push(s.plinth(CITE, HP, { num: "3", name: "CITATION GATE", sub: "EVERY LINE
 }
 
 // 4 approval stamp and console button
-body.push(s.plinth(APPROVE, HP, { num: "4", name: "HUMAN APPROVAL", sub: "TIER 2, IN CONSOLE", size: 9.5 }));
+body.push(s.plinth(APPROVE, HP, { num: "4", name: "HUMAN APPROVAL", sub: "TIER 2, IN CONSOLE", size: 11 }));
 {
   const x = APPROVE.x + 40, y = APPROVE.y + 36;
   body.push(s.cyl(x, y, 14, HP, 5, { tone: "mid" }, 40, 0.6));
@@ -94,7 +94,7 @@ body.push(s.plinth(APPROVE, HP, { num: "4", name: "HUMAN APPROVAL", sub: "TIER 2
   body.push(s.cards(APPROVE.x + 76, APPROVE.y + 22, HP, { n: 2, w: 60, d: 34, id: "APPROVED BY", rules: 2 }));
 }
 // 5 out tray
-body.push(s.plinth(SEND, HP, { num: "5", name: "SEND", sub: "ONLY AFTER APPROVAL", size: 9.5 }));
+body.push(s.plinth(SEND, HP, { num: "5", name: "SEND", sub: "ONLY AFTER APPROVAL", size: 11 }));
 {
   const t = s.tray({ x: SEND.x + 20, y: SEND.y + 12, w: 96, d: 56, r: 1 }, HP, 7);
   body.push(t.back, s.cards(SEND.x + 28, SEND.y + 20, HP + 1.2, { n: 3, w: 78, d: 40, id: "APPEAL L1", rules: 3 }), t.front);

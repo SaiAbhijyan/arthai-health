@@ -44,14 +44,14 @@ body.push(s.track([[CONSOLE.x + 70, CONSOLE.y + CONSOLE.d + 6], [CONSOLE.x + 70,
 body.push(s.link(APPROVE, APPROVE.x + APPROVE.w - 14, FEED, FEED.x + 16, 344, "blue", { dotted: true, width: 2.4 }));
 
 // 1 queues: two trays
-body.push(s.plinth(QUEUES, HP, { num: "1", name: "TWO QUEUES", sub: "FLAGGED + RANDOM QA", size: 9.5 }));
+body.push(s.plinth(QUEUES, HP, { num: "1", name: "TWO QUEUES", sub: "FLAGGED + RANDOM QA", size: 11 }));
 for (const [i, [id, n, tone]] of [["AI-FLAGGED", 3, "red"], ["RANDOM QA", 2, "blue"]].entries()) {
   const t = s.tray({ x: QUEUES.x + 10 + i * 78, y: QUEUES.y + 14, w: 72, d: 70, r: 1 }, HP, 6);
   body.push(t.back, s.cards(QUEUES.x + 16 + i * 78, QUEUES.y + 22, HP + 1.2, { n, w: 56, d: 52, id, rules: 3, idSize: 5.6 }), t.front);
   body.push(s.led(QUEUES.x + 70 + i * 78, QUEUES.y + 92, HP, tone));
 }
 // 2 console screen with a claim timeline
-body.push(s.plinth(CONSOLE, HP, { num: "2", name: "CLAIM TIMELINE", sub: "ACTIONS, MODEL, SOURCES", size: 9.5 }));
+body.push(s.plinth(CONSOLE, HP, { num: "2", name: "CLAIM TIMELINE", sub: "ACTIONS, MODEL, SOURCES", size: 11 }));
 body.push(s.screen({ x: CONSOLE.x + 14, y: CONSOLE.y + 14, w: 222, d: 5, r: 1 }, HP, 76, [
   { text: "SYN-C-000042   TIMELINE", size: 7.4 },
   { text: "09:01  triage      llm    cat=prior_auth", size: 6.4, tone: "hi" },
@@ -63,7 +63,7 @@ body.push(s.screen({ x: CONSOLE.x + 14, y: CONSOLE.y + 14, w: 222, d: 5, r: 1 },
 body.push(s.slab({ x: CONSOLE.x + 40, y: CONSOLE.y + 56, w: 170, d: 40, r: 3 }, HP, 4, { tone: "mid" }, 3, 0.6));
 body.push(s.D(k.dotGrid(CONSOLE.x + 48, CONSOLE.y + 62, 18, 4, 8.6, HP + 4, P), { size: 0.9, tone: "mid" }));
 // 3 audit chain: linked blocks with hash links
-body.push(s.plinth(AUDIT, HP, { num: "3", name: "AUDIT TRAIL", sub: "APPEND-ONLY, HASH CHAIN", size: 9.5 }));
+body.push(s.plinth(AUDIT, HP, { num: "3", name: "AUDIT TRAIL", sub: "APPEND-ONLY, HASH CHAIN", size: 11 }));
 for (let i = 0; i < 5; i++) {
   const b = { x: AUDIT.x + 14 + i * 42, y: AUDIT.y + 30, w: 30, d: 44, r: 2 };
   body.push(s.slab(b, HP, 14, { tone: i === 4 ? "hi" : "mid", lit: i === 4 }, 3, 0.6));
@@ -74,7 +74,7 @@ for (let i = 0; i < 5; i++) {
 body.push(s.slab({ x: AUDIT.x + 14, y: AUDIT.y + 84, w: 200, d: 14, r: 1 }, HP, 1, { tone: "lo", crease: "none" }, 2, 0));
 body.push(s.top(AUDIT.x + 18, AUDIT.y + 94, HP + 1, "NO UPDATE · NO DELETE", 6, "hi"));
 // 4 approval panel with three buttons
-body.push(s.plinth(APPROVE, HP, { num: "4", name: "APPROVALS", sub: "HUMAN CLICK FOR SEND OR CALL", size: 9.5 }));
+body.push(s.plinth(APPROVE, HP, { num: "4", name: "APPROVALS", sub: "HUMAN CLICK FOR SEND OR CALL", size: 11 }));
 [["APPROVE", "green"], ["EDIT", "blue"], ["REJECT", "red"]].forEach(([name, tone], i) => {
   const b = { x: APPROVE.x + 16 + i * 76, y: APPROVE.y + 14, w: 64, d: 40, r: 4 };
   body.push(s.slab(b, HP, 10, { tone: "mid" }, 4, 0.6));
@@ -83,7 +83,7 @@ body.push(s.plinth(APPROVE, HP, { num: "4", name: "APPROVALS", sub: "HUMAN CLICK
   body.push(s.led(b.x + b.w - 8, b.y + 8, HP + 10, tone));
 });
 // 5 feedback to eval
-body.push(s.plinth(FEED, HP, { num: "5", name: "FEEDBACK", sub: "EDIT -> EVAL CASE", size: 9.5 }));
+body.push(s.plinth(FEED, HP, { num: "5", name: "FEEDBACK", sub: "EDIT -> EVAL CASE", size: 11 }));
 body.push(s.cards(FEED.x + 14, FEED.y + 14, HP, { n: 3, w: 110, d: 46, id: "EDIT: reason=wrong_policy", rules: 2, idSize: 5.4 }));
 body.push(s.gauge(FEED.x + 180, FEED.y + 38, HP, 22, 0.7));
 
