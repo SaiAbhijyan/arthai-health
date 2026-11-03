@@ -22,7 +22,7 @@ Local setup on the box (no global install):
 
 ## 2. Where LAYA fits in Arthai Health
 
-LAYA is the fast, cheap first step. The LLM (Muse Spark through the Meta Model API, or other models through OmniRoute) does the work that needs text.
+LAYA is the fast, cheap first step. The LLM (Muse Spark through Baseten or the Meta Model API, behind the one client in ADR 0004) does the work that needs text. Product calls do not go through OmniRoute (D-022).
 
 ```
 835 remit / denial text (synthetic)
@@ -54,7 +54,7 @@ Generator outline (`scripts/gen_laya_data.py`, to write later, with tests first)
 3. For each sample: select a category and codes, then fill a template with fake values (Faker with a fixed seed): claim id `CLM-xxxx`, CPT/HCPCS, DOS, payer name from a fake list, amounts.
 4. Make 3 text styles: 835-like segment text, payer portal note, call-center transcript line.
 5. Add noise: typos, abbreviations, missing fields, mixed order, distractor codes.
-6. Optional: let an LLM (through OmniRoute) paraphrase the text for variety, and a second model check the label (the `laya-finetune` pattern). Keep only rows where both agree.
+6. Optional: let an LLM (through the ADR 0004 client) paraphrase the text for variety, and a second model check the label (the `laya-finetune` pattern). Keep only rows where both agree.
 7. Write JSONL rows in the LAYA format:
 
 ```json
@@ -98,7 +98,7 @@ Cost and time: ESTIMATE only. 10,000 rows, 4 epochs, one A10G: about 30 to 90 mi
 ## 6. Serving
 
 - Hackathon demo: run LAYA in the API process (Python, CPU), or as `laya-serve` on `127.0.0.1`.
-- If CPU is too slow: one small Modal GPU endpoint. LAYA is not an LLM, so OmniRoute does not route it. OmniRoute stays for LLM calls (Meta, Fireworks, Baseten).
+- If CPU is too slow: one small Modal GPU endpoint. LAYA is not an LLM, so the LLM client does not route it. OmniRoute is for developer tools only (D-022).
 
 ## 7. Fallback
 

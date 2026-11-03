@@ -221,3 +221,75 @@ Write an entry when choosing a library, pattern, schema, protocol, model/prompt 
 - Decision: B. Calls go only to our own mock insurer. Never call a real insurer.
 - Consequences: Follow-up: ADR 0005 (voice design) verifies the license of each code package and each voice model live (no non-commercial voices) and records CPU latency measured on the box. Scan each voice tool with SkillSpector and document it before install. Free tiers that need no card go on a list for Sai only; no signups.
 - Links: docs/data-plan.md section 6.1 step 6 and R7, docs/adr/0004-stack.md
+
+### D-019: README figures: anatomy kit core only, pinned by commit and sha256
+- Date: 2026-11-02 | Status: Proposed
+- Deciders: Sai (set the tool scope and the six figures on 2026-11-02, relayed by Mini Chief); agent-drafted
+- Context: The README needs figures that show each planned product. The anatomy kit (wheresryan22/anatomy, MIT) draws isometric SVG figures. SkillSpector gave a CRITICAL overall score (100/100) from 42 HIGH and 6 MEDIUM findings. 38 of the HIGH findings are parser limits on large files; docs/tooling.md has the review. Some kit scripts can push to git (`scripts/publish.mjs`) or read local agent session logs (`scripts/session.mjs`).
+- Options considered:
+  - A: Hand-drawn or Mermaid diagrams. Pros: no third-party code. Cons: they do not show what each product does.
+  - B: The anatomy kit core only (`kit/iso-kit.mjs`), with `scripts/capture.mjs` for local PNG previews. The kit stays outside the repo. Pros: clear figures, small attack surface. Cons: third-party CSS is embedded in each SVG (MIT notice needed).
+- Decision: B. The build imports only `kit/iso-kit.mjs` at commit `1482e8469b0a9e0d8cc18ea2740a01423d29ae80` and checks its sha256 first. Never run or import `publish.mjs` or `session.mjs`.
+- Consequences: Good: figures rebuild from scripts in `docs/images/src/`. Bad: a rebuild needs the kit on disk. Follow-up: keep the MIT notice in `docs/images/NOTICE-anatomy-MIT.txt` and THIRD_PARTY_NOTICES.md.
+- Links: docs/plans/readme-anatomy.md, docs/tooling.md (anatomy), README.md (About the figures)
+
+### D-020: CCI gate: an empty set or a gate error goes to a human
+- Date: 2026-11-03 | Status: Accepted
+- Deciders: Sai (accepted 2026-11-03, his own card answer relayed by Mini Chief); Sai asked for a rule (2026-11-03, relayed by Mini Chief, with "route the claim to a human" as the default); agent-drafted
+- Context: The research (`docs/research/sota-rcm-model.md` section 5.3) says what the gate does with a set of 1 label (auto path) and with more than 1 label (human). It did not say what happens with an empty set. Split conformal prediction can give an empty set when no label passes the threshold. The docs also did not say how the default `llm` triage backend gives scores to the gate.
+- Options considered:
+  - A: Take the top-scoring label on the auto path. Cons: the gate found no label it trusts, so this hides an uncertain case.
+  - B: Send the claim to the human queue. Pros: fails closed; the reviewer sees the case. Cons: more human work.
+- Decision: B. Only a set with exactly 1 label takes the auto path. A set with 0 labels (`empty_set`), 2 or more labels (`wide_set`), or a gate error or scores that are not valid (`gate_error`) sends the claim to the human queue. The `llm` backend gives one score for each category in a closed list. Each backend has its own calibration.
+- Consequences: Good: the gate never auto-routes a claim that it is not sure about. Bad: more claims go to a human. Follow-up: the eval reports the empty-set rate; tests for each of the 4 results come with the `cci_gate` code.
+- Links: docs/adr/0004-stack.md ("LAYA and CCI scoring"), docs/research/sota-rcm-model.md section 5.3, README.md (Triage and the CCI gate)
+
+### D-021: Format of synthetic call reference numbers (SYN-REF)
+- Date: 2026-11-03 | Status: Accepted
+- Deciders: Sai (accepted 2026-11-03, his own card answer relayed by Mini Chief); Sai asked for a format (2026-11-03, relayed by Mini Chief); agent-drafted
+- Context: The voice agent records the reference number that the payer rep gives. The README figure used a 4-digit example, but no doc set the format. Real payer reference numbers must never appear in the repo.
+- Options considered:
+  - A: Free text. Cons: tests cannot check it; a real number can slip in.
+  - B: A fixed synthetic format that matches the other IDs (`SYN-C-000001`, `SYN-D-000001`).
+- Decision: B. Format: `SYN-REF-` and exactly 6 digits. Regex `^SYN-REF-[0-9]{6}$`. Example: `SYN-REF-000007`. Only our payer mock makes these numbers, one for each call, in sequence from `000001` for each seeded run. The same seed gives the same numbers. The field is `extracted.reference_number` in `CallTranscript`.
+- Consequences: Good: tests and the PHI scanner can check each reference number. Follow-up: the planned PHI scanner fails on a reference number that does not match the regex.
+- Links: docs/data-plan.md sections 6.2 and 6.4, README.md (Voice agent), docs/images/src/voice-agent.mjs
+
+### D-022: Product LLM calls do not go through OmniRoute; AGENTS.md follows D-012
+- Date: 2026-11-03 | Status: Accepted
+- Deciders: Sai (accepted 2026-11-03, his own card answer relayed by Mini Chief); Sai asked to fix the conflict (2026-11-03, relayed by Mini Chief); agent-drafted
+- Context: `AGENTS.md` said "LLM calls go through OmniRoute". D-012 and ADR 0004 item 4 say that OmniRoute is for developer tools only and is not in the product path. `docs/hackathon-workflow.md` and `docs/laya-plan.md` also sent product model calls through OmniRoute. Agents read `AGENTS.md` first, so the conflict could put OmniRoute in the product path.
+- Options considered:
+  - A: Change D-012 and the ADR to put OmniRoute in the product path. Cons: ToS surface of third-party free tiers, extra process, fast release cadence (ADR 0004 finding 2).
+  - B: Change `AGENTS.md` and the workflow docs to match D-012.
+- Decision: B. Product LLM calls go through one OpenAI-compatible client directly to Baseten or the Meta Model API (D-011). OmniRoute is for developer tools only (for example pi), on `127.0.0.1`, with API-key providers only. Never connect consumer or web-session providers. Never send private code to a provider that trains on inputs without Sai's OK.
+- Consequences: Good: one rule in every doc. Bad: none for the product; OmniRoute stays available for developer tools. D-012 itself stays Proposed until Sai approves it.
+- Links: AGENTS.md (Workflow), docs/adr/0004-stack.md item 4, docs/hackathon-workflow.md, docs/laya-plan.md
+
+### D-023: Install the full ECC (everything-claude-code) at project level, with some hooks disabled
+- Date: 2026-10-28 | Status: Accepted
+- Number: first written as D-019 in PR #12. Renumbered to D-023 on 2026-11-03 because D-019 on main is the README figures decision (Sai, relayed by Mini Chief). The body is not changed.
+- Deciders: Sai (approved on 2026-10-28 with the risk known); agent-installed by Mini Chief
+- Context: Sai wants more agents, skills and commands for the build. The SkillSpector scan of ECC (/workspace/curious/skillspector-ecc.md) gives 100/100 CRITICAL with 247 HIGH flags. D-003 and docs/tooling.md said "cherry-pick only". Sai accepted this risk and asked for the full install in this repo only.
+- Options considered:
+  - A: Cherry-pick some skills only. Pros: small attack surface. Cons: Sai does not get the full set.
+  - B: Full install at project level (.claude/ and .cursor/), not global, with risky hooks disabled. Pros: all ECC agents, skills, commands and rules. Cons: large attack surface, about 27 MB of third-party files, about 6k tokens of rules that are always loaded.
+- Decision: B. Source: github.com/affaan-m/ECC, commit 25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b (version 2.2.3), MIT license. Installer: `scripts/install-apply.js --target claude-project --profile full --enable-hooks`, then `--target cursor --profile full --no-hooks`.
+- Installed: Claude: 71 agents, 311 skills, 97 commands, 122 rule files (.claude/rules/ecc) and 27 ECC hook entries in .claude/settings.json. Cursor: 71 agents, 311 skills, 97 commands and 121 rule files. No ECC hooks in Cursor.
+- Safety changes:
+  - Disabled hooks (`ECC_DISABLED_HOOKS` in .claude/settings.json):
+    - `pre:mcp-health-check`, `post:mcp-health-check`: they send HTTP requests to MCP servers.
+    - `pre:observe`, `post:observe:continuous-learning`: they record all tool input and output, and they can start a background Haiku observer.
+    - `stop:cost-tracker`, `post:session-activity-tracker`, `post:ecc-metrics-bridge`, `post:skill:track`, `post:bash:command-log-audit`, `post:bash:command-log-cost`: local usage analytics. Command logs can hold secrets.
+    - `stop:evaluate-session`: it writes learned skills outside the repo.
+    - `pre:bash:auto-tmux-dev`: it starts and kills tmux sessions. It can break the `arthai` tmux session.
+    - `stop:format-typecheck`, `post:quality-gate`: they can run `npx`, which can download packages. They also duplicate our `make fmt` hook.
+    - `stop:desktop-notify`: the build box has no desktop.
+  - `ECC_GOVERNANCE_CAPTURE=0`. `ECC_AGENT_DATA_HOME=~/.claude/ecc-arthai`, so ECC session data does not mix with the global ~/.claude skills and sessions.
+  - The installer wrote absolute worktree paths into the hook commands. We changed them to use `CLAUDE_PROJECT_DIR`, so the hooks work in each clone and factory worktree.
+  - Cursor: we kept our .cursor/mcp.json. ECC tried to add the github, playwright and context7 MCP servers. We did not add them.
+  - The installer writes ~/.claude/ecc/state.db (an install record). We deleted it after the install. Uninstall uses .claude/ecc/install-state.json and .cursor/ecc-install-state.json.
+  - Makefile: lint and typecheck skip .claude/ and .cursor/. ECC adds about 200 Python files that are third-party code.
+- Audit: no ECC hook runs `git push`, reads ~/.ssh or credentials, or runs `curl | sh`. plan-canvas-pending sends HTTP to 127.0.0.1 only. ECC file names and agent names do not clash with the factory agents (builder, reviewer, approver, intake, spec-writer, reviewer-*, security-auditor) or with our skills and commands. No renames were necessary.
+- Consequences: Agents get many more tools. ECC hooks do not merge or push, so the factory merge guard stays in force. This change touches .claude/*, so it escalates to Sai. gateguard-fact-force can stop the first edit or a destructive command in a session and ask for facts, so headless factory jobs can use more turns. config-protection blocks edits to linter and formatter config. On conflict, AGENTS.md, CLAUDE.md and the factory rules win over ECC rules. Follow-ups: scan again when you update ECC. After Nov 4, remove the skills that we do not use (healthcare RCM does not need most of them).
+- Links: THIRD_PARTY_NOTICES.md (ECC), docs/tooling.md (ECC), /workspace/curious/skillspector-ecc.md

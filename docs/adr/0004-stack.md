@@ -1,7 +1,7 @@
 # 4. Model, triage, memory and compute stack for the hackathon build
-Date: 2026-10-28 (revised the same day after Mini Chief's review)
+Date: 2026-10-28 (revised the same day after Mini Chief's review). Revised 2026-11-03: item 8 follows D-018 (voice), item 4 follows D-022 (OmniRoute), and a new section "LAYA and CCI scoring" (D-020).
 ## Status
-Proposed, except Contributor mode, which is Accepted (D-017, Sai 2026-10-28: yes, synthetic data only). The rest waits for Sai's approval and for the answers to the rule questions in `docs/data-plan.md` section 7.
+Proposed, except Contributor mode, which is Accepted (D-017, Sai 2026-10-28: yes, synthetic data only). These parts are also Accepted: item 8 voice (D-018), item 4 OmniRoute scope (D-022, Sai 2026-11-03) and the section "LAYA and CCI scoring" result rules (D-020, Sai 2026-11-03). The rest waits for Sai's approval and for the answers to the rule questions in `docs/data-plan.md` section 7.
 Memory is already decided: `DECISIONS.md` D-004 (Accepted, cognee 1.6.5). This ADR does not re-open D-004.
 
 Note on the number: the brief asked for `docs/adr/0001-stack.md`. ADR 0001 already exists (`0001-modular-monolith.md`), so this ADR uses the next free number, 0004.
@@ -33,7 +33,7 @@ Total approved: $350. Sai's rule stays: stop at the credit limit; never add a pa
 - **Meta Model API (direct).** Base URL `https://api.meta.ai/v1`. OpenAI-, Anthropic- and Responses-compatible surfaces. Models: `muse-spark-1.3`, `muse-spark-1.2`, `muse-spark-1.1`, `muse-wonder-1.0` (preview), Muse Image, Muse Voice Transcribe, SAM 3.1. Source: https://dev.meta.ai/docs/overview, https://dev.meta.ai/docs/pricing-rate-limits. **Verified.**
 - Prices per 1M tokens, Standard mode: Muse Spark input $1.25, cached input $0.15, output $4.25. Muse Wonder $4.00 / $0.20 / $20.00. **Verified.**
 - **Contributor mode** (`muse-spark-1.3-contributor`, `muse-spark-1.2-contributor`): input $0.10, cached $0.002, output $0.20. In exchange, Meta may use the prompts, code, files and responses to train future Meta models. Rate limit 150 RPM and 3M TPM (Standard: 3,000 RPM, 4M TPM). **Verified.**
-- Muse Voice Transcribe: speech to text, $0.18 per audio hour, 256 concurrent streams. **Verified.** We found **no Meta text-to-speech model** in the model list (six model lines). The voice-call agent needs a TTS choice in Phase 2.
+- Muse Voice Transcribe: speech to text, $0.18 per audio hour, 256 concurrent streams. **Verified.** We found **no Meta text-to-speech model** in the model list (six model lines). D-018 (Accepted, 2026-10-28) later set local, free speech-to-text and text-to-speech for the demo. Thus the demo does not use Muse Voice Transcribe (see Decision item 8).
 - **Baseten, public docs:** Baseten serves Muse Spark Open (816B MoE, 42B active, "Muse Model License") at `https://inference.baseten.co/v1`. The public model list and the 2026-10-15 changelog show the ID `meta-models/muse-spark-open`. Price per 1M: input $1.25, cached $0.15, output $4.25. Baseten says the model is "designed specifically for coding agents". **Verified.**
 - **Baseten, Sai's email:** Mini Chief reports that Baseten's 2026-10-26 email to Sai names the model `meta-models/muse-spark-open-1026` and says that the key works only with that model. We did not read the email.
 - **Conflict (open):** the public docs show `meta-models/muse-spark-open`; the email shows `meta-models/muse-spark-open-1026`. A dated ID for a hackathon key is plausible, so we do not reject either ID. The repo on `main` already uses the email ID (`.env.example`: `LLM_MODEL=openai/meta-models/muse-spark-open-1026`). **To verify:** when the key is in `.env`, call `GET https://inference.baseten.co/v1/models` with that key and record the returned IDs in `DECISIONS.md`. Use the ID that the call returns.
@@ -79,7 +79,7 @@ Gaps we found (for follow-up, not blockers):
 - One typical agent call: about 2,000 input and 600 output tokens. At $1.25 / $4.25 per 1M, one call costs about $0.005.
 - Meta $150 covers about 30,000 such calls. Baseten $100 covers about 20,000 such calls. The plan in `docs/data-plan.md` (500 denials, paraphrase plus label check, appeals, transcripts, evals, demo runs) needs about 5,000 to 10,000 calls.
 - Modal $100 (plus $30/month Starter credit) covers about 125 L4 hours. The LAYA fine-tune estimate is 0.5 to 1.5 hours.
-- Muse Voice Transcribe: $0.18 per hour. Ten hours of test calls cost about $1.80.
+- Muse Voice Transcribe: $0.18 per hour. Ten hours of test calls cost about $1.80. D-018 replaces it with local speech-to-text, so the demo plan has no voice cost.
 - Measure real token use in the first Phase 2 run and replace these numbers.
 
 ## Options considered
@@ -94,12 +94,29 @@ Option C (proposed):
 1. **LLM, primary: Baseten Muse Spark Open**, with the model ID that `GET /v1/models` returns for Sai's key (expected `meta-models/muse-spark-open-1026` per the email). Use it for agent text work, batch generation and cognee (already configured on `main`).
 2. **LLM, secondary: Meta Model API `muse-spark-1.3`** (Standard mode). Use it as the fallback, and as the primary if the Baseten models-list check fails. Contributor mode is **Accepted** (D-017): use `muse-spark-1.3-contributor` for synthetic-data work only.
 3. **Config:** product client vars `ARTHAI_LLM_BASE_URL`, `ARTHAI_LLM_MODEL`, `ARTHAI_LLM_API_KEY`, plus `ARTHAI_LLM_FALLBACK_*`. We use a prefix so that the product does not collide with cognee's `LLM_*` vars. A startup check calls `GET /v1/models` on both providers and fails if a configured model is missing.
-4. **OmniRoute:** developer tools only (pi, experiments), as in `docs/tooling.md`. Not in the product runtime path. Never connect consumer or web-session providers.
+4. **OmniRoute:** developer tools only (pi, experiments), as in `docs/tooling.md`. Not in the product runtime path. Product LLM calls go through the one OpenAI-compatible client in item 3, directly to Baseten or the Meta Model API. Never connect consumer or web-session providers. `AGENTS.md` follows this rule (D-012, D-022).
 5. **LAYA:** optional triage behind `TRIAGE_BACKEND=laya|llm`. Default `llm` until the rule question is answered and LAYA beats the LLM on the held-out set.
 6. **Memory:** cognee 1.6.5 per D-004 (Accepted). This ADR adds only: keep `TELEMETRY_DISABLED=1` (also set `ENV=dev` as a second guard); put the product's use behind `MEMORY_BACKEND=cognee|none` so the demo still runs if cognee fails; fix the gaps listed in finding 4.
 7. **Compute:** Modal for the LAYA fine-tune and any batch job, with `max_containers=1`, a timeout and a spend limit inside the credits.
-8. **Voice:** speech to text with Muse Voice Transcribe (Meta key). TTS and telephony: open (Phase 2). The voice agent calls only our mock payer IVR.
+8. **Voice (follows D-018, Accepted):** the demo call is a browser call (WebRTC and Web Audio) to our own payer mock rep. There is no paid phone line. Speech-to-text runs locally with Whisper or faster-whisper. Text-to-speech runs locally with Piper or Kokoro. The demo does not use Muse Voice Transcribe. ADR 0005 (not written yet) picks the packages and voices after a license check and a SkillSpector scan, and records the CPU latency. The voice agent calls only our payer mock. It never calls a real payer.
 9. **Fireworks:** not in the plan until the credit is approved.
+
+## LAYA and CCI scoring (D-020, Accepted)
+This section tells how the triage step gives scores to the CCI gate, and what the gate does with each result.
+
+1. **Labels.** The triage step scores a closed list of denial categories. The list comes from the scenario table (`docs/data-plan.md` section 6.1). Free-text labels are not allowed.
+2. **Scores with `TRIAGE_BACKEND=laya`.** LAYA gives a probability for each category in one forward pass. Calibrate the temperature on the calibration split first. Do not use raw LAYA confidence (`docs/laya-plan.md`).
+3. **Scores with `TRIAGE_BACKEND=llm` (the default).** The LLM returns one score from 0 to 1 for each category in the closed list, as typed JSON (a Pydantic model). If the JSON is not valid, or a category is missing, the gate does not run and the claim goes to a human. Pin the model version and use temperature 0. Calibrate again when the model version or the prompt changes.
+4. **Gate.** `cci_gate` uses the cci-sdk `stats` module (split conformal prediction) on the calibration split. It sets a threshold for the target coverage 1 - alpha. Each backend has its own calibration. Do not use a threshold from one backend with the other backend.
+5. **Why LLM scores are allowed.** The coverage guarantee of split conformal prediction does not need calibrated scores. It needs calibration data that is exchangeable with new data. Poor scores make the sets larger, so more claims go to a human. They do not break the guarantee.
+6. **Result rules (D-020).**
+   - Set with exactly 1 label: the claim takes the auto path to the appeal writer.
+   - Set with 2 or more labels: the claim goes to the human queue (reason `wide_set`).
+   - Empty set (0 labels): the claim goes to the human queue (reason `empty_set`).
+   - Gate error, scores that are not valid, or no calibration: the claim goes to the human queue (reason `gate_error`). The gate fails closed.
+7. **Audit.** Each gate decision writes one `audit_event` with the backend, the scores, the set, alpha, the calibration version and the reason.
+8. **Metrics.** The eval reports coverage against 1 - alpha, the average set size, the empty-set rate and the human-review rate, for each backend.
+9. **Limit.** The guarantee is an average over cases like the calibration set. It is not a promise about one claim. Recalibrate when payers, code years or the label list change.
 
 ## Consequences
 - Good: every model call is a Meta model; both approved text credits are usable; one config switch changes provider; no router process on demo day.
@@ -107,8 +124,8 @@ Option C (proposed):
 - Follow-ups:
   1. Load the Baseten key, run the models-list call, and record the real model ID.
   2. Sai confirms the rules (non-Meta embeddings for cognee, LAYA).
-  3. Select a TTS option.
+  3. Write ADR 0005 (voice). It selects the local speech-to-text and text-to-speech packages from the D-018 candidates.
   4. Fix the cognee gaps in finding 4 (relative paths, CPT text in the smoke script).
   5. When Sai approves, accept D-011 to D-013 and D-016 (they are still Proposed, so their status line can change). D-017 (Contributor mode) is already Accepted.
 
-Links: `DECISIONS.md` D-004 (cognee, Accepted), D-011 to D-013, D-016 (Modal), D-017 (Contributor mode, Accepted), D-018 (voice, Accepted); `docs/data-plan.md`; `docs/tooling.md`; `docs/laya-plan.md`.
+Links: `DECISIONS.md` D-004 (cognee, Accepted), D-011 to D-013, D-016 (Modal), D-017 (Contributor mode, Accepted), D-018 (voice, Accepted), D-020 (CCI gate results, Accepted), D-022 (OmniRoute, Accepted); `docs/research/sota-rcm-model.md` section 5.3; `docs/data-plan.md`; `docs/tooling.md`; `docs/laya-plan.md`.

@@ -74,6 +74,7 @@ scripts/omniroute.sh add-keys  # providers: meta-llama, fireworks, baseten
 OmniRoute does not read provider env vars itself. `add-keys` passes them with `providers add <id> --credential-env <VAR>`. The key is stored encrypted in the local data dir.
 `/v1/*` needs an OmniRoute client key: make one with `omniroute keys` (see `--help`) and set `OMNIROUTE_API_KEY`. Base URL for clients: `http://127.0.0.1:20128/v1`.
 Use only API-key providers (Meta, Baseten, Fireworks, Modal). Do not connect consumer subscriptions.
+Scope (D-012, D-022): developer tools only, for example pi. Product LLM calls do not go through OmniRoute. They use the one client in ADR 0004.
 
 ### Headroom (headroomlabs-ai/headroom) — installed 2026-10-28, box tool, tracking off
 - Version: `headroom-ai[proxy]==0.42.0`. License: Apache-2.0. SkillSpector re-scan 2026-10-28: `/workspace/curious/skillspector-headroom-2026-10-28.md`.
@@ -149,12 +150,22 @@ Scan flags are hooks/CLI code that edits agent config dirs (expected for an inst
 MIT, ~21k stars. Builds interactive isometric SVG/WebGL explainer figures (not a repo map). Good for demo/pitch visuals.
 ~10-40 MB kit; scanner could not fully inspect it. Project install: `npx skills add wheresryan22/anatomy -a claude-code`.
 
+Re-scan for the README figures (2026-11-02), commit `1482e8469b0a9e0d8cc18ea2740a01423d29ae80`:
+
+- SkillSpector v2.12.0 (`--no-llm`) gave a CRITICAL overall score (100/100) from 48 findings: 42 HIGH and 6 MEDIUM. 38 HIGH findings are AE1 (the parser could not read a large file). We reviewed the 4 other HIGH lines: each is a false positive on a CSS string join (`rules.join`) in `kit/turn.mjs` and `kit/turn-fixed.mjs`, which the build does not use. We also reviewed the 6 MEDIUM findings: mixed-script Unicode (2, maths symbols in docs), unsafe defaults (2, in `kit/turn-build.mjs` and `references/3d.md`, not used by the build), no declared tool scope, and autonomous decision making (a SKILL.md instruction). None is in `kit/iso-kit.mjs`.
+- `kit/iso-kit.mjs` has 2 AE1 findings, so we read it by hand. It has no import statements and no network calls. `scripts/capture.mjs` drives a local headless Chrome over 127.0.0.1 with a temp profile.
+- Use for the figures: `kit/iso-kit.mjs` and `scripts/capture.mjs` only, run locally. Do not run or import `scripts/publish.mjs` (it can push and use `gh`) or `scripts/session.mjs` (it reads local agent session logs). Sai set this scope on 2026-11-02 (relayed by Mini Chief). See D-019.
+- `docs/images/src/lib.mjs` checks the sha256 of `kit/iso-kit.mjs` (`6d3ecc72…4fb104018`) before import.
+- Rebuild check (2026-11-02): in a clean clone, the six build scripts gave the same SVG bytes (`git status --porcelain docs/images` was empty). Without `ANATOMY_KIT`, the build stops with exit code 2.
+
 ### claude-code-setup (anthropics/claude-plugins-official) — use
 Official Anthropic plugin (automation recommender). Flags are its own docs listing `.env` files to protect.
 `claude plugin install claude-code-setup@claude-plugins-official --scope project` when you want setup recommendations.
 
 ### everything-claude-code / ECC (affaan-m/ECC) — use with care, cherry-pick only
 MIT, ~290k stars, 1,000+ skills. Too broad to vendor; 247 HIGH static flags. Nothing vendored. `skills/prompt-optimizer` scanned clean (15/100).
+
+**Update 2026-10-28 (D-023):** Sai approved the full install at project level. ECC commit 25278e7d7b6c is in `.claude/` and `.cursor/`. Some hooks are disabled. Read D-023 before you enable a hook. Do not install ECC globally.
 
 ## Avoid
 - **Agent-Reach (Panniantong/Agent-Reach)**: reuses cookies from your logged-in browsers over CDP to scrape X/Reddit/etc.
