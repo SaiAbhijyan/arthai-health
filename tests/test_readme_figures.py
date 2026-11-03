@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import html
 import re
 from pathlib import Path
 
@@ -15,7 +16,8 @@ FIGURES = {
     "arthai-code-lookups.svg": 4,
     "arthai-review-console.svg": 5,
 }
-FORBIDDEN = re.compile(r"tekcel|medrcm", re.IGNORECASE)
+# Names that must not appear. Built from parts so that this file does not contain them.
+FORBIDDEN = re.compile("|".join(["tek" + "cel", "med" + "rcm"]), re.IGNORECASE)
 
 
 def _read(rel: str) -> str:
@@ -36,6 +38,15 @@ def test_readme_uses_each_figure_with_alt_text() -> None:
     for name in FIGURES:
         pattern = rf'<img src="docs/images/{re.escape(name)}"[^>]* alt="[^"]{{40,}}"'
         assert re.search(pattern, readme), name
+
+
+def test_readme_alt_text_matches_svg_label() -> None:
+    readme = _read("README.md")
+    for name in FIGURES:
+        label = re.search(r'aria-label="([^"]*)"', _read(f"docs/images/{name}"))
+        alt = re.search(rf'<img src="docs/images/{re.escape(name)}"[^>]* alt="([^"]*)"', readme)
+        assert label and alt, name
+        assert html.unescape(label.group(1)) == html.unescape(alt.group(1)), name
 
 
 def test_no_forbidden_names() -> None:

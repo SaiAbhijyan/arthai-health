@@ -36,16 +36,16 @@ const body = [frame({
     "3  Remit posting: reads the 835 remittance and finds each denied line.",
     "4  Triage + CCI gate: a scorer (LLM by default, LAYA optional) and a conformal gate pick the path.",
     "5  Review console + audit: the human queue, the approvals and the audit trail.",
-    "6  Appeal writer: Muse drafts the letter. Each statement cites a source.",
+    "6  Appeal writer: an LLM drafts the letter (Muse planned, D-011 proposed). Each statement cites a source.",
     "7  Voice agent: a browser call to the mock payer rep.",
-    "8  AR follow-up: ranks the open claims for the next action.",
+    "8  AR follow-up: a separate planned loop. It ranks the open claims for the next action.",
     "9  Eval and feedback loop: reviewer edits become eval cases.",
     "Tracks. Chevrons show the direction.",
-    "   black: the claim goes to the next step (1 to 2 to 3 to 4, 6 to 7 and 7 to 8).",
+    "   black: the claim goes to the next step (1 to 2 to 3 to 4, then 6 to 7). The call outcome goes 7 to 5.",
     "   green: the gate is sure. The claim goes from 4 to 6.",
     "   red: the gate is not sure. The claim goes from 4 to the human queue in 5.",
     "   amber: the human decides, and the claim goes from 5 to 6.",
-    "   6 to 7 starts only after a human approves the draft in the console (tier 2).",
+    "   6 to 7 starts only after a human approves the send and the call in the console (tier 2).",
     "   dashed: the call goes only to our mock payer in 2.",
     "   blue dotted: reviewer edits go from 5 to 9, then recalibrate the gate in 4.",
   ],
@@ -68,8 +68,8 @@ const out = (p) => p.y + p.d + 6;
 body.push(s.track([[640, out(ST.review)], [640, 352], [520, 352], [520, out(ST.appeal)]], z, "hi", { width: 2.4, color: AMBER }));
 // 6 -> 7: after tier-2 approval in the console, the appeal is sent and the call starts
 body.push(s.link(ST.appeal, 440, ST.voice, 330, 352));
-// 7 -> 8: the call outcome updates the open claim
-body.push(s.link(ST.voice, 250, ST.ar, 140, 352));
+// 7 -> 5: the call outcome updates the claim in the console
+body.push(s.link(ST.voice, 300, ST.review, 720, 370, "hi", { chevMin: 120 }));
 // voice -> payer mock (the call goes only to our own mock)
 body.push(s.track([[290, ST.voice.y - 6], [290, fy(ST.mock)]], z, "hi", { dashed: true }));
 // review -> eval -> gate (feedback loop) on the right side
@@ -206,7 +206,7 @@ for (const key of ["ar", "voice", "appeal", "review"]) {
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 1. The planned Arthai Health flow as nine stations on one bench, every one labeled planned: claim builder, payer mock, remit posting, triage and CCI gate, review console, appeal writer, voice agent, AR follow-up and eval. A green track takes sure claims from the gate to the appeal writer, and a red track takes unsure claims to the human queue. Black tracks carry the claim, the tier-2 approval, the call and the call outcome; a blue dotted track carries reviewer edits to eval and back to the gate.",
+  label: "Fig 1. The planned Arthai Health flow as nine stations on one bench, every one labeled planned: claim builder, payer mock, remit posting, triage and CCI gate, review console, appeal writer, voice agent, AR follow-up and eval. A green track takes sure claims from the gate to the appeal writer, a red track takes unsure claims to the human queue, and an amber track takes the claim from the console to the writer after a human decides. Black tracks carry the claim from 1 to 4, from the writer to the voice agent after approval, and the call outcome back to the console; a dashed track is the call to the mock payer, and a blue dotted track carries reviewer edits to eval and back to the gate.",
   body,
 });
 console.log("wrote", OUT);

@@ -155,6 +155,7 @@ Re-scan for the README figures (2026-11-02), commit `1482e8469b0a9e0d8cc18ea2740
 - `kit/iso-kit.mjs` has 2 AE1 findings, so we read it by hand. It has no import statements and no network calls. `scripts/capture.mjs` drives a local headless Chrome over 127.0.0.1 with a temp profile.
 - Use for the figures: `kit/iso-kit.mjs` and `scripts/capture.mjs` only, run locally. Do not run or import `scripts/publish.mjs` (it can push and use `gh`) or `scripts/session.mjs` (it reads local agent session logs). Sai set this scope on 2026-11-02 (relayed by Mini Chief). See D-019.
 - `docs/images/src/lib.mjs` checks the sha256 of `kit/iso-kit.mjs` (`6d3ecc72…4fb104018`) before import.
+- Rebuild check (2026-11-02): in a clean clone, the six build scripts gave the same SVG bytes (`git status --porcelain docs/images` was empty). Without `ANATOMY_KIT`, the build stops with exit code 2.
 
 ### claude-code-setup (anthropics/claude-plugins-official) — use
 Official Anthropic plugin (automation recommender). Flags are its own docs listing `.env` files to protect.

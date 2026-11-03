@@ -3,7 +3,7 @@ import { k, makeScene, frame, writeFigure } from "./lib.mjs";
 import { fileURLToPath } from "node:url";
 const OUT = fileURLToPath(new URL("../arthai-voice-agent.svg", import.meta.url));
 const W = 1200, H = 912, DRAW = 600;
-const BENCH = { x: 0, y: 0, w: 800, d: 370, r: 10 };
+const BENCH = { x: 0, y: 0, w: 800, d: 386, r: 10 };
 const P = k.fitProjection(k.boxCorners(BENCH, -15, 90), W, DRAW - 40, { pad: 30, azimuth: 62 });
 P.origin[1] += 14;
 const s = makeScene(P);
@@ -13,8 +13,8 @@ const BROWSER = { x: 24, y: 30, w: 160, d: 110, r: 4 };
 const STT = { x: 224, y: 30, w: 150, d: 110, r: 4 };
 const AGENT = { x: 414, y: 30, w: 150, d: 110, r: 4 };
 const TTS = { x: 604, y: 30, w: 170, d: 110, r: 4 };
-const REP = { x: 224, y: 250, w: 190, d: 84, r: 4 };
-const OUTC = { x: 454, y: 250, w: 150, d: 84, r: 4 };
+const REP = { x: 224, y: 266, w: 190, d: 84, r: 4 };
+const OUTC = { x: 454, y: 266, w: 150, d: 84, r: 4 };
 
 const body = [frame({
   W, H, drawH: DRAW,
@@ -25,14 +25,14 @@ const body = [frame({
   legend: [
     "1  The call runs in the browser (WebRTC and Web Audio). There is no paid phone line.",
     "2  Local speech-to-text turns the rep's voice into text. Candidates: Whisper or faster-whisper.",
-    "3  The agent picks the next turn with Muse. It says that it is an AI and announces the recording.",
+    "3  An LLM picks the next turn (Muse planned, D-011 proposed). The agent says that it is an AI and announces the recording.",
     "4  Local text-to-speech speaks the agent's turn. Candidates: Piper or Kokoro.",
     "   Each voice model gets a license check. Non-commercial voices are not allowed (D-018).",
     "5  The rep is our own mock payer rep on the payer mock. Never call a real payer.",
     "6  The agent records the rep name, the reference number and the time, and reads them back.",
     "   The call outcome updates the claim in the review console.",
     "Tracks. Chevrons show the direction.",
-    "   blue: the two-way call line between 1 and 5. The voice of the rep comes in on this line.",
+    "   blue (no chevrons): the two-way call line between 1 and 5. The voice of the rep comes in on this line.",
     "   black: the audio of the rep goes from 1 to 2, the text to 3 and the reply to 4.",
     "   dashed: the spoken reply goes from 4 back into the call. green: the call result goes to 6.",
   ],
@@ -44,8 +44,8 @@ body.push(s.link(BROWSER, BROWSER.x + BROWSER.w - 14, STT, STT.x + 16, 156));
 body.push(s.link(STT, STT.x + STT.w - 14, AGENT, AGENT.x + 16, 156));
 body.push(s.link(AGENT, AGENT.x + AGENT.w - 14, TTS, TTS.x + 16, 156));
 body.push(s.link(TTS, TTS.x + TTS.w - 14, BROWSER, BROWSER.x + 60, 176, "hi", { dashed: true, chevMin: 200 }));
-body.push(s.track([[BROWSER.x + 20, BROWSER.y + BROWSER.d + 6], [BROWSER.x + 20, 292], [REP.x - 6, 292]], z, "blue", { width: 2.4 }));
-body.push(s.link(REP, REP.x + REP.w - 14, OUTC, OUTC.x + 16, 350, "green", { width: 2.4 }));
+body.push(s.track([[BROWSER.x + 20, BROWSER.y + BROWSER.d + 6], [BROWSER.x + 20, 308], [REP.x - 6, 308]], z, "blue", { width: 2.4, chev: false }));
+body.push(s.link(REP, REP.x + REP.w - 14, OUTC, OUTC.x + 16, 366, "green", { width: 2.4 }));
 
 // 1 browser on a laptop with a headset mic
 body.push(s.plinth(BROWSER, HP, { num: "1", name: "BROWSER CALL", sub: "WEBRTC, WEB AUDIO", size: 11 }));
@@ -79,7 +79,7 @@ unit(STT, "2", "LOCAL STT", "WHISPER (CANDIDATE)", (b, zt) => {
   for (let i = 0; i < 8; i++) body.push(s.slab({ x: b.x + 12 + i * 12, y: b.y + 14, w: 5, d: 40, r: 1 }, zt, 2 + (i % 3) * 2, { tone: "hi" }, 2, 0));
   body.push(s.front(b.x + 6, b.y + b.d, zt - 6, "AUDIO -> TEXT", 5.2, "hi"));
 });
-unit(AGENT, "3", "AGENT TURN", "MUSE PICKS NEXT LINE", (b, zt) => {
+unit(AGENT, "3", "AGENT TURN", "LLM PICKS NEXT LINE", (b, zt) => {
   body.push(s.gauge(b.x + 30, b.y + 34, zt, 18, 0.55));
   body.push(s.knob(b.x + 82, b.y + 22, zt, 5, 5));
   body.push(s.led(b.x + 82, b.y + 50, zt, "green"));
@@ -113,7 +113,7 @@ body.push(s.cards(OUTC.x + 14, OUTC.y + 16, HP, { n: 3, w: 116, d: 50, id: "REF 
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 4. Planned voice agent. A browser call links on a blue two-way line to our own mock payer rep, and black tracks take the rep audio to local speech-to-text, the text to the agent turn (Muse, AI disclosed) and the reply to local text-to-speech. A dashed track takes the spoken reply back into the call, and a green track takes the result to a call outcome card with the synthetic reference SYN-REF-0007.",
+  label: "Fig 4. Planned voice agent. A browser call links on a blue two-way line to our own mock payer rep, and black tracks take the rep audio to local speech-to-text, the text to the agent turn (an LLM, Muse planned, AI disclosed) and the reply to local text-to-speech. A dashed track takes the spoken reply back into the call, and a green track takes the result to a call outcome card with the example reference SYN-REF-0007.",
   body,
 });
 console.log("wrote", OUT);

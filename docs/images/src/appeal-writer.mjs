@@ -2,7 +2,7 @@
 import { k, makeScene, frame, writeFigure } from "./lib.mjs";
 import { fileURLToPath } from "node:url";
 const OUT = fileURLToPath(new URL("../arthai-appeal-writer.svg", import.meta.url));
-const W = 1200, H = 890, DRAW = 600;
+const W = 1200, H = 912, DRAW = 600;
 const BENCH = { x: 0, y: 0, w: 800, d: 372, r: 10 };
 const P = k.fitProjection(k.boxCorners(BENCH, -15, 90), W, DRAW - 40, { pad: 30, azimuth: 62 });
 P.origin[1] += 14;
@@ -24,12 +24,13 @@ const body = [frame({
   legend: [
     "1  Inputs: the synthetic denial record, the facts from the record, and retrieved chunks",
     "   of a fictional payer policy (example payer ZZP01).",
-    "2  Muse (a Meta model) drafts the letter from the facts and the policy chunks.",
+    "2  An LLM drafts the letter from the facts and the policy chunks. The planned model is Muse (D-011, proposed).",
     "3  The citation gate checks that each statement maps to a retrieved chunk ID.",
     "   If a statement has no source, the draft goes back to the writer (red track).",
     "4  A human approves the letter in the review console (tier 2). In the hackathon,",
     "   every external action needs approval.",
     "5  The appeal goes out only after approval. Then the voice agent follows up.",
+    "Small text on the parts (IDs, tags) is an example. The legend gives the facts.",
     "Tracks. Chevrons show the direction.",
     "   black: 1 to 2 (the facts), 2 to 3 (the draft). red: 3 to 2 (a statement has no source).",
     "   green: 3 to 4 (all statements cited), 4 to 5 (the human approved).",
@@ -53,7 +54,7 @@ body.push(s.cards(FACTS.x + 80, FACTS.y + 14, HP, { n: 3, w: 60, d: 36, id: "ZZP
 body.push(s.cards(FACTS.x + 10, FACTS.y + 58, HP, { n: 1, w: 130, d: 30, id: "CHUNK IDS: P-4.2  P-7.1", rules: 1 }));
 
 // 2 the writer: body, platen, sheet, keys
-body.push(s.plinth(MUSE, HP, { num: "2", name: "MUSE WRITER", sub: "META MODEL DRAFTS", size: 11 }));
+body.push(s.plinth(MUSE, HP, { num: "2", name: "LLM WRITER", sub: "MUSE PLANNED", size: 11 }));
 {
   const b = { x: MUSE.x + 14, y: MUSE.y + 34, w: 142, d: 62, r: 6 };
   body.push(s.slab(b, HP, 18, { tone: "mid" }, 6, 1));
@@ -103,7 +104,7 @@ body.push(s.plinth(SEND, HP, { num: "5", name: "SEND", sub: "ONLY AFTER APPROVAL
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 3. Planned appeal writer. Facts and a fictional payer policy go to the Muse writer, and a citation gate checks that each statement cites a chunk ID, with a red track back to the writer for a statement with no source. Green tracks take the draft to human approval (tier 2) and then to the send tray.",
+  label: "Fig 3. Planned appeal writer. Facts and a fictional payer policy go to an LLM writer (Muse planned), and a citation gate checks that each statement cites a chunk ID, with a red track back to the writer for a statement with no source. Green tracks take the draft to human approval (tier 2) and then to the send tray.",
   body,
 });
 console.log("wrote", OUT);

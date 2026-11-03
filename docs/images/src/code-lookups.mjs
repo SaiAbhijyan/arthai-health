@@ -2,8 +2,8 @@
 import { k, makeScene, frame, writeFigure } from "./lib.mjs";
 import { fileURLToPath } from "node:url";
 const OUT = fileURLToPath(new URL("../arthai-code-lookups.svg", import.meta.url));
-const W = 1200, H = 860, DRAW = 620;
-const BENCH = { x: 0, y: 0, w: 760, d: 372, r: 10 };
+const W = 1200, H = 910, DRAW = 620;
+const BENCH = { x: 0, y: 0, w: 760, d: 392, r: 10 };
 const P = k.fitProjection(k.boxCorners(BENCH, -15, 150), W, DRAW - 40, { pad: 30, azimuth: 62 });
 P.origin[1] += 14;
 const s = makeScene(P);
@@ -12,7 +12,7 @@ const HP = 44;
 const CAB = { x: 40, y: 40, w: 300, d: 110, r: 4 };
 const QUERY = { x: 390, y: 40, w: 150, d: 100, r: 4 };
 const RESULT = { x: 580, y: 40, w: 150, d: 100, r: 4 };
-const VERIFY = { x: 40, y: 262, w: 340, d: 84, r: 4 };
+const VERIFY = { x: 40, y: 282, w: 340, d: 84, r: 4 };
 
 const body = [frame({
   W, H, drawH: DRAW,
@@ -26,18 +26,20 @@ const body = [frame({
     "   The CPT drawer stays locked. We use no CPT codes or descriptors, and no AMA license (D-009).",
     "2  An agent asks for a code value. Example: CARC 197 from the adjustment CO-197 (group code CO).",
     "3  The catalog returns the value and our own category label (example: prior_auth).",
-    "4  A check confirms that every code is in the catalog and matches its format.",
+    "4  A check confirms that every code is in the catalog and matches its format. Formats: HCPCS II is a letter",
+    "   and 4 digits. ICD-10-CM is a letter, a digit and up to 5 more. CARC has 1 to 3 characters. RARC is M, MA or N",
+    "   and digits. A CPT code fails the check.",
     "   No free-text codes go into a claim, a prompt or a letter.",
     "Tracks. Chevrons show the direction.",
-    "   black: 1 to 2 (the agent uses the catalog) and 2 to 3 (the lookup). green: 3 to 4 (the answer is checked).",
+    "   black: 2 to 1 (the agent asks the catalog) and 1 to 3 (the catalog answers). green: 3 to 4 (the check).",
   ],
   cols: 1,
 })];
 body.push(s.bench(BENCH, 12));
 const z = 0.4;
-body.push(s.link(CAB, CAB.x + CAB.w - 14, QUERY, QUERY.x + 16, 172));
-body.push(s.link(QUERY, QUERY.x + QUERY.w - 14, RESULT, RESULT.x + 16, 166));
-body.push(s.track([[RESULT.x + RESULT.w - 30, RESULT.y + RESULT.d + 6], [RESULT.x + RESULT.w - 30, 304], [VERIFY.x + VERIFY.w + 6, 304]], z, "green", { width: 2.4 }));
+body.push(s.link(QUERY, QUERY.x + 16, CAB, CAB.x + CAB.w - 14, 172));
+body.push(s.link(CAB, CAB.x + CAB.w - 40, RESULT, RESULT.x + 16, 188));
+body.push(s.track([[RESULT.x + RESULT.w - 30, RESULT.y + RESULT.d + 6], [RESULT.x + RESULT.w - 30, 324], [VERIFY.x + VERIFY.w + 6, 324]], z, "green", { width: 2.4 }));
 
 // 1 the card catalog cabinet: five drawers in a row, one locked
 body.push(s.plinth(CAB, HP, { num: "1", name: "CODE CATALOG", sub: "PUBLIC SUBSETS", size: 11 }));
@@ -69,7 +71,7 @@ drawers.forEach(([name, sub, locked], i) => {
   }
   body.push(s.slab(front, base + 6, DH - 4, { tone: locked ? "mid" : "hi" }, 2, 0.5));
   const ffy = front.y + front.d;
-  body.push(s.front(x + 5, ffy, base + DH - 12, name, 7, locked ? "mid" : "hi"));
+  body.push(s.front(x + 5, ffy, base + DH - 13, name, 8.4, "hi"));
   body.push(s.front(x + 5, ffy, base + DH - 21, sub, 5.4, "mid"));
   // label holder and pull
   body.push(s.L(k.segment([x + 6, ffy, base + DH - 24], [x + DW - 8, ffy, base + DH - 24], P), { tone: "lo" }));
@@ -104,7 +106,7 @@ body.push(s.cards(VERIFY.x + 22, VERIFY.y + 20, HP, { n: 2, w: 100, d: 40, id: "
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 5. Planned code lookups. A card catalog has drawers for HCPCS Level II, ICD-10-CM, CARC and RARC values, and a locked CPT drawer marked not used. An agent asks for CARC 197, the catalog answers CARC 197: prior_auth, and a green track takes the answer to a check with format rows for each code set and a red row that rejects CPT.",
+  label: "Fig 5. Planned code lookups. A card catalog has drawers for HCPCS Level II, ICD-10-CM, CARC and RARC values, and a locked CPT drawer marked not used. An agent asks the catalog for CARC 197, the catalog answers CARC 197: prior_auth, and a green track takes the answer to a check with format rows for each code set and a red row that rejects CPT.",
   body,
 });
 console.log("wrote", OUT);

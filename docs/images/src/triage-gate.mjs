@@ -26,10 +26,9 @@ const body = [frame({
     "1  A synthetic denied line arrives from remit posting (example: SYN-D-000042, adjustment CO-197).",
     "2  The triage scorer gives three results: the category, the appeal decision (yes or no) and the priority.",
     "   The default scorer is the LLM. LAYA is optional (TRIAGE_BACKEND=laya|llm, ADR 0004).",
-    "   The research plans the gate on LAYA scores. How the gate gets scores from the LLM is not decided.",
-    "3  The CCI gate turns the scores into a conformal prediction set. Each pin is one",
-    "   category: prior auth, coding, eligibility, timely filing, medical necessity,",
-    "   duplicate, other. A raised pin is in the set.",
+    "   The research plans the gate on LAYA scores. The docs do not yet say how the LLM gives scores to the gate.",
+    "3  The CCI gate turns the scores into a conformal prediction set. Each pin is one example",
+    "   category. The category list is not final (docs/data-plan.md section 6.1). A raised pin is in the set.",
     "4  Claim A: the set has 1 label, so the claim takes the auto path to the appeal writer.",
     "5  Claim B: the set has 3 labels, so the claim goes to the human queue.",
     "6  A synthetic calibration slice sets the gate for a target coverage of 1 - alpha.",
@@ -45,7 +44,7 @@ const z = 0.4;
 body.push(s.link(IN, IN.x + IN.w - 14, LAYA, LAYA.x + 18, 144));
 body.push(s.link(LAYA, LAYA.x + LAYA.w - 16, GATE, GATE.x + 22, 196));
 body.push(s.track([[GATE.x + GATE.w + 6, 82], [AUTO.x - 6, 82]], z, "green", { width: 2.6 }));
-body.push(s.track([[GATE.x + GATE.w + 6, 150], [630, 150], [630, 278], [HUMAN.x - 6, 278]], z, "red", { width: 2.6 }));
+body.push(s.track([[GATE.x + GATE.w + 6, 150], [630, 150], [630, 278], [HUMAN.x - 6, 278]], z, "red", { width: 2.6, chevMin: 30 }));
 body.push(s.track([[CAL.x + CAL.w + 6, 272], [440, 272], [440, GATE.y + GATE.d + 6]], z, "blue", { dotted: true, width: 2.4 }));
 
 // 1 intake tray with denial cards
@@ -104,7 +103,7 @@ for (const [p, num, name, sub, tone] of [[AUTO, "4", "AUTO PATH", "TO APPEAL", "
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 2. Planned triage and CCI gate. A synthetic denial goes to a triage scorer (LLM by default, LAYA optional) and then to a gate with seven category pins. Claim A has one raised pin and goes on a green track to the auto path; claim B has three raised pins and goes on a red track to the human queue, and a calibration station feeds the gate on a blue dotted track.",
+  label: "Fig 2. Planned triage and CCI gate. A synthetic denial goes to a triage scorer (LLM by default, LAYA optional) and then to a gate with seven example category pins. Claim A has one raised pin and goes on a green track to the auto path; claim B has three raised pins and goes on a red track to the human queue, and a calibration station feeds the gate on a blue dotted track.",
   body,
 });
 console.log("wrote", OUT);

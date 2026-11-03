@@ -30,7 +30,7 @@ Arthai Health does billing and admin automation. It does not give medical advice
 
 Payers deny many claims. Billing staff must find the cause of each denial, fix it and appeal. They also spend a long time on the phone with payers. The research for this project, in [PR #9](https://github.com/SaiAbhijyan/arthai-health/pull/9), found these numbers in public reports:
 
-| Fact | Source (as cited in PR #9) |
+| Fact | Source (as cited in PR #9, `docs/rcm/research.md`, section 1) |
 |---|---|
 | The average initial denial rate in 2025 was 11.6%. | Kodiak 2025 |
 | The rework of one denial costs about $103. | HFMA chapter deck 2025 |
@@ -53,7 +53,7 @@ The design has two main parts. A statistical gate (conformal prediction) decides
 ## Architecture overview
 
 <p align="center">
-  <img src="docs/images/arthai-overview.svg" width="100%" alt="Fig 1. The planned Arthai Health flow as nine stations on one bench, every one labeled planned: claim builder, payer mock, remit posting, triage and CCI gate, review console, appeal writer, voice agent, AR follow-up and eval. A green track takes sure claims from the gate to the appeal writer, and a red track takes unsure claims to the human queue. Black tracks carry the claim, the tier-2 approval, the call and the call outcome; a blue dotted track carries reviewer edits to eval and back to the gate.">
+  <img src="docs/images/arthai-overview.svg" width="100%" alt="Fig 1. The planned Arthai Health flow as nine stations on one bench, every one labeled planned: claim builder, payer mock, remit posting, triage and CCI gate, review console, appeal writer, voice agent, AR follow-up and eval. A green track takes sure claims from the gate to the appeal writer, a red track takes unsure claims to the human queue, and an amber track takes the claim from the console to the writer after a human decides. Black tracks carry the claim from 1 to 4, from the writer to the voice agent after approval, and the call outcome back to the console; a dashed track is the call to the mock payer, and a blue dotted track carries reviewer edits to eval and back to the gate.">
 </p>
 
 Fig 1 shows the whole planned flow. The numbers match the stations in the figure.
@@ -63,12 +63,12 @@ Fig 1 shows the whole planned flow. The numbers match the stations in the figure
 3. **Remit posting** reads the 835 and finds each denied line.
 4. The **triage step and the CCI gate** score the denial. The gate sends the claim on the auto path or to a human.
 5. The **review console** holds the human queue, the approvals and the audit trail.
-6. The **appeal writer** drafts the letter with Muse, a Meta model.
+6. The **appeal writer** drafts the letter with an LLM. The planned model is Muse, a Meta model (D-011, proposed).
 7. The **voice agent** calls the mock payer rep in the browser.
 8. **AR follow-up** ranks the open claims for the next action.
 9. The **eval and feedback loop** turns reviewer edits into eval cases.
 
-A claim that goes to the human queue can still get an appeal. The reviewer decides, then the writer drafts. Every draft comes back to the console for tier-2 approval. The appeal goes out and the call starts only after that approval (PR #9, `docs/architecture.md`, sections 1 and 5.3).
+A claim that goes to the human queue can still get an appeal. The reviewer decides, then the writer drafts. Every send and every call needs tier-2 approval in the console. The appeal goes out and the call starts only after that approval (PR #9, `docs/architecture.md`, sections 1 and 5.3).
 
 The planned deployment is a modular monolith with a separate payer mock, voice worker and console (D-001). Modules talk through a Postgres outbox. A LangGraph supervisor runs each claim to an end state. It stops before every send and every call. The core is deterministic: EDI build, payment posting and the ledger are code. AI does classification, drafting and conversation. Source: [ADR 0001](docs/adr/0001-modular-monolith.md) and `docs/architecture.md` in PR #9.
 
@@ -79,14 +79,15 @@ All components in this section are **planned**. The module names come from the a
 ### Triage and the CCI gate (planned)
 
 <p align="center">
-  <img src="docs/images/arthai-triage-gate.svg" width="100%" alt="Fig 2. Planned triage and CCI gate. A synthetic denial goes to a triage scorer (LLM by default, LAYA optional) and then to a gate with seven category pins. Claim A has one raised pin and goes on a green track to the auto path; claim B has three raised pins and goes on a red track to the human queue, and a calibration station feeds the gate on a blue dotted track.">
+  <img src="docs/images/arthai-triage-gate.svg" width="100%" alt="Fig 2. Planned triage and CCI gate. A synthetic denial goes to a triage scorer (LLM by default, LAYA optional) and then to a gate with seven example category pins. Claim A has one raised pin and goes on a green track to the auto path; claim B has three raised pins and goes on a red track to the human queue, and a calibration station feeds the gate on a blue dotted track.">
 </p>
 
 - The triage step returns a typed decision: the denial category, the appeal decision and the priority.
 - LAYA can do this step. LAYA is a small open "System 1" decision model (about 421M parameters, Apache-2.0). It is not a Meta model. See [docs/laya-plan.md](docs/laya-plan.md).
 - LAYA is optional. The switch is `TRIAGE_BACKEND=laya|llm`. The default is `llm` until the rule question is answered and LAYA beats the LLM on the held-out set ([ADR 0004](docs/adr/0004-stack.md), proposed).
 - The CCI gate (`cci_gate`, based on `cci-sdk`) turns the scores into a conformal prediction set. If the set has one label, the claim takes the auto path. If the set has more than one label, the claim goes to the human queue.
-- The research plans the gate on LAYA scores (PR #14, section 5.3). How the gate gets scores from the default `llm` backend is not decided yet.
+- The docs do not yet say what happens to an empty set. This is an open question.
+- The research plans the gate on LAYA scores (PR #14, section 5.3). The docs do not yet say how the default `llm` backend gives scores to the gate.
 - The gate has a coverage target (1 − alpha). It is not a raw confidence threshold.
 - **Limit:** the conformal guarantee is an average over cases like the calibration set. It is not a promise about one claim (PR #14, section 5.3).
 - **Limit:** do not trust the raw LAYA confidence before calibration. The base checkpoint warns that some calibration temperatures are invalid ([docs/laya-plan.md](docs/laya-plan.md)).
@@ -94,11 +95,11 @@ All components in this section are **planned**. The module names come from the a
 ### Appeal writer (planned)
 
 <p align="center">
-  <img src="docs/images/arthai-appeal-writer.svg" width="100%" alt="Fig 3. Planned appeal writer. Facts and a fictional payer policy go to the Muse writer, and a citation gate checks that each statement cites a chunk ID, with a red track back to the writer for a statement with no source. Green tracks take the draft to human approval (tier 2) and then to the send tray.">
+  <img src="docs/images/arthai-appeal-writer.svg" width="100%" alt="Fig 3. Planned appeal writer. Facts and a fictional payer policy go to an LLM writer (Muse planned), and a citation gate checks that each statement cites a chunk ID, with a red track back to the writer for a statement with no source. Green tracks take the draft to human approval (tier 2) and then to the send tray.">
 </p>
 
 - The appeal writer retrieves chunks of payer policy and writes the letter.
-- Muse, a Meta model, writes the text. With `TRIAGE_BACKEND=laya`, LAYA makes the triage scores and Muse only writes (PR #14, section 5.3).
+- An LLM writes the text. The planned model is Muse, a Meta model (D-011, proposed). With `TRIAGE_BACKEND=laya`, LAYA makes the triage scores and the LLM only writes (PR #14, section 5.3).
 - The citation gate checks that each statement maps to a retrieved chunk ID. If a statement has no source, the draft goes back to the writer.
 - A human approves the letter before it goes out. In the hackathon, every external action needs approval.
 - The payer policies in the demo are fictional. Example payer IDs start with `ZZP`.
@@ -107,7 +108,7 @@ All components in this section are **planned**. The module names come from the a
 ### Voice agent (planned)
 
 <p align="center">
-  <img src="docs/images/arthai-voice-agent.svg" width="100%" alt="Fig 4. Planned voice agent. A browser call links on a blue two-way line to our own mock payer rep, and black tracks take the rep audio to local speech-to-text, the text to the agent turn (Muse, AI disclosed) and the reply to local text-to-speech. A dashed track takes the spoken reply back into the call, and a green track takes the result to a call outcome card with the synthetic reference SYN-REF-0007.">
+  <img src="docs/images/arthai-voice-agent.svg" width="100%" alt="Fig 4. Planned voice agent. A browser call links on a blue two-way line to our own mock payer rep, and black tracks take the rep audio to local speech-to-text, the text to the agent turn (an LLM, Muse planned, AI disclosed) and the reply to local text-to-speech. A dashed track takes the spoken reply back into the call, and a green track takes the result to a call outcome card with the example reference SYN-REF-0007.">
 </p>
 
 - The voice demo is free only. It uses a browser call (WebRTC and Web Audio) to our own mock payer rep. It uses no paid phone line. It uses no signup that needs a card (D-018, accepted).
@@ -121,7 +122,7 @@ All components in this section are **planned**. The module names come from the a
 ### Code lookups (planned)
 
 <p align="center">
-  <img src="docs/images/arthai-code-lookups.svg" width="100%" alt="Fig 5. Planned code lookups. A card catalog has drawers for HCPCS Level II, ICD-10-CM, CARC and RARC values, and a locked CPT drawer marked not used. An agent asks for CARC 197, the catalog answers CARC 197: prior_auth, and a green track takes the answer to a check with format rows for each code set and a red row that rejects CPT.">
+  <img src="docs/images/arthai-code-lookups.svg" width="100%" alt="Fig 5. Planned code lookups. A card catalog has drawers for HCPCS Level II, ICD-10-CM, CARC and RARC values, and a locked CPT drawer marked not used. An agent asks the catalog for CARC 197, the catalog answers CARC 197: prior_auth, and a green track takes the answer to a check with format rows for each code set and a red row that rejects CPT.">
 </p>
 
 - Agents look up codes in our catalog only. There are no free-text codes in a claim, a prompt or a letter ([AGENTS.md](AGENTS.md)).
@@ -158,7 +159,7 @@ These products appear in Fig 1. They have no figure of their own. Code lookups (
 
 ### Supporting parts (planned or proposed)
 
-- **Memory:** cognee 1.6.5 is pinned in `requirements.txt`, with telemetry off (D-004, accepted). Product use goes behind `MEMORY_BACKEND=cognee|none`, so that the demo still runs if cognee fails (D-013, proposed).
+- **Memory:** cognee 1.6.5 is pinned in `requirements.txt`, with telemetry off (D-004, accepted). A switch, `MEMORY_BACKEND=cognee|none`, controls product use. With `none`, the demo still runs if cognee fails (D-013, proposed).
 - **Compute:** Modal for the LAYA fine-tune and batch jobs, inside the free credits (D-016, proposed).
 - **Developer tools:** OmniRoute is for developer tools only. It is not in the product path (D-012, proposed).
 
@@ -318,7 +319,7 @@ Research that is not on `main` yet:
 | Makefile gate: `dev`, `lint`, `typecheck`, `test` | Built |
 | Tests: pytest files for the factory merge guard and the README figures | Built |
 | cognee 1.6.5, pinned in `requirements.txt`, telemetry off | Pinned (D-004). No product code uses it yet. The LLM path is not tested yet. |
-| Synthetic data generators (issues [#2](https://github.com/SaiAbhijyan/arthai-health/issues/2), [#3](https://github.com/SaiAbhijyan/arthai-health/issues/3), [#4](https://github.com/SaiAbhijyan/arthai-health/issues/4), [#5](https://github.com/SaiAbhijyan/arthai-health/issues/5), [#6](https://github.com/SaiAbhijyan/arthai-health/issues/6), [#7](https://github.com/SaiAbhijyan/arthai-health/issues/7), [#8](https://github.com/SaiAbhijyan/arthai-health/issues/8)) | Planned |
+| Synthetic data generators ([docs/data-plan.md](docs/data-plan.md), section 9; tracked in GitHub issues [#2](https://github.com/SaiAbhijyan/arthai-health/issues/2) to [#8](https://github.com/SaiAbhijyan/arthai-health/issues/8), titled "Phase 2 (a)" to "Phase 2 (g)" on 2026-11-02) | Planned |
 | Claim builder and scrubber | Planned |
 | Payer and clearinghouse mock | Planned |
 | Remit posting | Planned |
