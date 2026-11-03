@@ -2,8 +2,8 @@
 import { k, makeScene, frame, writeFigure } from "./lib.mjs";
 import { fileURLToPath } from "node:url";
 const OUT = fileURLToPath(new URL("../arthai-voice-agent.svg", import.meta.url));
-const W = 1200, H = 876, DRAW = 600;
-const BENCH = { x: 0, y: 0, w: 800, d: 350, r: 10 };
+const W = 1200, H = 912, DRAW = 600;
+const BENCH = { x: 0, y: 0, w: 800, d: 370, r: 10 };
 const P = k.fitProjection(k.boxCorners(BENCH, -15, 90), W, DRAW - 40, { pad: 30, azimuth: 62 });
 P.origin[1] += 14;
 const s = makeScene(P);
@@ -31,20 +31,21 @@ const body = [frame({
     "5  The rep is our own mock payer rep on the payer mock. Never call a real payer.",
     "6  The agent records the rep name, the reference number and the time, and reads them back.",
     "   The call outcome updates the claim in the review console.",
-    "Tracks. Chevrons show the direction. black: audio and text between stations.",
-    "   dashed: the agent's audio back into the call. blue: the call line to the mock rep.",
-    "   green: the outcome of the call goes to the claim record.",
+    "Tracks. Chevrons show the direction.",
+    "   blue: the two-way call line between 1 and 5. The voice of the rep comes in on this line.",
+    "   black: the audio of the rep goes from 1 to 2, the text to 3 and the reply to 4.",
+    "   dashed: the spoken reply goes from 4 back into the call. green: the call result goes to 6.",
   ],
   cols: 1,
 })];
 body.push(s.bench(BENCH, 12));
 const z = 0.4;
-body.push(s.track([[BROWSER.x + BROWSER.w + 6, 70], [STT.x - 6, 70]], z, "hi"));
-body.push(s.track([[STT.x + STT.w + 6, 70], [AGENT.x - 6, 70]], z, "hi"));
-body.push(s.track([[AGENT.x + AGENT.w + 6, 70], [TTS.x - 6, 70]], z, "hi"));
-body.push(s.track([[TTS.x + TTS.w + 6, 85], [785, 85], [785, 200], [104, 200], [104, BROWSER.y + BROWSER.d + 6]], z, "hi", { dashed: true }));
-body.push(s.track([[104, 200], [104, 292], [REP.x - 6, 292]], z, "blue", { width: 2.4 }));
-body.push(s.track([[REP.x + REP.w + 6, 292], [OUTC.x - 6, 292]], z, "green", { width: 2.4 }));
+body.push(s.link(BROWSER, BROWSER.x + BROWSER.w - 14, STT, STT.x + 16, 156));
+body.push(s.link(STT, STT.x + STT.w - 14, AGENT, AGENT.x + 16, 156));
+body.push(s.link(AGENT, AGENT.x + AGENT.w - 14, TTS, TTS.x + 16, 156));
+body.push(s.link(TTS, TTS.x + TTS.w - 14, BROWSER, BROWSER.x + 60, 176, "hi", { dashed: true, chevMin: 200 }));
+body.push(s.track([[BROWSER.x + 20, BROWSER.y + BROWSER.d + 6], [BROWSER.x + 20, 292], [REP.x - 6, 292]], z, "blue", { width: 2.4 }));
+body.push(s.link(REP, REP.x + REP.w - 14, OUTC, OUTC.x + 16, 350, "green", { width: 2.4 }));
 
 // 1 browser on a laptop with a headset mic
 body.push(s.plinth(BROWSER, HP, { num: "1", name: "BROWSER CALL", sub: "WEBRTC, WEB AUDIO", size: 9.5 }));
@@ -112,7 +113,7 @@ body.push(s.cards(OUTC.x + 14, OUTC.y + 16, HP, { n: 3, w: 116, d: 50, id: "REF 
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 4. Planned voice agent. 1 a browser call, using WebRTC and Web Audio. 2 local speech-to-text, candidate Whisper or faster-whisper. 3 the agent turn: Muse picks the next line, and the agent says that it is an AI. 4 local text-to-speech, candidate Piper or Kokoro. Black tracks link 1 to 2 to 3 to 4. A dashed track takes the audio of the agent back into the call. A blue track is the call line to 5, our own mock payer rep, never a real payer. There is no phone line. A green track takes the result to 6, the call outcome card with the synthetic reference SYN-REF-0007, read back and logged. Planned, not built.",
+  label: "Fig 4. Planned voice agent. A browser call links on a blue two-way line to our own mock payer rep, and black tracks take the rep audio to local speech-to-text, the text to the agent turn (Muse, AI disclosed) and the reply to local text-to-speech. A dashed track takes the spoken reply back into the call, and a green track takes the result to a call outcome card with the synthetic reference SYN-REF-0007.",
   body,
 });
 console.log("wrote", OUT);

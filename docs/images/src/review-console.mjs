@@ -2,8 +2,8 @@
 import { k, makeScene, frame, writeFigure } from "./lib.mjs";
 import { fileURLToPath } from "node:url";
 const OUT = fileURLToPath(new URL("../arthai-review-console.svg", import.meta.url));
-const W = 1200, H = 880, DRAW = 620;
-const BENCH = { x: 0, y: 0, w: 780, d: 350, r: 10 };
+const W = 1200, H = 892, DRAW = 620;
+const BENCH = { x: 0, y: 0, w: 780, d: 364, r: 10 };
 const P = k.fitProjection(k.boxCorners(BENCH, -15, 110), W, DRAW - 40, { pad: 30, azimuth: 62 });
 P.origin[1] += 20;
 const s = makeScene(P);
@@ -29,17 +29,19 @@ const body = [frame({
     "4  External or money actions (send an appeal, place a call) wait for a human click.",
     "   Write-offs and refunds need two people.",
     "5  A reviewer edit, with a reason, becomes an eval case. The gate is then recalibrated.",
-    "Tracks. Chevrons show the direction. black: work moves on. blue dotted: feedback.",
-    "   Short links between audit blocks: each block stores the hash of the block before it.",
+    "Tracks. Chevrons show the direction.",
+    "   black: 1 to 2 (a claim opens). 2 to 3 (each action is logged). 2 to 4 (an action waits for approval).",
+    "   blue dotted: 4 to 5 (a reviewer edit becomes feedback). Short links join the audit blocks.",
   ],
   cols: 1,
 })];
 body.push(s.bench(BENCH, 12));
 const z = 0.4;
-body.push(s.track([[QUEUES.x + QUEUES.w + 6, 85], [CONSOLE.x - 6, 85]], z, "hi"));
-body.push(s.track([[CONSOLE.x + CONSOLE.w + 6, 85], [AUDIT.x - 6, 85]], z, "hi"));
-body.push(s.track([[360, CONSOLE.y + CONSOLE.d + 6], [360, APPROVE.y - 6]], z, "hi"));
-body.push(s.track([[APPROVE.x + APPROVE.w + 6, 282], [FEED.x - 6, 282]], z, "blue", { dotted: true, width: 2.4 }));
+body.push(s.link(QUEUES, QUEUES.x + QUEUES.w - 14, CONSOLE, CONSOLE.x + 16, 156));
+body.push(s.link(CONSOLE, CONSOLE.x + CONSOLE.w - 14, AUDIT, AUDIT.x + 16, 156));
+// 2 -> 4: around the left end of the approvals plinth to its front edge
+body.push(s.track([[CONSOLE.x + 70, CONSOLE.y + CONSOLE.d + 6], [CONSOLE.x + 70, 172], [214, 172], [214, 340], [APPROVE.x + 24, 340], [APPROVE.x + 24, APPROVE.y + APPROVE.d + 6]], z, "hi"));
+body.push(s.link(APPROVE, APPROVE.x + APPROVE.w - 14, FEED, FEED.x + 16, 344, "blue", { dotted: true, width: 2.4 }));
 
 // 1 queues: two trays
 body.push(s.plinth(QUEUES, HP, { num: "1", name: "TWO QUEUES", sub: "FLAGGED + RANDOM QA", size: 9.5 }));
@@ -50,13 +52,13 @@ for (const [i, [id, n, tone]] of [["AI-FLAGGED", 3, "red"], ["RANDOM QA", 2, "bl
 }
 // 2 console screen with a claim timeline
 body.push(s.plinth(CONSOLE, HP, { num: "2", name: "CLAIM TIMELINE", sub: "ACTIONS, MODEL, SOURCES", size: 9.5 }));
-body.push(s.screen({ x: CONSOLE.x + 14, y: CONSOLE.y + 14, w: 222, d: 5, r: 1 }, HP, 64, [
-  { text: "SYN-C-000042   TIMELINE", size: 6.2 },
-  { text: "09:01  triage      llm    cat=prior_auth", size: 5, tone: "mid" },
-  { text: "09:01  cci gate    set=3  -> human", size: 5, tone: "mid" },
-  { text: "09:03  reviewer    cat ok -> writer", size: 5, tone: "mid" },
-  { text: "09:04  appeal      Muse   4 of 4 cited", size: 5, tone: "mid" },
-  { text: "09:06  approval    waiting for reviewer", size: 5, tone: "hi" },
+body.push(s.screen({ x: CONSOLE.x + 14, y: CONSOLE.y + 14, w: 222, d: 5, r: 1 }, HP, 76, [
+  { text: "SYN-C-000042   TIMELINE", size: 7.4 },
+  { text: "09:01  triage      llm    cat=prior_auth", size: 6.4, tone: "hi" },
+  { text: "09:01  cci gate    set=3  -> human", size: 6.4, tone: "hi" },
+  { text: "09:03  reviewer    cat ok -> writer", size: 6.4, tone: "hi" },
+  { text: "09:04  appeal      Muse   4 of 4 cited", size: 6.4, tone: "hi" },
+  { text: "09:06  approval    waiting for reviewer", size: 6.4, tone: "hi" },
 ]));
 body.push(s.slab({ x: CONSOLE.x + 40, y: CONSOLE.y + 56, w: 170, d: 40, r: 3 }, HP, 4, { tone: "mid" }, 3, 0.6));
 body.push(s.D(k.dotGrid(CONSOLE.x + 48, CONSOLE.y + 62, 18, 4, 8.6, HP + 4, P), { size: 0.9, tone: "mid" }));
@@ -65,7 +67,7 @@ body.push(s.plinth(AUDIT, HP, { num: "3", name: "AUDIT TRAIL", sub: "APPEND-ONLY
 for (let i = 0; i < 5; i++) {
   const b = { x: AUDIT.x + 14 + i * 42, y: AUDIT.y + 30, w: 30, d: 44, r: 2 };
   body.push(s.slab(b, HP, 14, { tone: i === 4 ? "hi" : "mid", lit: i === 4 }, 3, 0.6));
-  body.push(s.front(b.x + 3, b.y + b.d, HP + 4.6, `#${41 + i}`, 5.6, "hi"));
+  body.push(s.front(b.x + 3, b.y + b.d, HP + 4.6, `#${41 + i}`, 7, "hi"));
   body.push(s.top(b.x + 3, b.y + 12, HP + 14, "hash", 4.4, "mid"));
   if (i < 4) body.push(s.slab({ x: b.x + b.w, y: b.y + 18, w: 12, d: 8, r: 1 }, HP + 4, 4, { tone: "lo" }, 2, 0));
 }
@@ -75,10 +77,10 @@ body.push(s.top(AUDIT.x + 18, AUDIT.y + 94, HP + 1, "NO UPDATE · NO DELETE", 6,
 body.push(s.plinth(APPROVE, HP, { num: "4", name: "APPROVALS", sub: "HUMAN CLICK FOR SEND OR CALL", size: 9.5 }));
 [["APPROVE", "green"], ["EDIT", "blue"], ["REJECT", "red"]].forEach(([name, tone], i) => {
   const b = { x: APPROVE.x + 16 + i * 76, y: APPROVE.y + 14, w: 64, d: 40, r: 4 };
-  body.push(s.slab(b, HP, 6, { tone: "mid" }, 4, 0.6));
-  body.push(s.slab(k.insetPlan(b, 6), HP + 6, i === 0 ? 3 : 6, { tone: "hi", lit: i === 0 }, 4, 0.5));
-  body.push(s.front(b.x + 6, b.y + b.d, HP + 1.4, name, 5.6, "hi"));
-  body.push(s.led(b.x + b.w - 8, b.y + 8, HP + 6, tone));
+  body.push(s.slab(b, HP, 10, { tone: "mid" }, 4, 0.6));
+  body.push(s.slab(k.insetPlan(b, 6), HP + 10, i === 0 ? 3 : 6, { tone: "hi", lit: i === 0 }, 4, 0.5));
+  body.push(s.front(b.x + 6, b.y + b.d, HP + 1.6, name, 6.6, "hi"));
+  body.push(s.led(b.x + b.w - 8, b.y + 8, HP + 10, tone));
 });
 // 5 feedback to eval
 body.push(s.plinth(FEED, HP, { num: "5", name: "FEEDBACK", sub: "EDIT -> EVAL CASE", size: 9.5 }));
@@ -87,7 +89,7 @@ body.push(s.gauge(FEED.x + 180, FEED.y + 38, HP, 22, 0.7));
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 6. Planned review console and audit trail. Two queue trays hold AI-flagged claims and a random QA sample. A console screen shows the timeline of synthetic claim SYN-C-000042: the LLM triage, the CCI gate sending it to a human, the reviewer sending it to the writer, the appeal draft with four of four statements cited, and an approval that waits for the reviewer. An append-only audit trail of linked blocks stores the hash of each previous block. An approvals panel has approve, edit and reject buttons. A blue dotted track takes a reviewer edit to the feedback station, where it becomes an eval case. Planned, not built.",
+  label: "Fig 6. Planned review console and audit. Two queue trays (AI-flagged and random QA) feed a timeline screen for synthetic claim SYN-C-000042, and every action goes to an append-only audit trail of hash-linked blocks. An approvals panel has approve, edit and reject buttons, and a blue dotted track takes a reviewer edit to the feedback station.",
   body,
 });
 console.log("wrote", OUT);

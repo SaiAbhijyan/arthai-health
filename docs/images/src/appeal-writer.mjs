@@ -2,7 +2,7 @@
 import { k, makeScene, frame, writeFigure } from "./lib.mjs";
 import { fileURLToPath } from "node:url";
 const OUT = fileURLToPath(new URL("../arthai-appeal-writer.svg", import.meta.url));
-const W = 1200, H = 856, DRAW = 600;
+const W = 1200, H = 890, DRAW = 600;
 const BENCH = { x: 0, y: 0, w: 800, d: 372, r: 10 };
 const P = k.fitProjection(k.boxCorners(BENCH, -15, 90), W, DRAW - 40, { pad: 30, azimuth: 62 });
 P.origin[1] += 14;
@@ -30,14 +30,15 @@ const body = [frame({
     "4  A human approves the letter in the review console (tier 2). In the hackathon,",
     "   every external action needs approval.",
     "5  The appeal goes out only after approval. Then the voice agent follows up.",
-    "Tracks. Chevrons show the direction. black: work moves on. red: no source, back to 2.",
-    "   green: the gate passed, then the human approved.",
+    "Tracks. Chevrons show the direction.",
+    "   black: 1 to 2 (the facts), 2 to 3 (the draft). red: 3 to 2 (a statement has no source).",
+    "   green: 3 to 4 (all statements cited), 4 to 5 (the human approved).",
   ],
   cols: 1,
 })];
 body.push(s.bench(BENCH, 12));
 const z = 0.4;
-body.push(s.track([[FACTS.x + FACTS.w + 6, 85], [MUSE.x - 6, 85]], z, "hi"));
+body.push(s.link(FACTS, FACTS.x + FACTS.w - 14, MUSE, MUSE.x + 16, 156));
 // 2 -> 3 and 3 -> 2 run in the open aisle in front of the plinths, so that both stay visible.
 const fr = MUSE.y + MUSE.d + 6;
 body.push(s.track([[364, fr], [364, 166], [444, 166], [444, fr]], z, "hi"));
@@ -102,7 +103,7 @@ body.push(s.plinth(SEND, HP, { num: "5", name: "SEND", sub: "ONLY AFTER APPROVAL
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 3. Planned appeal writer. Facts from a synthetic denial record and chunks of a fictional payer policy, ZZP01, go into the Muse writer, a Meta model that drafts the letter. A citation gate with two rollers checks that each statement cites a chunk ID. A statement with no source goes back to the writer on a red track. A green track takes a passed draft to human approval in the review console, tier 2. A second green track takes the approved letter to the send tray. Chevrons show the direction. Planned, not built.",
+  label: "Fig 3. Planned appeal writer. Facts and a fictional payer policy go to the Muse writer, and a citation gate checks that each statement cites a chunk ID, with a red track back to the writer for a statement with no source. Green tracks take the draft to human approval (tier 2) and then to the send tray.",
   body,
 });
 console.log("wrote", OUT);

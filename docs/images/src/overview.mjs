@@ -2,8 +2,8 @@
 import { k, makeScene, frame, writeFigure } from "./lib.mjs";
 import { fileURLToPath } from "node:url";
 const OUT = fileURLToPath(new URL("../arthai-overview.svg", import.meta.url));
-const W = 1200, H = 860, DRAW = 620;
-const BENCH = { x: 0, y: 0, w: 860, d: 400, r: 10 };
+const W = 1200, H = 1026, DRAW = 620;
+const BENCH = { x: 0, y: 0, w: 860, d: 410, r: 10 };
 const P = k.fitProjection([...k.boxCorners(BENCH, -15, 70)], W, DRAW - 40, { pad: 30, azimuth: 62 });
 P.origin[1] += 10;
 const s = makeScene(P);
@@ -28,23 +28,24 @@ const body = [frame({
   title: "Arthai Health: planned flow",
   hint: "Synthetic data only. Every station is planned. None is built yet.",
   readout: "9 products · all planned",
+  cols: 1,
   legend: [
-    "1  Claim builder and scrubber: builds the 837, runs NCCI and MUE edits",
-    "2  Payer and clearinghouse mock: our own fake payer, 835 and 277 out",
-    "3  Remit posting: reads the 835, finds each denied line",
-    "4  Triage + CCI gate: scorer (LLM or LAYA), conformal set picks the path",
-    "5  Review console + audit: human queue, approvals, audit trail",
-    "6  Appeal writer: Muse drafts, each statement cites a source",
-    "7  Voice agent: browser call to the mock payer rep",
-    "8  AR follow-up: ranks open claims for the next action",
-    "9  Eval and feedback loop: reviewer edits become eval cases",
+    "1  Claim builder and scrubber: builds the 837 claim file and runs the NCCI and MUE edits.",
+    "2  Payer and clearinghouse mock: our own fake payer. It sends 835 and 277 files.",
+    "3  Remit posting: reads the 835 remittance and finds each denied line.",
+    "4  Triage + CCI gate: the scorer (LLM by default, LAYA optional) and a conformal set pick the path.",
+    "5  Review console + audit: the human queue, the approvals and the audit trail.",
+    "6  Appeal writer: Muse drafts the letter. Each statement cites a source.",
+    "7  Voice agent: a browser call to the mock payer rep.",
+    "8  AR follow-up: ranks the open claims for the next action.",
+    "9  Eval and feedback loop: reviewer edits become eval cases.",
     "Tracks. Chevrons show the direction.",
-    "  green: the gate is sure. 4 to 6.",
-    "  red: the gate is not sure. 4 to the human queue in 5.",
-    "  black: hand-off. 5 to 6 after a human decision.",
-    "  black: 6 to 5 for tier-2 approval. 5 to 7 after approval.",
-    "  dashed: the call goes only to our mock payer in 2.",
-    "  blue dotted: reviewer edits go to 9, then recalibrate 4.",
+    "   green: the gate is sure, 4 to 6.",
+    "   red: the gate is not sure, 4 to the human queue in 5. After the human decides, 5 to 6.",
+    "   black: the claim moves 1 to 2 to 3 to 4. The draft goes 6 to 5 for tier-2 approval.",
+    "   black: after approval, 5 to 7 (send, then call). The call outcome goes 7 to 8.",
+    "   dashed: the call goes only to our mock payer in 2.",
+    "   blue dotted: reviewer edits go 5 to 9, then recalibrate the gate in 4.",
   ],
 })];
 
@@ -62,11 +63,11 @@ body.push(s.track([[690, fy(ST.gate)], [690, ST.review.y - 2]], z, "red", { widt
 // Front aisles (bench y 342..400). Verticals never cross another track's horizontal span.
 const out = (p) => p.y + p.d + 6;
 // 5 -> 6: a human decides, then the writer drafts
-body.push(s.track([[640, out(ST.review)], [640, 350], [520, 350], [520, out(ST.appeal)]], z, "hi"));
+body.push(s.track([[640, out(ST.review)], [640, 350], [520, out(ST.appeal) + 8], [520, out(ST.appeal)]].map((p, i) => i === 2 ? [520, 350] : p), z, "red", { width: 2.4 }));
 // 6 -> 5: the draft goes back for tier-2 approval
-body.push(s.track([[480, out(ST.appeal)], [480, 362], [700, 362], [700, out(ST.review)]], z, "hi", { chevMin: 60 }));
+body.push(s.track([[480, out(ST.appeal)], [480, 366], [700, 366], [700, out(ST.review)]], z, "hi", { chevMin: 60 }));
 // 5 -> 7: after approval the appeal is sent and the call is requested
-body.push(s.track([[735, out(ST.review)], [735, 374], [290, 374], [290, out(ST.voice)]], z, "hi", { chevMin: 120 }));
+body.push(s.track([[735, out(ST.review)], [735, 382], [290, 382], [290, out(ST.voice)]], z, "hi", { chevMin: 120 }));
 // 7 -> 8: the call outcome updates the open claim
 body.push(s.track([[250, out(ST.voice)], [250, 350], [140, 350], [140, out(ST.ar)]], z, "hi"));
 // voice -> payer mock (the call goes only to our own mock)
@@ -205,7 +206,7 @@ for (const key of ["ar", "voice", "appeal", "review"]) {
 
 writeFigure(OUT, {
   W, H,
-  label: "Fig 1. Arthai Health planned flow, drawn as nine stations on one bench. 1 claim builder and scrubber, 2 payer and clearinghouse mock, 3 remit posting, 4 triage (LLM by default, LAYA optional) with the CCI confidence gate, 5 review console and audit, 6 appeal writer, 7 voice agent, 8 AR follow-up, 9 eval and feedback loop. Chevrons on each track show the direction. Black tracks carry work from 1 to 2 to 3 to 4. Green track: the gate is sure, 4 to 6. Red track: the gate is not sure, 4 to the human queue in 5. Black tracks in front: 5 to 6 after a human decision, 6 to 5 for tier-2 approval, 5 to 7 after approval, and 7 to 8 with the call outcome. Dashed track: the call goes only to the mock payer in 2. Blue dotted track: reviewer edits go from 5 to 9, then recalibrate 4. Every station is planned. None is built.",
+  label: "Fig 1. The planned Arthai Health flow as nine stations on one bench, every one labeled planned: claim builder, payer mock, remit posting, triage and CCI gate, review console, appeal writer, voice agent, AR follow-up and eval. A green track takes sure claims from the gate to the appeal writer, and a red track takes unsure claims to the human queue. Black tracks carry the claim, the tier-2 approval, the call and the call outcome; a blue dotted track carries reviewer edits to eval and back to the gate.",
   body,
 });
 console.log("wrote", OUT);

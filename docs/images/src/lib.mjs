@@ -80,7 +80,7 @@ export function makeScene(P) {
     const gap = size * 1.3;
     lines.forEach((line, i) => {
       const s = i === 0 ? size : size * 0.86;
-      const t = i === 0 || line === tag ? "hi" : "mid";
+      const t = "hi";
       const base = h - 3 - size - i * gap;
       if (base < 1) console.warn(`plinth "${name}": line ${i + 1} is below the plinth (baseline ${base.toFixed(1)})`);
       if (line.length * s * 0.62 > plan.w - 12) console.warn(`plinth "${name}": "${line}" is wider than the plinth`);
@@ -155,7 +155,15 @@ export function makeScene(P) {
     return out.join("");
   }
 
-  return { at, S, L, D, slab, cyl, screws, front, top, track, bench, plinth, cards, tray, gauge, knob, led, screen };
+  // A link between two stations that runs in the open aisle in front of both, so that no plinth hides it.
+  // fromX and toX are x positions on the front edge of each station. aisle is the y of the aisle.
+  function link(A, fromX, B, toX, aisle, tone = "hi", opts = {}) {
+    const a = A.y + A.d + 6, b = B.y + B.d + 6;
+    return track([[fromX, a], [fromX, aisle], [toX, aisle], [toX, b]], z0, tone, opts);
+  }
+  const z0 = 0.4;
+
+  return { link, at, S, L, D, slab, cyl, screws, front, top, track, bench, plinth, cards, tray, gauge, knob, led, screen };
 }
 
 // The card frame around a figure: Fig n, title, hint, readout and a legend under the drawing.
@@ -170,14 +178,18 @@ export function frame({ W, H, drawH, fig, title, hint, readout, legend = [], col
   out.push(t(W - 36, 46, title, 15, "strong", "end", 600));
   out.push(t(36, drawH - 18, hint, 12, "text"));
   out.push(t(W - 36, drawH - 18, readout, 12, "strong", "end"));
+  const LH = 23;
   const colW = (W - 72) / cols;
   const rows = Math.ceil(legend.length / cols);
-  const need = drawH + 30 + (rows - 1) * 21 + 24;
+  const need = drawH + 32 + (rows - 1) * LH + 24;
   if (need > H) console.warn(`${fig}: legend needs H >= ${need}, H is ${H}`);
   legend.forEach((item, i) => {
     const c = Math.floor(i / rows), r = i % rows;
-    const indent = /^\s+/.test(item) ? 26 : 0;
-    out.push(t(36 + c * colW + indent, drawH + 30 + r * 21, item.trim(), 13, "text"));
+    if (!item.trim()) return;
+    const indent = /^\s+/.test(item) ? 30 : 0;
+    const head = /^Tracks/.test(item);
+    if (item.trim().length * 15 * 0.6 > colW - indent - 8) console.warn(`${fig}: legend line too long: ${item.trim()}`);
+    out.push(t(36 + c * colW + indent, drawH + 32 + r * LH, item.trim(), 15, head ? "strong" : "text", "start", head ? 600 : 400));
   });
   return out.join("");
 }
